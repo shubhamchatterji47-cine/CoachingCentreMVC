@@ -6,82 +6,48 @@
 
 <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
     <div>
-        <h2 class="page-title">
-            👋 Welcome Back, @name
-        </h2>
-
-        <p class="text-muted">
-            Manage your classes, students and marks.
-        </p>
+        <h4 class="fw-bold mb-0">👋 Welcome, @name</h4>
+        <p class="text-muted small mb-0">Teacher Dashboard</p>
     </div>
     <div class="d-flex gap-2">
         <a asp-action="Profile" class="btn btn-sm btn-outline-secondary">👤 Profile</a>
     </div>
 </div>
 
-<!-- Modern Stat Cards -->
-<div class="row g-4 mb-4">
-
-    <div class="col-md-3">
-        <div class="stat-card bg-gradient-blue">
-            <div class="d-flex justify-content-between align-items-center">
-                <div>
-                    <div class="stat-value">@Model.Count</div>
-                    <div class="stat-label">My Classes</div>
-                </div>
-                <div style="font-size:3rem;opacity:.3">🏫</div>
+<!-- Stat Cards -->
+<div class="row g-3 mb-4">
+    <div class="col-6 col-sm-3">
+        <div class="card border-0 bg-primary text-white text-center shadow-sm">
+            <div class="card-body py-3">
+                <div class="fs-2 fw-bold">@Model.Count</div>
+                <div class="small opacity-75">My Classes</div>
             </div>
         </div>
     </div>
-
-    <div class="col-md-3">
-        <div class="stat-card bg-gradient-green">
-            <div class="d-flex justify-content-between align-items-center">
-                <div>
-                    <div class="stat-value">@ViewBag.TotalStudents</div>
-                    <div class="stat-label">Students</div>
-                </div>
-                <div style="font-size:3rem;opacity:.3">👨‍🎓</div>
+    <div class="col-6 col-sm-3">
+        <div class="card border-0 bg-success text-white text-center shadow-sm">
+            <div class="card-body py-3">
+                <div class="fs-2 fw-bold">@ViewBag.TotalStudents</div>
+                <div class="small opacity-75">Total Students</div>
             </div>
         </div>
     </div>
-
-    <div class="col-md-3">
-        <a asp-action="Marks"
-           asp-route-classId="@(Model.FirstOrDefault()?.Id ?? 0)"
-           class="text-decoration-none">
-
-            <div class="stat-card bg-gradient-purple">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <div class="stat-value">📝</div>
-                        <div class="stat-label">Enter Marks</div>
-                    </div>
-                    <div style="font-size:3rem;opacity:.3">📋</div>
-                </div>
+    <div class="col-6 col-sm-3">
+        <div class="card border-0 bg-info text-white text-center shadow-sm">
+            <div class="card-body py-3">
+                <div class="fs-2 fw-bold">📝</div>
+                <div class="small opacity-75"><a asp-action="Marks" asp-route-classId="@(Model.FirstOrDefault()?.Id ?? 0)" class="text-white">Enter Marks</a></div>
             </div>
-
-        </a>
+        </div>
     </div>
-
-    <div class="col-md-3">
-        <a asp-action="Students"
-           asp-route-classId="@(Model.FirstOrDefault()?.Id ?? 0)"
-           class="text-decoration-none">
-
-            <div class="stat-card bg-gradient-orange">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <div class="stat-value">👥</div>
-                        <div class="stat-label">Students</div>
-                    </div>
-                    <div style="font-size:3rem;opacity:.3">🎓</div>
-                </div>
+    <div class="col-6 col-sm-3">
+        <div class="card border-0 bg-warning text-white text-center shadow-sm">
+            <div class="card-body py-3">
+                <div class="fs-2 fw-bold">👥</div>
+                <div class="small opacity-75"><a asp-action="Students" asp-route-classId="@(Model.FirstOrDefault()?.Id ?? 0)" class="text-white">Students</a></div>
             </div>
-
-        </a>
+        </div>
     </div>
-
 </div>
 
 <div class="row g-3">
