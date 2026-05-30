@@ -3,160 +3,85 @@
     ViewData["Title"] = "Admin Dashboard";
 }
 
-<!-- Page Header -->
+<!-- Header -->
 <div class="d-flex align-items-center mb-4 gap-3">
     <div>
-        <h4 class="fw-bold mb-0">📊 Admin Dashboard</h4>
-        <p class="text-muted small mb-0">
-            Welcome back. Here's what's happening today.
-        </p>
+        <h4 class="fw-bold mb-0" style="color:#0f172a">📊 Admin Dashboard</h4>
+        <p class="text-muted small mb-0 mt-1">Welcome back. Here's what's happening today.</p>
     </div>
 </div>
 
-<!-- Stat Cards -->
+<!-- Stats Grid -->
 <div class="row g-3 mb-4">
     <div class="col-sm-6 col-xl-3">
-        <div class="card border-0 shadow-sm h-100" 
-             style="border-left:4px solid #2563eb !important;
-                    border-radius:16px;overflow:hidden">
-            <div class="card-body d-flex justify-content-between align-items-center">
+        <div class="card border-0 shadow-sm h-100" style="border-radius:16px;overflow:hidden;border-left:5px solid #2563eb !important">
+            <div class="card-body d-flex justify-content-between align-items-center py-3 px-3">
                 <div>
-                    <div class="fs-2 fw-bold text-primary">
-                        @Model.TotalStudents
-                    </div>
-                    <div class="small text-muted fw-semibold">
-                        Total Students
-                    </div>
+                    <div class="fs-2 fw-bold text-primary">@Model.TotalStudents</div>
+                    <div class="small text-muted fw-semibold">Students</div>
                 </div>
-                <div style="font-size:2.5rem;opacity:0.6;">👨‍🎓</div>
+                <span style="font-size:2.2rem;opacity:0.7">👨‍🎓</span>
             </div>
-            <a asp-action="Students" 
-               class="card-footer text-decoration-none small fw-semibold text-primary bg-light">
-                View all Students →
-            </a>
         </div>
     </div>
-
     <div class="col-sm-6 col-xl-3">
-        <div class="card border-0 shadow-sm h-100" 
-             style="border-left:4px solid #10b981 !important;
-                    border-radius:16px;overflow:hidden">
-            <div class="card-body d-flex justify-content-between align-items-center">
+        <div class="card border-0 shadow-sm h-100" style="border-radius:16px;overflow:hidden;border-left:5px solid #10b981 !important">
+            <div class="card-body d-flex justify-content-between align-items-center py-3 px-3">
                 <div>
-                    <div class="fs-2 fw-bold text-success">
-                        @Model.TotalTeachers
-                    </div>
-                    <div class="small text-muted fw-semibold">
-                        Total Teachers
-                    </div>
+                    <div class="fs-2 fw-bold text-success">@Model.TotalTeachers</div>
+                    <div class="small text-muted fw-semibold">Teachers</div>
                 </div>
-                <div style="font-size:2.5rem;opacity:0.6;">👩‍🏫</div>
+                <span style="font-size:2.2rem;opacity:0.7">👩‍🏫</span>
             </div>
-            <a asp-action="Teachers" 
-               class="card-footer text-decoration-none small fw-semibold text-success bg-light">
-                View all Teachers →
-            </a>
         </div>
     </div>
-
     <div class="col-sm-6 col-xl-3">
-        <div class="card border-0 shadow-sm h-100" 
-             style="border-left:4px solid #7c3aed !important;
-                    border-radius:16px;overflow:hidden">
-            <div class="card-body d-flex justify-content-between align-items-center">
+        <div class="card border-0 shadow-sm h-100" style="border-radius:16px;overflow:hidden;border-left:5px solid #8b5cf6 !important">
+            <div class="card-body d-flex justify-content-between align-items-center py-3 px-3">
                 <div>
-                    <div class="fs-2 fw-bold" style="color:#7c3aed">
-                        @Model.TotalCourses
-                    </div>
-                    <div class="small text-muted fw-semibold">
-                        Total Courses
-                    </div>
+                    <div class="fs-2 fw-bold" style="color:#8b5cf6">@Model.TotalCourses</div>
+                    <div class="small text-muted fw-semibold">Courses</div>
                 </div>
-                <div style="font-size:2.5rem;opacity:0.6;">📚</div>
+                <span style="font-size:2.2rem;opacity:0.7">📚</span>
             </div>
-            <a asp-action="Courses" 
-               class="card-footer text-decoration-none small fw-semibold bg-light"
-               style="color:#7c3aed">
-                View all Courses →
-            </a>
         </div>
     </div>
-
     <div class="col-sm-6 col-xl-3">
-        <div class="card border-0 shadow-sm h-100" 
-             style="border-left:4px solid #f59e0b !important;
-                    border-radius:16px;overflow:hidden">
-            <div class="card-body d-flex justify-content-between align-items-center">
+        <div class="card border-0 shadow-sm h-100" style="border-radius:16px;overflow:hidden;border-left:5px solid #f59e0b !important">
+            <div class="card-body d-flex justify-content-between align-items-center py-3 px-3">
                 <div>
-                    <div class="fs-2 fw-bold text-warning">
-                        @Model.TotalClasses
-                    </div>
-                    <div class="small text-muted fw-semibold">
-                        Total Classes
-                    </div>
+                    <div class="fs-2 fw-bold text-warning">@Model.TotalClasses</div>
+                    <div class="small text-muted fw-semibold">Classes</div>
                 </div>
-                <div style="font-size:2.5rem;opacity:0.6;">🏫</div>
+                <span style="font-size:2.2rem;opacity:0.7">🏫</span>
             </div>
-            <a asp-action="Classes" 
-               class="card-footer text-decoration-none small fw-semibold text-warning bg-light">
-                View all Classes →
-            </a>
         </div>
     </div>
 </div>
 
-<!-- Alerts Row -->
 @if (ViewBag.PendingAdmissions != null && (int)ViewBag.PendingAdmissions > 0)
 {
-    <div class="alert alert-warning d-flex align-items-center 
-                justify-content-between flex-wrap gap-2 mb-3"
-         style="border-radius:12px">
-        <div>
-            <strong>
-                📋 @ViewBag.PendingAdmissions new admission 
-                application(s) waiting for review!
-            </strong>
-        </div>
-        <a asp-controller="Admission" asp-action="Index" 
-           asp-route-status="Pending"
-           class="btn btn-warning btn-sm fw-semibold">
-            Review Now →
-        </a>
+    <div class="alert alert-warning d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3" style="border-radius:12px;border:none;background:#fef3c7">
+        <strong>📋 @ViewBag.PendingAdmissions new admission(s) pending!</strong>
+        <a asp-controller="Admission" asp-action="Index" asp-route-status="Pending" class="btn btn-warning btn-sm rounded-pill fw-semibold px-3">Review →</a>
     </div>
 }
 
 @if (ViewBag.UnreadMessages != null && (int)ViewBag.UnreadMessages > 0)
 {
-    <div class="alert alert-info d-flex align-items-center 
-                justify-content-between flex-wrap gap-2 mb-3"
-         style="border-radius:12px">
-        <div>
-            <strong>
-                📬 @ViewBag.UnreadMessages unread contact 
-                message(s) from visitors!
-            </strong>
-        </div>
-        <a asp-controller="Admin" asp-action="Messages"
-           class="btn btn-info btn-sm fw-semibold text-white">
-            View Messages →
-        </a>
+    <div class="alert alert-info d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3" style="border-radius:12px;border:none;background:#e0f2fe;color:#0369a1">
+        <strong>💬 @ViewBag.UnreadMessages unread messages</strong>
+        <a asp-controller="Admin" asp-action="Messages" class="btn btn-info btn-sm text-white rounded-pill fw-semibold px-3 border-0">View →</a>
     </div>
 }
 
-<!-- Bottom Row -->
 <div class="row g-3">
-    <!-- Recent Announcements -->
+    <!-- Announcements -->
     <div class="col-md-6">
-        <div class="card shadow-sm h-100" style="border-radius:16px">
-            <div class="card-header d-flex justify-content-between 
-                        align-items-center bg-white border-bottom"
-                 style="border-radius:16px 16px 0 0">
-                <span class="fw-bold">📢 Recent Announcements</span>
-                <a asp-action="Announcements" 
-                   class="btn btn-sm btn-outline-primary"
-                   style="border-radius:8px">
-                   Manage
-                </a>
+        <div class="card shadow-sm h-100 border-0" style="border-radius:16px;overflow:hidden">
+            <div class="card-header bg-white d-flex justify-content-between align-items-center" style="border-bottom:1px solid #f1f5f9;padding:1rem 1.25rem;border-radius:16px 16px 0 0">
+                <span class="fw-bold fs-6">📢 Recent Announcements</span>
+                <a asp-action="Announcements" class="btn btn-sm btn-outline-primary rounded-pill" style="font-size:.75rem">Manage</a>
             </div>
             <div class="card-body p-0">
                 @if (Model.RecentAnnouncements.Any())
@@ -164,29 +89,17 @@
                     <ul class="list-group list-group-flush">
                         @foreach (var a in Model.RecentAnnouncements)
                         {
-                            <li class="list-group-item px-3 py-2">
-                                <div class="fw-semibold small">
-                                    @a.Title
-                                    @if (!string.IsNullOrEmpty(a.TargetRole))
-                                    {
-                                        <span class="badge bg-secondary ms-1">
-                                            @a.TargetRole
-                                        </span>
-                                    }
-                                </div>
-                                <div class="small text-muted">@a.Content</div>
-                                <div class="small text-muted mt-1">
-                                    @a.CreatedAt.ToString("dd MMM yyyy")
-                                </div>
+                            <li class="list-group-item px-3 py-2 border-light" style="font-size:.88rem">
+                                <div class="fw-semibold">@a.Title</div>
+                                <div class="text-muted small truncate">@a.Content</div>
+                                <div class="text-muted mt-1" style="font-size:.72rem">@a.CreatedAt.ToString("dd MMM yyyy")</div>
                             </li>
                         }
                     </ul>
                 }
                 else
                 {
-                    <p class="text-muted p-3 mb-0 small">
-                        No announcements yet.
-                    </p>
+                    <p class="text-muted p-3 mb-0 small text-center">No announcements yet.</p>
                 }
             </div>
         </div>
@@ -194,42 +107,18 @@
 
     <!-- Quick Actions -->
     <div class="col-md-6">
-        <div class="card shadow-sm h-100" style="border-radius:16px">
-            <div class="card-header fw-bold bg-white border-bottom"
-                 style="border-radius:16px 16px 0 0">
+        <div class="card shadow-sm h-100 border-0" style="border-radius:16px;overflow:hidden">
+            <div class="card-header bg-white fw-bold" style="border-bottom:1px solid #f1f5f9;padding:1rem 1.25rem;border-radius:16px 16px 0 0">
                 ⚡ Quick Actions
             </div>
-            <div class="card-body d-grid gap-2">
-                <a asp-action="Teachers" 
-                   class="btn btn-outline-success fw-semibold"
-                   style="border-radius:10px;text-align:left;padding:.6rem 1rem">
-                   ➕ Add New Teacher
-                </a>
-                <a asp-action="Courses" 
-                   class="btn btn-outline-primary fw-semibold"
-                   style="border-radius:10px;text-align:left;padding:.6rem 1rem">
-                   ➕ Add New Course
-                </a>
-                <a asp-action="Classes" 
-                   class="btn btn-outline-warning fw-semibold"
-                   style="border-radius:10px;text-align:left;padding:.6rem 1rem">
-                   ➕ Create New Class
-                </a>
-                <a asp-action="AssignTeacher" 
-                   class="btn btn-outline-info fw-semibold"
-                   style="border-radius:10px;text-align:left;padding:.6rem 1rem">
-                   🔗 Assign Teacher to Class
-                </a>
-                <a asp-action="Announcements" 
-                   class="btn btn-outline-secondary fw-semibold"
-                   style="border-radius:10px;text-align:left;padding:.6rem 1rem">
-                   📢 Post Announcement
-                </a>
-                <a asp-action="Messages" 
-                   class="btn btn-outline-dark fw-semibold"
-                   style="border-radius:10px;text-align:left;padding:.6rem 1rem">
-                   💬 View Messages
-                </a>
+            <div class="card-body p-3">
+                <div class="d-grid gap-2">
+                    <a asp-action="Teachers" class="btn btn-outline-success btn-sm text-start rounded-pill" style="padding:.55rem 1.1rem;font-weight:600">➕ Add New Teacher</a>
+                    <a asp-action="Courses" class="btn btn-outline-primary btn-sm text-start rounded-pill" style="padding:.55rem 1.1rem;font-weight:600">➕ Add New Course</a>
+                    <a asp-action="Classes" class="btn btn-outline-warning btn-sm text-start rounded-pill" style="padding:.55rem 1.1rem;font-weight:600">➕ Create Class</a>
+                    <a asp-action="AssignTeacher" class="btn btn-outline-info btn-sm text-start rounded-pill" style="padding:.55rem 1.1rem;font-weight:600">🔗 Assign Teacher</a>
+                    <a asp-action="Announcements" class="btn btn-outline-secondary btn-sm text-start rounded-pill" style="padding:.55rem 1.1rem;font-weight:600">📢 Post Announcement</a>
+                </div>
             </div>
         </div>
     </div>

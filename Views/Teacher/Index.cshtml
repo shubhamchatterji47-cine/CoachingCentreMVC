@@ -3,76 +3,83 @@
     ViewData["Title"] = "Teacher Dashboard";
     var name = Context.Session.GetString("FullName") ?? "Teacher";
 }
+<header class="mb-4">
+    <h4 class="fw-bold mb-1">👋 Welcome, @name</h4>
+    <p class="text-muted small mb-0">Teacher Dashboard</p>
+</header>
 
-<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
-    <div>
-        <h4 class="fw-bold mb-0">👋 Welcome, @name</h4>
-        <p class="text-muted small mb-0">Teacher Dashboard</p>
-    </div>
-    <div class="d-flex gap-2">
-        <a asp-action="Profile" class="btn btn-sm btn-outline-secondary">👤 Profile</a>
-    </div>
-</div>
-
-<!-- Stat Cards -->
 <div class="row g-3 mb-4">
-    <div class="col-6 col-sm-3">
-        <div class="card border-0 bg-primary text-white text-center shadow-sm">
-            <div class="card-body py-3">
-                <div class="fs-2 fw-bold">@Model.Count</div>
-                <div class="small opacity-75">My Classes</div>
+    <div class="col-6 col-xl-3">
+        <div class="card border-0 shadow-sm h-100" style="border-radius:14px;overflow:hidden;border-left:4px solid #2563eb !important">
+            <div class="card-body py-3 text-center">
+                <div class="fs-1 fw-bold text-primary">@Model.Count</div>
+                <div class="small text-muted fw-semibold">My Classes</div>
             </div>
         </div>
     </div>
-    <div class="col-6 col-sm-3">
-        <div class="card border-0 bg-success text-white text-center shadow-sm">
-            <div class="card-body py-3">
-                <div class="fs-2 fw-bold">@ViewBag.TotalStudents</div>
-                <div class="small opacity-75">Total Students</div>
+    <div class="col-6 col-xl-3">
+        <div class="card border-0 shadow-sm h-100" style="border-radius:14px;overflow:hidden;border-left:4px solid #10b981 !important">
+            <div class="card-body py-3 text-center">
+                <div class="fs-1 fw-bold text-success">@ViewBag.TotalStudents</div>
+                <div class="small text-muted fw-semibold">Total Students</div>
             </div>
         </div>
     </div>
-    <div class="col-6 col-sm-3">
-        <div class="card border-0 bg-info text-white text-center shadow-sm">
-            <div class="card-body py-3">
-                <div class="fs-2 fw-bold">📝</div>
-                <div class="small opacity-75"><a asp-action="Marks" asp-route-classId="@(Model.FirstOrDefault()?.Id ?? 0)" class="text-white">Enter Marks</a></div>
+    <div class="col-6 col-xl-3">
+        <a asp-action="Marks" asp-route-classId="@(Model.FirstOrDefault()?.Id ?? 0)" 
+           class="card border-0 shadow-sm h-100 text-decoration-none" 
+           style="border-radius:14px;overflow:hidden;border-left:4px solid #f59e0b !important">
+            <div class="card-body py-3 text-center">
+                <div class="fs-1 fw-bold text-warning">📝</div>
+                <div class="small text-muted fw-semibold">Enter Marks</div>
             </div>
-        </div>
+        </a>
     </div>
-    <div class="col-6 col-sm-3">
-        <div class="card border-0 bg-warning text-white text-center shadow-sm">
-            <div class="card-body py-3">
-                <div class="fs-2 fw-bold">👥</div>
-                <div class="small opacity-75"><a asp-action="Students" asp-route-classId="@(Model.FirstOrDefault()?.Id ?? 0)" class="text-white">Students</a></div>
+    <div class="col-6 col-xl-3">
+        <a asp-action="Students" asp-route-classId="@(Model.FirstOrDefault()?.Id ?? 0)" 
+           class="card border-0 shadow-sm h-100 text-decoration-none" 
+           style="border-radius:14px;overflow:hidden;border-left:4px solid #7c3aed !important">
+            <div class="card-body py-3 text-center">
+                <div class="fs-1 fw-bold" style="color:#7c3aed">👥</div>
+                <div class="small text-muted fw-semibold">View Students</div>
             </div>
-        </div>
+        </a>
     </div>
 </div>
 
 <div class="row g-3">
-    <!-- My Classes -->
-    <div class="col-md-8">
-        <div class="card shadow-sm">
-            <div class="card-header fw-semibold">🏫 My Classes</div>
+    <div class="col-lg-8">
+        <div class="card shadow-sm border-0" style="border-radius:16px;overflow:hidden">
+            <div class="card-header bg-white d-flex justify-content-between align-items-center" style="border-bottom:1px solid #eef2f7;padding:1rem 1.25rem;border-radius:16px 16px 0 0">
+                <span class="fw-bold">🏫 My Assigned Classes</span>
+                <span class="badge bg-primary rounded-pill">@Model.Count Total</span>
+            </div>
             <div class="card-body p-0">
                 @if (Model.Any())
                 {
                     <table class="table table-hover mb-0">
-                        <thead class="table-light">
-                            <tr><th>Class</th><th>Course</th><th>Schedule</th><th>Students</th><th>Actions</th></tr>
+                        <thead class="bg-light">
+                            <tr>
+                                <th scope="col" class="ps-4 fw-semibold text-uppercase" style="font-size:.78rem;color:#64748b;border-bottom:2px solid #e2e8f0">Class Name</th>
+                                <th scope="col" class="fw-semibold text-uppercase" style="font-size:.78rem;color:#64748b;border-bottom:2px solid #e2e8f0">Course</th>
+                                <th scope="col" class="fw-semibold text-uppercase" style="font-size:.78rem;color:#64748b;border-bottom:2px solid #e2e8f0">Schedule</th>
+                                <th scope="col" class="fw-semibold text-uppercase" style="font-size:.78rem;color:#64748b;border-bottom:2px solid #e2e8f0">Students</th>
+                                <th scope="col" class="text-end pe-4 fw-semibold text-uppercase" style="font-size:.78rem;color:#64748b;border-bottom:2px solid #e2e8f0">Action</th>
+                            </tr>
                         </thead>
                         <tbody>
                             @foreach (var cls in Model)
                             {
-                                <tr>
-                                    <td class="fw-semibold">@cls.Name</td>
-                                    <td><span class="badge bg-info text-dark">@cls.CourseName</span></td>
-                                    <td class="small">@(cls.Schedule ?? "—") @(cls.Timing != null ? $"· {cls.Timing}" : "")</td>
-                                    <td><span class="badge bg-secondary">@cls.EnrolledCount</span></td>
-                                    <td>
-                                        <a asp-action="Students" asp-route-classId="@cls.Id" class="btn btn-sm btn-outline-primary">Students</a>
-                                        <a asp-action="Marks" asp-route-classId="@cls.Id" class="btn btn-sm btn-outline-success">Marks</a>
+                                <tr style="cursor:pointer" onclick="window.location='@(Url.Action("Students",new{classId=cls.Id}))'">
+                                    <td class="ps-4 fw-bold text-dark">@cls.Name</td>
+                                    <td><span class="badge rounded-pill" style="background:#dbeafe;color:#1e40af;font-weight:600">@cls.CourseName</span></td>
+                                    <td class="text-muted small">@(cls.Schedule ?? "—") @(cls.Timing != null ? $"· {cls.Timing}" : "")</td>
+                                    <td><span class="badge bg-secondary rounded-pill opacity-75">@cls.EnrolledCount</span></td>
+                                    <td class="text-end pe-4">
+                                        <div class="d-inline-flex gap-1">
+                                            <a asp-action="Students" asp-route-classId="@cls.Id" class="btn btn-sm btn-outline-primary rounded-pill px-2" style="font-size:.72rem">👨‍🎓</a>
+                                            <a asp-action="Marks" asp-route-classId="@cls.Id" class="btn btn-sm btn-outline-success rounded-pill px-2" style="font-size:.72rem">✏️</a>
+                                        </div>
                                     </td>
                                 </tr>
                             }
@@ -81,18 +88,22 @@
                 }
                 else
                 {
-                    <p class="text-muted p-3 mb-0">No classes assigned yet. Contact admin.</p>
+                    <div class="text-center py-5 text-muted">
+                        <div style="font-size:2.5rem;">📭</div>
+                        <p class="mt-2 small">No classes assigned yet.</p>
+                    </div>
                 }
             </div>
         </div>
     </div>
-
-    <!-- Announcements for Teachers -->
-    <div class="col-md-4">
-        <div class="card shadow-sm">
-            <div class="card-header fw-semibold">📢 Announcements</div>
-            <div class="card-body p-0" id="announcementsBox">
-                <div class="p-3 text-muted small">Loading...</div>
+    
+    <div class="col-lg-4">
+        <div class="card shadow-sm border-0 h-100" style="border-radius:16px;overflow:hidden">
+            <div class="card-header bg-white fw-bold" style="border-bottom:1px solid #eef2f7;padding:1rem 1.25rem;border-radius:16px 16px 0 0">
+                📢 Announcements
+            </div>
+            <div class="card-body p-0" id="annBox" style="min-height:200px">
+                <div class="p-3 text-muted small text-center">Loading...</div>
             </div>
         </div>
     </div>
@@ -100,24 +111,22 @@
 
 @section Scripts {
     <script>
-        // Load announcements via API
         fetch('/Home/GetAnnouncements')
-            .then(r => r.json())
-            .then(data => {
-                const box = document.getElementById('announcementsBox');
-                if (!data || data.length === 0) {
-                    box.innerHTML = '<p class="text-muted p-3 mb-0 small">No announcements.</p>';
+            .then(r=>r.json())
+            .then(data=>{
+                const box=document.getElementById('annBox');
+                if(!data || data.length===0){
+                    box.innerHTML='<div class="p-4 text-center text-muted small"><div style="font-size:2rem">📢</div><p class="mt-2">No announcements</p></div>';
                     return;
                 }
-                box.innerHTML = data.map(a => `
-                    <div class="px-3 py-2 border-bottom">
+                box.innerHTML=data.slice(0,4).map(a=>
+                    `<div class="px-3 py-2 border-bottom border-light" style="background:${a.isImportant?'#fffbeb':'white'}">
                         <div class="fw-semibold small">${a.title}</div>
-                        <div class="text-muted" style="font-size:12px">${a.content}</div>
-                        <div class="text-muted" style="font-size:11px">${new Date(a.createdAt).toLocaleDateString()}</div>
-                    </div>`).join('');
+                        <div class="text-muted" style="font-size:.76rem;line-height:1.4;margin-top:2px">${(a.content||'').substring(0,80)}...</div>
+                        <div class="mt-1" style="font-size:.68rem;color:#94a3b8">📅 ${new Date(a.createdAt).toLocaleDateString()}</div>
+                    </div>`
+                ).join('');
             })
-            .catch(() => {
-                document.getElementById('announcementsBox').innerHTML = '<p class="text-muted p-3 small mb-0">Could not load.</p>';
-            });
+            .catch(()=>document.getElementById('annBox').innerHTML='<div class="p-3 text-danger small text-center">Error loading</div>');
     </script>
 }
