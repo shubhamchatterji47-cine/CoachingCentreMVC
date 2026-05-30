@@ -186,10 +186,7 @@ else
                         }
 
                         <!-- Reply toggle -->
-                        <button class="btn btn-sm btn-outline-success"
-                                onclick="toggleReply(@m.Id)">
-                            💬 @(string.IsNullOrEmpty(m.AdminReply) ? "Reply" : "Edit Reply")
-                        </button>
+                        
 
                         <a href="mailto:@m.Email?subject=Re: @(m.Subject ?? "Your message to N.M. Coaching")"
                            class="btn btn-sm btn-outline-info">
