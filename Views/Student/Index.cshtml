@@ -114,14 +114,14 @@
                 <div class="card-body p-0">
                     @if (Model.SubjectPerformances.Any())
                     {
-                        @foreach (var sp in Model.SubjectPerformances)
-                        {
-                            var barColor = sp.AveragePercentage >= 75 ? "success" :
-                                         sp.AveragePercentage >= 50 ? "warning" : "danger";
-                            @{
-                                var rowBg = sp.AveragePercentage < 50 ? "#fff5f5" : "white";
-                            }
-                            <div class="px-3 py-2 border-bottom border-light" style="background:@rowBg">
+                       @foreach (var sp in Model.SubjectPerformances)
+{
+    var barColor = sp.AveragePercentage >= 75 ? "success" :
+                 sp.AveragePercentage >= 50 ? "warning" : "danger";
+
+    var rowBg = sp.AveragePercentage < 50 ? "#fff5f5" : "white";
+
+    <div class="px-3 py-2 border-bottom border-light" style="background:@rowBg">
                                 <div class="d-flex justify-content-between mb-1">
                                     <span class="small fw-bold" style="font-size:.85rem">@sp.SubjectName</span>
                                     <span class="badge rounded-pill bg-@barColor" style="font-size:.7rem;font-weight:700">@sp.Grade</span>
