@@ -1,28 +1,27 @@
-# ── Stage 1: Build ───────────────────────────────────────────────
+# ═══════════════════════════════════════
+# Stage 1 — BUILD
+# ═══════════════════════════════════════
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
-# Copy solution and project files
-COPY ["CoachingCentre/CoachingMVC/CoachingMVC.csproj", "CoachingCentre/CoachingMVC/"]
+COPY CoachingMVC.csproj ./
+RUN dotnet restore "CoachingMVC.csproj"
 
-# Restore dependencies
-RUN dotnet restore "CoachingCentre/CoachingMVC/CoachingMVC.csproj"
-
-# Copy all source code
 COPY . .
+RUN dotnet publish "CoachingMVC.csproj" \
+    -c Release \
+    -o /app/publish
 
-# Build and publish
-WORKDIR "/src/CoachingCentre/CoachingMVC"
-RUN dotnet publish "CoachingMVC.csproj" -c Release -o /app/publish
-
-# ── Stage 2: Runtime ─────────────────────────────────────────────
+# ═══════════════════════════════════════
+# Stage 2 — RUNTIME
+# ═══════════════════════════════════════
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final
 WORKDIR /app
 
 COPY --from=build /app/publish .
 
-# Render provides PORT env variable
-ENV ASPNETCORE_URLS=http://+:$PORT
 EXPOSE 10000
+ENV ASPNETCORE_URLS=http://+:10000
+ENV ASPNETCORE_ENVIRONMENT=Production
 
 ENTRYPOINT ["dotnet", "CoachingMVC.dll"]
