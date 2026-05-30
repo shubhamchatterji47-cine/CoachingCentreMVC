@@ -1,207 +1,68 @@
-﻿@model CoachingMVC.ViewModels.Admin.AdminDashboardViewModel
-@{
+﻿@{
     ViewData["Title"] = "Admin Dashboard";
 }
 
-<div class="mb-4">
-    <h2 class="page-title">📊 Admin Dashboard</h2>
-    <p class="text-muted">
-        Welcome back. Here's what's happening today.
-    </p>
-</div>
+<div class="main-content">
+    <h2 class="page-title">Admin Dashboard</h2>
+    <p class="text-muted mb-4">Welcome back. Here's what's happening today.</p>
 
-<div class="row g-4 mb-4">
+    <!-- Stats Cards -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-3">
+            <div class="stat-card bg-gradient-blue">
+                <div class="stat-value">@ViewBag.StudentCount</div>
+                <div class="stat-label">Students</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card bg-gradient-green">
+                <div class="stat-value">@ViewBag.TeacherCount</div>
+                <div class="stat-label">Teachers</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card bg-gradient-purple">
+                <div class="stat-value">@ViewBag.CourseCount</div>
+                <div class="stat-label">Courses</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card bg-gradient-orange">
+                <div class="stat-value">@ViewBag.ClassCount</div>
+                <div class="stat-label">Classes</div>
+            </div>
+        </div>
+    </div>
 
-    <!-- Students -->
-    <div class="col-sm-6 col-xl-3">
-        <div class="stat-card bg-gradient-blue">
-            <div class="d-flex justify-content-between align-items-center">
-                <div>
-                    <div class="stat-value">@Model.TotalStudents</div>
-                    <div class="stat-label">Students</div>
+    <!-- Quick Links / Action Cards -->
+    <div class="row g-4">
+        <div class="col-md-4">
+            <div class="card modern-card">
+                <div class="card-body">
+                    <h5 class="mb-3">📄 Applications</h5>
+                    <p class="text-muted">You have <strong>@ViewBag.ApplicationCount</strong> new applications.</p>
+                    <a href="/Admin/Applications" class="btn btn-primary">View Applications</a>
                 </div>
-                <div style="font-size:3rem;opacity:.3">👨‍🎓</div>
             </div>
-
-            <a asp-action="Students"
-               class="text-white text-decoration-none d-block mt-3 small fw-semibold">
-                View Details →
-            </a>
         </div>
-    </div>
 
-    <!-- Teachers -->
-    <div class="col-sm-6 col-xl-3">
-        <div class="stat-card bg-gradient-green">
-            <div class="d-flex justify-content-between align-items-center">
-                <div>
-                    <div class="stat-value">@Model.TotalTeachers</div>
-                    <div class="stat-label">Teachers</div>
+        <div class="col-md-4">
+            <div class="card modern-card">
+                <div class="card-body">
+                    <h5 class="mb-3">💬 Messages</h5>
+                    <p class="text-muted">You have <strong>@ViewBag.MessageCount</strong> messages.</p>
+                    <a href="/Admin/Messages" class="btn btn-primary">View Messages</a>
                 </div>
-                <div style="font-size:3rem;opacity:.3">👩‍🏫</div>
             </div>
-
-            <a asp-action="Teachers"
-               class="text-white text-decoration-none d-block mt-3 small fw-semibold">
-                View Details →
-            </a>
         </div>
-    </div>
 
-    <!-- Courses -->
-    <div class="col-sm-6 col-xl-3">
-        <div class="stat-card bg-gradient-purple">
-            <div class="d-flex justify-content-between align-items-center">
-                <div>
-                    <div class="stat-value">@Model.TotalCourses</div>
-                    <div class="stat-label">Courses</div>
+        <div class="col-md-4">
+            <div class="card modern-card">
+                <div class="card-body">
+                    <h5 class="mb-3">📢 Announcements</h5>
+                    <p class="text-muted">Manage announcements.</p>
+                    <a href="/Admin/Announcements" class="btn btn-primary">View Announcements</a>
                 </div>
-                <div style="font-size:3rem;opacity:.3">📚</div>
-            </div>
-
-            <a asp-action="Courses"
-               class="text-white text-decoration-none d-block mt-3 small fw-semibold">
-                View Details →
-            </a>
-        </div>
-    </div>
-
-    <!-- Classes -->
-    <div class="col-sm-6 col-xl-3">
-        <div class="stat-card bg-gradient-orange">
-            <div class="d-flex justify-content-between align-items-center">
-                <div>
-                    <div class="stat-value">@Model.TotalClasses</div>
-                    <div class="stat-label">Classes</div>
-                </div>
-                <div style="font-size:3rem;opacity:.3">🏫</div>
-            </div>
-
-            <a asp-action="Classes"
-               class="text-white text-decoration-none d-block mt-3 small fw-semibold">
-                View Details →
-            </a>
-        </div>
-    </div>
-
-</div>
-<!-- Applications -->
-<div class="col-sm-6 col-xl-3">
-    <div class="stat-card bg-gradient-danger">
-        <div class="d-flex justify-content-between align-items-center">
-            <div>
-                <div class="stat-value">@ViewBag.PendingAdmissions</div>
-                <div class="stat-label">Applications</div>
-            </div>
-            <div style="font-size:3rem;opacity:.3">📝</div>
-        </div>
-
-        <a asp-controller="Admission"
-           asp-action="Index"
-           class="text-white text-decoration-none d-block mt-3 small fw-semibold">
-            View Applications →
-        </a>
-    </div>
-</div>
-
-<!-- Messages -->
-<div class="col-sm-6 col-xl-3">
-    <div class="stat-card bg-gradient-dark">
-        <div class="d-flex justify-content-between align-items-center">
-            <div>
-                <div class="stat-value">@ViewBag.UnreadMessages</div>
-                <div class="stat-label">Messages</div>
-            </div>
-            <div style="font-size:3rem;opacity:.3">📬</div>
-        </div>
-
-        <a asp-controller="Admin"
-           asp-action="Messages"
-           class="text-white text-decoration-none d-block mt-3 small fw-semibold">
-            View Messages →
-        </a>
-    </div>
-</div>
-
-<div class="col-sm-6 col-xl-3">
-    <div class="stat-card bg-gradient-danger">
-        <div class="d-flex justify-content-between align-items-center">
-            <div>
-                <div class="stat-value">@ViewBag.PendingAdmissions</div>
-                <div class="stat-label">Applications</div>
-            </div>
-            <div style="font-size:3rem;opacity:.3">📋</div>
-        </div>
-
-        <a asp-controller="Admission"
-           asp-action="Index"
-           class="text-white text-decoration-none d-block mt-3 small fw-semibold">
-            View Applications →
-        </a>
-    </div>
-</div>
-
-<!-- Unread Messages Alert -->
-<div class="col-sm-6 col-xl-3">
-    <div class="stat-card bg-gradient-info">
-        <div class="d-flex justify-content-between align-items-center">
-            <div>
-                <div class="stat-value">@ViewBag.UnreadMessages</div>
-                <div class="stat-label">Messages</div>
-            </div>
-            <div style="font-size:3rem;opacity:.3">📬</div>
-        </div>
-
-        <a asp-action="Messages"
-           class="text-white text-decoration-none d-block mt-3 small fw-semibold">
-            View Messages →
-        </a>
-    </div>
-</div>
-<div class="row g-3">
-    <div class="col-md-6">
-        <div class="card shadow-sm h-100">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <span class="fw-semibold">📢 Recent Announcements</span>
-                <a asp-action="Announcements" class="btn btn-sm btn-outline-primary">Manage</a>
-            </div>
-            <div class="card-body p-0">
-                @if (Model.RecentAnnouncements.Any())
-                {
-                    <ul class="list-group list-group-flush">
-                        @foreach (var a in Model.RecentAnnouncements)
-                        {
-                            <li class="list-group-item">
-                                <div class="fw-semibold">
-                                    @a.Title
-                                    @if (!string.IsNullOrEmpty(a.TargetRole))
-                                    {
-                                        <span class="badge bg-secondary ms-1 small">@a.TargetRole</span>
-                                    }
-                                </div>
-                                <div class="small text-muted">@a.Content</div>
-                                <div class="small text-muted mt-1">@a.CreatedAt.ToString("dd MMM yyyy")</div>
-                            </li>
-                        }
-                    </ul>
-                }
-                else
-                {
-                    <p class="text-muted p-3 mb-0">No announcements yet.</p>
-                }
-            </div>
-        </div>
-    </div>
-
-    <div class="col-md-6">
-        <div class="card shadow-sm h-100">
-            <div class="card-header fw-semibold">⚡ Quick Actions</div>
-            <div class="card-body d-grid gap-2">
-                <a asp-action="Teachers" class="btn btn-outline-success">➕ Add New Teacher</a>
-                <a asp-action="Courses" class="btn btn-outline-info">➕ Add New Course</a>
-                <a asp-action="Classes" class="btn btn-outline-warning">➕ Create Class</a>
-                <a asp-action="AssignTeacher" class="btn btn-outline-primary">🔗 Assign Teacher to Class</a>
-                <a asp-action="Announcements" class="btn btn-outline-secondary">📢 Post Announcement</a>
             </div>
         </div>
     </div>
