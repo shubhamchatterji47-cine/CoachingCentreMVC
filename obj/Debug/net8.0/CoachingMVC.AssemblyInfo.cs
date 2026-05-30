@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("CoachingMVC")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+1ec9153feb9e61bbc81adfd13422b9f86c0b94c7")]
 [assembly: System.Reflection.AssemblyProductAttribute("CoachingMVC")]
 [assembly: System.Reflection.AssemblyTitleAttribute("CoachingMVC")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

@@ -1,180 +1,4 @@
-﻿@* <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - Coaching Centre</title>
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-    <style>
-        .navbar-brand {
-            font-weight: 700;
-            color: #0d6efd !important;
-        }
-
-        .sidebar {
-            min-height: calc(100vh - 56px);
-            background: #212529;
-        }
-
-            .sidebar .nav-link {
-                color: #adb5bd;
-                padding: .5rem 1rem;
-                border-radius: .375rem;
-            }
-
-                .sidebar .nav-link:hover, .sidebar .nav-link.active {
-                    color: #fff;
-                    background: #0d6efd;
-                }
-
-            .sidebar .nav-header {
-                color: #6c757d;
-                font-size: .75rem;
-                text-transform: uppercase;
-                padding: .5rem 1rem;
-                margin-top: .5rem;
-            }
-
-        .main-content {
-            padding: 1.5rem;
-        }
-
-        .alert-session {
-            margin-bottom: 0;
-            border-radius: 0;
-        }
-    </style>
-</head>
-<body>
-    @{
-        var role = Context.Session.GetString("Role");
-        var fullName = Context.Session.GetString("FullName");
-        bool isLoggedIn = !string.IsNullOrEmpty(role);
-    }
-
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark px-3">
-        <a class="navbar-brand" asp-controller="Home" asp-action="Index">🎓 N.M.CoachingCentre</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav me-auto">
-                <li class="nav-item"><a class="nav-link" asp-controller="Home" asp-action="Index">Home</a></li>
-                <li class="nav-item"><a class="nav-link" asp-controller="Home" asp-action="Courses">Courses</a></li>
-                <li class="nav-item"><a class="nav-link" asp-controller="Home" asp-action="Classes">Classes</a></li>
-                <li class="nav-item"><a class="nav-link" asp-controller="Home" asp-action="About">About</a></li>
-            </ul>
-            <ul class="navbar-nav">
-                @if (isLoggedIn)
-                {
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
-                            👤 @fullName <span class="badge bg-primary ms-1">@role</span>
-                        </a>
-                        <ul class="dropdown-menu dropdown-menu-end">
-                            @if (role == "Admin")
-                            {
-                                <li><a class="dropdown-item" asp-controller="Admin" asp-action="Index">Admin Dashboard</a></li>
-                            }
-                            else if (role == "Teacher")
-                            {
-                                <li><a class="dropdown-item" asp-controller="Teacher" asp-action="Index">Teacher Dashboard</a></li>
-                            }
-                            else if (role == "Student")
-                            {
-                                <li><a class="dropdown-item" asp-controller="Student" asp-action="Index">My Dashboard</a></li>
-                            }
-                            <li><hr class="dropdown-divider"></li>
-                            <li>
-                                <form asp-controller="Account" asp-action="Logout" method="post">
-                                    <button type="submit" class="dropdown-item text-danger">🚪 Logout</button>
-                                </form>
-                            </li>
-                        </ul>
-                    </li>
-                }
-                else
-                {
-                    <li class="nav-item"><a class="nav-link btn btn-outline-primary btn-sm px-3" asp-controller="Account" asp-action="Login">Login</a></li>
-                }
-            </ul>
-        </div>
-    </nav>
-
-    @if (TempData["Success"] != null)
-    {
-        <div class="alert alert-success alert-session alert-dismissible fade show">
-            @TempData["Success"] <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
-    }
-    @if (TempData["Error"] != null)
-    {
-        <div class="alert alert-danger alert-session alert-dismissible fade show">
-            @TempData["Error"] <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
-    }
-
-    <div class="container-fluid">
-        <div class="row">
-            @if (isLoggedIn && role == "Admin")
-            {
-                <nav class="col-md-2 d-none d-md-block sidebar py-3">
-                    <div class="nav-header">Admin Panel</div>
-                    <a class="nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "Index" ? "active" : "")" asp-controller="Admin" asp-action="Index">📊 Dashboard</a>
-                    <a class="nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "Teachers" ? "active" : "")" asp-controller="Admin" asp-action="Teachers">👩‍🏫 Teachers</a>
-                    <a class="nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "Students" ? "active" : "")" asp-controller="Admin" asp-action="Students">👨‍🎓 Students</a>
-                    <a class="nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "Courses" ? "active" : "")" asp-controller="Admin" asp-action="Courses">📚 Courses</a>
-                    <a class="nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "Classes" ? "active" : "")" asp-controller="Admin" asp-action="Classes">🏫 Classes</a>
-                    <a class="nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "Subjects" ? "active" : "")" asp-controller="Admin" asp-action="Subjects">📖 Subjects</a>
-                    <a class="nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "AssignTeacher" ? "active" : "")" asp-controller="Admin" asp-action="AssignTeacher">🔗 Assign Teacher</a>
-                    <a class="nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "Announcements" ? "active" : "")" asp-controller="Admin" asp-action="Announcements">📢 Announcements</a>
-                    <a class="nav-link" asp-controller="Admission" asp-action="Index">📋 Admissions</a>
-                    <a class="nav-link" asp-controller="Admin" asp-action="Profile">👤 My Profile</a>
-                </nav>
-                <main class="col-md-10 main-content">@RenderBody()</main>
-            }
-            else if (isLoggedIn && role == "Teacher")
-            {
-                <nav class="col-md-2 d-none d-md-block sidebar py-3">
-                    <div class="nav-header">Teacher Panel</div>
-                    <a class="nav-link" asp-controller="Teacher" asp-action="Index">📊 Dashboard</a>
-                    <a class="nav-link" asp-controller="Teacher" asp-action="Students">👨‍🎓 Students</a>
-                    <a class="nav-link" asp-controller="Teacher" asp-action="Marks">📝 Marks</a>
-                    <a class="nav-link" asp-controller="Teacher" asp-action="Profile">👤 My Profile</a>
-                </nav>
-                <main class="col-md-10 main-content">@RenderBody()</main>
-            }
-            else if (isLoggedIn && role == "Student")
-            {
-                <nav class="col-md-2 d-none d-md-block sidebar py-3">
-                    <div class="nav-header">Student Panel</div>
-                    <a class="nav-link" asp-controller="Student" asp-action="Index">📊 Dashboard</a>
-                    <a class="nav-link" asp-controller="Student" asp-action="Marks">📝 My Marks</a>
-                    <a class="nav-link" asp-controller="Student" asp-action="Performance">📈 Performance</a>
-                    <a class="nav-link" asp-controller="Student" asp-action="Profile">👤 Profile</a>
-                </nav>
-                <main class="col-md-10 main-content">@RenderBody()</main>
-            }
-            else
-            {
-                <main class="col-12 main-content">@RenderBody()</main>
-            }
-        </div>
-    </div>
-
-    <footer class="bg-dark text-muted text-center py-3 mt-auto">
-        <small>&copy; @DateTime.Now.Year Coaching Centre Management System</small>
-    </footer>
-
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
-    @await RenderSectionAsync("Scripts", required: false)
-</body>
-</html> *@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -184,28 +8,22 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="~/css/nm-theme.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <style>
         :root {
-            --nm-navy: #0a1628;
-            --nm-blue: #1e40af;
-            --nm-accent: #f59e0b;
-            --nm-green: #10b981;
-            --nm-light: #f0f4ff;
-            --nm-text: #1e293b;
-            --nm-muted: #64748b;
+            --nm-navy:    #0a1628;
+            --nm-blue:    #1e40af;
+            --nm-accent:  #f59e0b;
+            --nm-green:   #10b981;
+            --nm-light:   #f0f4ff;
+            --nm-text:    #1e293b;
+            --nm-muted:   #64748b;
             --sidebar-bg: #0f172a;
         }
 
-        * {
-            font-family: 'DM Sans', sans-serif;
-        }
-
-        h1, h2, h3, h4, h5, h6, .fw-bold, .fw-semibold {
-            font-family: 'Sora', sans-serif;
-        }
+        * { font-family: 'DM Sans', sans-serif; }
+        h1,h2,h3,h4,h5,h6,.fw-bold,.fw-semibold { font-family: 'Sora', sans-serif; }
 
         /* ── PUBLIC NAVBAR ─────────────────────────────────────── */
         .nm-navbar {
@@ -217,37 +35,24 @@
             top: 0;
             z-index: 1050;
         }
-
-            .nm-navbar .navbar-brand {
-                font-family: 'Sora', sans-serif;
-                font-weight: 800;
-                font-size: 1.25rem;
-                color: white !important;
-                letter-spacing: -0.5px;
-            }
-
-                .nm-navbar .navbar-brand span {
-                    color: var(--nm-accent);
-                }
-
-            .nm-navbar .nav-link {
-                color: rgba(255,255,255,0.75) !important;
-                font-size: 0.9rem;
-                font-weight: 500;
-                padding: 0.5rem 0.9rem !important;
-                border-radius: 6px;
-                transition: all 0.2s;
-            }
-
-                .nm-navbar .nav-link:hover {
-                    color: white !important;
-                    background: rgba(255,255,255,0.08);
-                }
-
-                .nm-navbar .nav-link.active-nav {
-                    color: white !important;
-                }
-
+        .nm-navbar .navbar-brand {
+            font-family: 'Sora', sans-serif;
+            font-weight: 800;
+            font-size: 1.25rem;
+            color: white !important;
+            letter-spacing: -0.5px;
+        }
+        .nm-navbar .navbar-brand span { color: var(--nm-accent); }
+        .nm-navbar .nav-link {
+            color: rgba(255,255,255,0.75) !important;
+            font-size: 0.9rem;
+            font-weight: 500;
+            padding: 0.5rem 0.9rem !important;
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+        .nm-navbar .nav-link:hover { color: white !important; background: rgba(255,255,255,0.08); }
+        .nm-navbar .nav-link.active-nav { color: white !important; }
         .nm-login-btn {
             background: var(--nm-accent);
             color: var(--nm-navy) !important;
@@ -255,11 +60,46 @@
             border-radius: 8px !important;
             padding: 0.4rem 1.2rem !important;
         }
+        .nm-login-btn:hover { background: #d97706; color: white !important; }
 
-            .nm-login-btn:hover {
-                background: #d97706;
-                color: white !important;
+        /* ── MOBILE HAMBURGER ──────────────────────────────────── */
+        .nm-toggler {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            width: 28px;
+            height: 20px;
+            background: transparent;
+            border: none;
+            padding: 0;
+            cursor: pointer;
+        }
+        .nm-toggler span {
+            display: block;
+            width: 100%;
+            height: 2.5px;
+            background: white;
+            border-radius: 3px;
+            transition: all 0.3s ease;
+        }
+        /* Mobile menu panel */
+        @@media (max-width: 991px) {
+            #pubNav {
+                background: rgba(10,22,40,0.98);
+                border-top: 1px solid rgba(255,255,255,0.08);
+                margin: 0 -1.5rem;
+                padding: 0.75rem 1.5rem 1rem;
             }
+            .nm-navbar .nav-link {
+                padding: 0.6rem 0.5rem !important;
+                border-radius: 8px;
+                font-size: 1rem;
+            }
+            .nm-login-btn {
+                display: inline-block;
+                margin-top: 0.5rem;
+            }
+        }
 
         /* ── SIDEBAR ───────────────────────────────────────────── */
         .sidebar {
@@ -268,47 +108,32 @@
             padding: 1rem 0.75rem;
             border-right: 1px solid rgba(255,255,255,0.05);
         }
-
-            .sidebar .nav-header {
-                color: rgba(255,255,255,0.3);
-                font-size: 0.65rem;
-                text-transform: uppercase;
-                letter-spacing: 1.5px;
-                padding: 0.75rem 0.75rem 0.35rem;
-                font-family: 'Sora', sans-serif;
-            }
-
-            .sidebar .nav-link {
-                color: rgba(255,255,255,0.55);
-                padding: 0.55rem 0.85rem;
-                border-radius: 8px;
-                font-size: 0.875rem;
-                font-weight: 500;
-                margin-bottom: 2px;
-                transition: all 0.18s;
-                display: flex;
-                align-items: center;
-                gap: 0.5rem;
-            }
-
-                .sidebar .nav-link:hover {
-                    color: white;
-                    background: rgba(255,255,255,0.07);
-                }
-
-                .sidebar .nav-link.active {
-                    color: white;
-                    background: var(--nm-blue);
-                }
-
-        .main-content {
-            padding: 1.5rem;
+        .sidebar .nav-header {
+            color: rgba(255,255,255,0.3);
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            padding: 0.75rem 0.75rem 0.35rem;
+            font-family: 'Sora', sans-serif;
         }
-
-        .alert-session {
-            margin-bottom: 0;
-            border-radius: 0;
+        .sidebar .nav-link {
+            color: rgba(255,255,255,0.55);
+            padding: 0.55rem 0.85rem;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            margin-bottom: 2px;
+            transition: all 0.18s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
         }
+        .sidebar .nav-link:hover { color: white; background: rgba(255,255,255,0.07); }
+        .sidebar .nav-link.active { color: white; background: var(--nm-blue); }
+
+        .main-content { padding: 1.5rem; }
+
+        .alert-session { margin-bottom: 0; border-radius: 0; }
 
         /* ── PUBLIC FOOTER ─────────────────────────────────────── */
         .nm-footer {
@@ -316,244 +141,201 @@
             color: rgba(255,255,255,0.7);
             font-size: 0.875rem;
         }
-
-            .nm-footer h6 {
-                color: white;
-                font-family: 'Sora',sans-serif;
-                font-weight: 700;
-                letter-spacing: 0.3px;
-            }
-
-            .nm-footer a {
-                color: rgba(255,255,255,0.6);
-                text-decoration: none;
-                transition: color 0.2s;
-            }
-
-                .nm-footer a:hover {
-                    color: var(--nm-accent);
-                }
-
-        .nm-footer-bottom {
-            background: rgba(0,0,0,0.3);
-            font-size: 0.8rem;
-        }
-
-        .nm-footer-logo {
-            font-family: 'Sora',sans-serif;
-            font-weight: 800;
-            font-size: 1.3rem;
-            color: white;
-        }
-
-            .nm-footer-logo span {
-                color: var(--nm-accent);
-            }
+        .nm-footer h6 { color: white; font-family: 'Sora',sans-serif; font-weight: 700; letter-spacing: 0.3px; }
+        .nm-footer a { color: rgba(255,255,255,0.6); text-decoration: none; transition: color 0.2s; }
+        .nm-footer a:hover { color: var(--nm-accent); }
+        .nm-footer-bottom { background: rgba(0,0,0,0.3); font-size: 0.8rem; }
+        .nm-footer-logo { font-family: 'Sora',sans-serif; font-weight: 800; font-size: 1.3rem; color: white; }
+        .nm-footer-logo span { color: var(--nm-accent); }
 
         /* ── ADMIN/TEACHER/STUDENT DASHBOARD FRAME ─────────────── */
-        .dash-frame {
-            background: #f8fafc;
-            min-height: 100vh;
-        }
+        .dash-frame { background: #f8fafc; min-height: 100vh; }
     </style>
 </head>
 <body>
-    @{
-        var role = Context.Session.GetString("Role");
-        var fullName = Context.Session.GetString("FullName");
-        bool isLoggedIn = !string.IsNullOrEmpty(role);
-        bool isPublic = !isLoggedIn;
-        var curAction = ViewContext.RouteData.Values["action"]?.ToString();
-        var curController = ViewContext.RouteData.Values["controller"]?.ToString();
-    }
+@{
+    var role      = Context.Session.GetString("Role");
+    var fullName  = Context.Session.GetString("FullName");
+    bool isLoggedIn = !string.IsNullOrEmpty(role);
+    bool isPublic   = !isLoggedIn;
+    var curAction = ViewContext.RouteData.Values["action"]?.ToString();
+    var curController = ViewContext.RouteData.Values["controller"]?.ToString();
+}
 
-    @if (isPublic)
-    {
-        <!-- ════ PUBLIC NAVBAR ════ -->
-        <nav class="nm-navbar navbar navbar-expand-lg">
-            <div class="container">
-                <a class="navbar-brand" asp-controller="Home" asp-action="Index">
-                    N<span>.</span>M<span>.</span> Coaching
-                </a>
-                <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#pubNav">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="collapse navbar-collapse" id="pubNav">
-                    <ul class="navbar-nav mx-auto gap-1">
-                        <li class="nav-item"><a class="nav-link @(curAction == "Index" ? "active-nav" : "")" asp-controller="Home" asp-action="Index">Home</a></li>
-                        <li class="nav-item"><a class="nav-link @(curAction == "Courses" ? "active-nav" : "")" asp-controller="Home" asp-action="Courses">Courses</a></li>
-                        <li class="nav-item"><a class="nav-link @(curAction == "Classes" ? "active-nav" : "")" asp-controller="Home" asp-action="Classes">Classes</a></li>
-                        <li class="nav-item"><a class="nav-link @(curAction == "About" ? "active-nav" : "")" asp-controller="Home" asp-action="About">About</a></li>
-                        <li class="nav-item"><a class="nav-link @(curAction == "Contact" ? "active-nav" : "")" asp-controller="Home" asp-action="Contact">Contact</a></li>
-                    </ul>
+@if (isPublic)
+{
+    <!-- ════ PUBLIC NAVBAR ════ -->
+    <nav class="nm-navbar navbar navbar-expand-lg">
+        <div class="container">
+            <a class="navbar-brand" asp-controller="Home" asp-action="Index">
+                N<span>.</span>M<span>.</span> Coaching
+            </a>
+            <button class="nm-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#pubNav" 
+                    aria-controls="pubNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span></span><span></span><span></span>
+            </button>
+            <div class="collapse navbar-collapse" id="pubNav">
+                <ul class="navbar-nav mx-auto gap-1 py-2 py-lg-0">
+                    <li class="nav-item"><a class="nav-link @(curAction=="Index"?"active-nav":"")" asp-controller="Home" asp-action="Index">Home</a></li>
+                    <li class="nav-item"><a class="nav-link @(curAction=="Courses"?"active-nav":"")" asp-controller="Home" asp-action="Courses">Courses</a></li>
+                    <li class="nav-item"><a class="nav-link @(curAction=="Classes"?"active-nav":"")" asp-controller="Home" asp-action="Classes">Classes</a></li>
+                    <li class="nav-item"><a class="nav-link @(curAction=="About"?"active-nav":"")" asp-controller="Home" asp-action="About">About</a></li>
+                    <li class="nav-item"><a class="nav-link @(curAction=="Contact"?"active-nav":"")" asp-controller="Home" asp-action="Contact">Contact</a></li>
+                </ul>
+                <div class="py-2 py-lg-0">
                     <a class="nav-link nm-login-btn" asp-controller="Account" asp-action="Login">Login →</a>
                 </div>
             </div>
-        </nav>
+        </div>
+    </nav>
 
-        @if (TempData["Success"] != null)
-        {
-            <div class="alert alert-success alert-session alert-dismissible fade show">@TempData["Success"]<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
-        }
-        @if (TempData["Error"] != null)
-        {
-            <div class="alert alert-danger alert-session alert-dismissible fade show">@TempData["Error"]<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
-        }
+    @if (TempData["Success"] != null)
+    {<div class="alert alert-success alert-session alert-dismissible fade show">@TempData["Success"]<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>}
+    @if (TempData["Error"] != null)
+    {<div class="alert alert-danger alert-session alert-dismissible fade show">@TempData["Error"]<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>}
 
-        <main>@RenderBody()</main>
+    <main>@RenderBody()</main>
 
-        <!-- ════ PUBLIC FOOTER ════ -->
-        <footer class="nm-footer pt-5 pb-0 mt-5">
-            <div class="container">
-                <div class="row g-4 pb-4">
-                    <div class="col-lg-4">
-                        <div class="nm-footer-logo mb-2">N<span>.</span>M<span>.</span> Coaching</div>
-                        <p class="mt-2 mb-3" style="color:rgba(255,255,255,0.5);font-size:.875rem;line-height:1.7">
-                            Founded by <strong style="color:rgba(255,255,255,.8)">Neeraj Sisodiya</strong>, empowering students since 2015 with quality education, expert guidance, and a proven track record.
-                        </p>
-                        <div class="d-flex gap-2 mt-3">
-                            <a href="#" class="d-flex align-items-center justify-content-center rounded-circle" style="width:36px;height:36px;background:rgba(255,255,255,.08)">📘</a>
-                            <a href="#" class="d-flex align-items-center justify-content-center rounded-circle" style="width:36px;height:36px;background:rgba(255,255,255,.08)">📸</a>
-                            <a href="#" class="d-flex align-items-center justify-content-center rounded-circle" style="width:36px;height:36px;background:rgba(255,255,255,.08)">▶️</a>
-                        </div>
-                    </div>
-                    <div class="col-6 col-lg-2">
-                        <h6 class="mb-3">Quick Links</h6>
-                        <ul class="list-unstyled" style="line-height:2.1">
-                            <li><a asp-controller="Home" asp-action="Index">Home</a></li>
-                            <li><a asp-controller="Home" asp-action="Courses">Courses</a></li>
-                            <li><a asp-controller="Home" asp-action="Classes">Classes</a></li>
-                            <li><a asp-controller="Home" asp-action="About">About Us</a></li>
-                            <li><a asp-controller="Home" asp-action="Contact">Contact</a></li>
-                        </ul>
-                    </div>
-                    <div class="col-6 col-lg-2">
-                        <h6 class="mb-3">Programs</h6>
-                        <ul class="list-unstyled" style="line-height:2.1">
-                            <li><a href="#">JEE Preparation</a></li>
-                            <li><a href="#">NEET Coaching</a></li>
-                            <li><a href="#">Board Exams</a></li>
-                            <li><a href="#">Foundation</a></li>
-                            <li><a href="#">Skill Courses</a></li>
-                        </ul>
-                    </div>
-                    <div class="col-lg-4">
-                        <h6 class="mb-3">Find Us</h6>
-                        <div class="mb-2" style="font-size:.85rem">
-                            <div class="mb-1">📍 123 Education Street, Knowledge Park, City - 123456</div>
-                            <div class="mb-1">📞 <a href="tel:+919876543210">+91 98765 43210</a></div>
-                            <div class="mb-3">📧 <a href="mailto:info@nmcoaching.com">info@nmcoaching.com</a></div>
-                        </div>
-                        <div class="rounded-3 overflow-hidden" style="height:130px">
-                            <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3430.5!2d76.38!3d30.73!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMzDCsDQzJzQ4LjAiTiA3NsKwMjInNDguMCJF!5e0!3m2!1sen!2sin!4v1"
-                                    width="100%" height="130" style="border:0;filter:grayscale(30%)" allowfullscreen loading="lazy">
-                            </iframe>
-                        </div>
+    <!-- ════ PUBLIC FOOTER ════ -->
+    <footer class="nm-footer pt-5 pb-0 mt-5">
+        <div class="container">
+            <div class="row g-4 pb-4">
+                <div class="col-lg-4">
+                    <div class="nm-footer-logo mb-2">N<span>.</span>M<span>.</span> Coaching</div>
+                    <p class="mt-2 mb-3" style="color:rgba(255,255,255,0.5);font-size:.875rem;line-height:1.7">
+                        Founded by <strong style="color:rgba(255,255,255,.8)">Neeraj Sisodiya</strong>, empowering students since 2015 with quality education, expert guidance, and a proven track record.
+                    </p>
+                    <div class="d-flex gap-2 mt-3">
+                        <a href="#" class="d-flex align-items-center justify-content-center rounded-circle" style="width:36px;height:36px;background:rgba(255,255,255,.08)">📘</a>
+                        <a href="#" class="d-flex align-items-center justify-content-center rounded-circle" style="width:36px;height:36px;background:rgba(255,255,255,.08)">📸</a>
+                        <a href="#" class="d-flex align-items-center justify-content-center rounded-circle" style="width:36px;height:36px;background:rgba(255,255,255,.08)">▶️</a>
                     </div>
                 </div>
-            </div>
-            <div class="nm-footer-bottom text-center py-3 mt-2" style="color:rgba(255,255,255,.35)">
-                &copy; @DateTime.Now.Year N.M. Coaching Centre · Founded by Neeraj Sisodiya · All Rights Reserved
-            </div>
-        </footer>
-    }
-    else
-    {
-        <!-- ════ DASHBOARD NAVBAR ════ -->
-        <nav class="nm-navbar navbar navbar-expand-lg">
-            <div class="container-fluid px-3">
-                <a class="navbar-brand" asp-controller="Home" asp-action="Index">
-                    N<span>.</span>M<span>.</span> Coaching
-                </a>
-                <div class="ms-auto d-flex align-items-center gap-2">
-                    <span class="text-white-50 small d-none d-md-inline">@fullName</span>
-                    <span class="badge" style="background:var(--nm-accent);color:var(--nm-navy);font-family:'Sora',sans-serif;font-size:.7rem">@role</span>
-                    <div class="dropdown">
-                        <button class="btn btn-sm btn-outline-light border-0 rounded-circle" data-bs-toggle="dropdown" style="width:34px;height:34px;font-size:1rem">
-                            👤
-                        </button>
-                        <ul class="dropdown-menu dropdown-menu-end">
-                            @if (role == "Admin")
-                            {
-                                <li><a class="dropdown-item" asp-controller="Admin" asp-action="Profile">My Profile</a></li>
-                            }
-                            else if (role == "Teacher")
-                            {
-                                <li><a class="dropdown-item" asp-controller="Teacher" asp-action="Profile">My Profile</a></li>
-                            }
-                            else if (role == "Student")
-                            {
-                                <li><a class="dropdown-item" asp-controller="Student" asp-action="Profile">My Profile</a></li>
-                            }
-                            <li><hr class="dropdown-divider"></li>
-                            <li>
-                                <form asp-controller="Account" asp-action="Logout" method="post">
-                                    <button type="submit" class="dropdown-item text-danger">🚪 Logout</button>
-                                </form>
-                            </li>
-                        </ul>
+                <div class="col-6 col-lg-2">
+                    <h6 class="mb-3">Quick Links</h6>
+                    <ul class="list-unstyled" style="line-height:2.1">
+                        <li><a asp-controller="Home" asp-action="Index">Home</a></li>
+                        <li><a asp-controller="Home" asp-action="Courses">Courses</a></li>
+                        <li><a asp-controller="Home" asp-action="Classes">Classes</a></li>
+                        <li><a asp-controller="Home" asp-action="About">About Us</a></li>
+                        <li><a asp-controller="Home" asp-action="Contact">Contact</a></li>
+                    </ul>
+                </div>
+                <div class="col-6 col-lg-2">
+                    <h6 class="mb-3">Programs</h6>
+                    <ul class="list-unstyled" style="line-height:2.1">
+                        <li><a href="#">JEE Preparation</a></li>
+                        <li><a href="#">NEET Coaching</a></li>
+                        <li><a href="#">Board Exams</a></li>
+                        <li><a href="#">Foundation</a></li>
+                        <li><a href="#">Skill Courses</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-4">
+                    <h6 class="mb-3">Find Us</h6>
+                    <div class="mb-2" style="font-size:.85rem">
+                        <div class="mb-1">📍 123 Education Street, Knowledge Park, City - 123456</div>
+                        <div class="mb-1">📞 <a href="tel:+919876543210">+91 98765 43210</a></div>
+                        <div class="mb-3">📧 <a href="mailto:info@nmcoaching.com">info@nmcoaching.com</a></div>
+                    </div>
+                    <div class="rounded-3 overflow-hidden" style="height:130px">
+                        <iframe
+                            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3430.5!2d76.38!3d30.73!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMzDCsDQzJzQ4LjAiTiA3NsKwMjInNDguMCJF!5e0!3m2!1sen!2sin!4v1"
+                            width="100%" height="130" style="border:0;filter:grayscale(30%)" allowfullscreen loading="lazy">
+                        </iframe>
                     </div>
                 </div>
-            </div>
-        </nav>
-
-        @if (TempData["Success"] != null)
-        {
-            <div class="alert alert-success alert-session alert-dismissible fade show">@TempData["Success"]<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
-        }
-        @if (TempData["Error"] != null)
-        {
-            <div class="alert alert-danger alert-session alert-dismissible fade show">@TempData["Error"]<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
-        }
-
-        <div class="container-fluid p-0">
-            <div class="row g-0">
-                @if (role == "Admin")
-                {
-                    <nav class="col-md-2 d-none d-md-block sidebar">
-                        <div class="nav-header">Admin Panel</div>
-                        <a class="nav-link @(curAction == "Index" ? "active" : "")" asp-controller="Admin" asp-action="Index">📊 Dashboard</a>
-                        <a class="nav-link @(curAction == "Teachers" ? "active" : "")" asp-controller="Admin" asp-action="Teachers">👩‍🏫 Teachers</a>
-                        <a class="nav-link @(curAction == "Students" ? "active" : "")" asp-controller="Admin" asp-action="Students">👨‍🎓 Students</a>
-                        <a class="nav-link @(curAction == "Courses" ? "active" : "")" asp-controller="Admin" asp-action="Courses">📚 Courses</a>
-                        <a class="nav-link @(curAction == "Classes" ? "active" : "")" asp-controller="Admin" asp-action="Classes">🏫 Classes</a>
-                        <a class="nav-link @(curAction == "Subjects" ? "active" : "")" asp-controller="Admin" asp-action="Subjects">📖 Subjects</a>
-                        <a class="nav-link @(curAction == "AssignTeacher" ? "active" : "")" asp-controller="Admin" asp-action="AssignTeacher">🔗 Assign Teacher</a>
-                        <a class="nav-link @(curAction == "Announcements" ? "active" : "")" asp-controller="Admin" asp-action="Announcements">📢 Announcements</a>
-                        <a class="nav-link @(curAction == "Profile" ? "active" : "")" asp-controller="Admin" asp-action="Profile">👤 My Profile</a>
-                        <a class="nav-link" asp-controller="Admission" asp-action="Index">📋 Admissions</a>
-                        <a class="nav-link" asp-controller="Admin" asp-action="Messages">📬 Messages</a>'
-
-                    </nav>
-                }
-                else if (role == "Teacher")
-                {
-                    <nav class="col-md-2 d-none d-md-block sidebar">
-                        <div class="nav-header">Teacher Panel</div>
-                        <a class="nav-link @(curAction == "Index" ? "active" : "")" asp-controller="Teacher" asp-action="Index">📊 Dashboard</a>
-                        <a class="nav-link @(curAction == "Students" ? "active" : "")" asp-controller="Teacher" asp-action="Students">👨‍🎓 Students</a>
-                        <a class="nav-link @(curAction == "Marks" ? "active" : "")" asp-controller="Teacher" asp-action="Marks">📝 Marks</a>
-                        <a class="nav-link @(curAction == "Profile" ? "active" : "")" asp-controller="Teacher" asp-action="Profile">👤 My Profile</a>
-                    </nav>
-                }
-                else if (role == "Student")
-                {
-                    <nav class="col-md-2 d-none d-md-block sidebar">
-                        <div class="nav-header">Student Panel</div>
-                        <a class="nav-link @(curAction == "Index" ? "active" : "")" asp-controller="Student" asp-action="Index">📊 Dashboard</a>
-                        <a class="nav-link @(curAction == "Marks" ? "active" : "")" asp-controller="Student" asp-action="Marks">📝 My Marks</a>
-                        <a class="nav-link @(curAction == "Performance" ? "active" : "")" asp-controller="Student" asp-action="Performance">📈 Performance</a>
-                        <a class="nav-link @(curAction == "Profile" ? "active" : "")" asp-controller="Student" asp-action="Profile">👤 Profile</a>
-                    </nav>
-                }
-                <main class="@(role != null ? "col-md-10" : "col-12") main-content">@RenderBody()</main>
             </div>
         </div>
-    }
+        <div class="nm-footer-bottom text-center py-3 mt-2" style="color:rgba(255,255,255,.35)">
+            &copy; @DateTime.Now.Year N.M. Coaching Centre · Founded by Neeraj Sisodiya · All Rights Reserved
+        </div>
+    </footer>
+}
+else
+{
+    <!-- ════ DASHBOARD NAVBAR ════ -->
+    <nav class="nm-navbar navbar navbar-expand-lg">
+        <div class="container-fluid px-3">
+            <a class="navbar-brand" asp-controller="Home" asp-action="Index">
+                N<span>.</span>M<span>.</span> Coaching
+            </a>
+            <div class="ms-auto d-flex align-items-center gap-2">
+                <span class="text-white-50 small d-none d-md-inline">@fullName</span>
+                <span class="badge" style="background:var(--nm-accent);color:var(--nm-navy);font-family:'Sora',sans-serif;font-size:.7rem">@role</span>
+                <div class="dropdown">
+                    <button class="btn btn-sm btn-outline-light border-0 rounded-circle" data-bs-toggle="dropdown" style="width:34px;height:34px;font-size:1rem">
+                        👤
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        @if (role == "Admin")
+                        { <li><a class="dropdown-item" asp-controller="Admin" asp-action="Profile">My Profile</a></li> }
+                        else if (role == "Teacher")
+                        { <li><a class="dropdown-item" asp-controller="Teacher" asp-action="Profile">My Profile</a></li> }
+                        else if (role == "Student")
+                        { <li><a class="dropdown-item" asp-controller="Student" asp-action="Profile">My Profile</a></li> }
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <form asp-controller="Account" asp-action="Logout" method="post">
+                                <button type="submit" class="dropdown-item text-danger">🚪 Logout</button>
+                            </form>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </nav>
 
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
-    @await RenderSectionAsync("Scripts", required: false)
+    @if (TempData["Success"] != null)
+    {<div class="alert alert-success alert-session alert-dismissible fade show">@TempData["Success"]<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>}
+    @if (TempData["Error"] != null)
+    {<div class="alert alert-danger alert-session alert-dismissible fade show">@TempData["Error"]<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>}
+
+    <div class="container-fluid p-0">
+        <div class="row g-0">
+            @if (role == "Admin")
+            {
+                <nav class="col-md-2 d-none d-md-block sidebar">
+                    <div class="nav-header">Admin Panel</div>
+                    <a class="nav-link @(curAction=="Index"?"active":"")" asp-controller="Admin" asp-action="Index">📊 Dashboard</a>
+                    <a class="nav-link @(curAction=="Teachers"?"active":"")" asp-controller="Admin" asp-action="Teachers">👩‍🏫 Teachers</a>
+                    <a class="nav-link @(curAction=="Students"?"active":"")" asp-controller="Admin" asp-action="Students">👨‍🎓 Students</a>
+                    <a class="nav-link @(curAction=="Courses"?"active":"")" asp-controller="Admin" asp-action="Courses">📚 Courses</a>
+                    <a class="nav-link @(curAction=="Classes"?"active":"")" asp-controller="Admin" asp-action="Classes">🏫 Classes</a>
+                    <a class="nav-link @(curAction=="Subjects"?"active":"")" asp-controller="Admin" asp-action="Subjects">📖 Subjects</a>
+                    <a class="nav-link @(curAction=="AssignTeacher"?"active":"")" asp-controller="Admin" asp-action="AssignTeacher">🔗 Assign Teacher</a>
+                    <a class="nav-link @(curAction=="Announcements"?"active":"")" asp-controller="Admin" asp-action="Announcements">📢 Announcements</a>
+                    <a class="nav-link @(curAction=="Profile"?"active":"")" asp-controller="Admin" asp-action="Profile">👤 My Profile</a>
+                </nav>
+            }
+            else if (role == "Teacher")
+            {
+                <nav class="col-md-2 d-none d-md-block sidebar">
+                    <div class="nav-header">Teacher Panel</div>
+                    <a class="nav-link @(curAction=="Index"?"active":"")" asp-controller="Teacher" asp-action="Index">📊 Dashboard</a>
+                    <a class="nav-link @(curAction=="Students"?"active":"")" asp-controller="Teacher" asp-action="Students">👨‍🎓 Students</a>
+                    <a class="nav-link @(curAction=="Marks"?"active":"")" asp-controller="Teacher" asp-action="Marks">📝 Marks</a>
+                    <a class="nav-link @(curAction=="Profile"?"active":"")" asp-controller="Teacher" asp-action="Profile">👤 My Profile</a>
+                </nav>
+            }
+            else if (role == "Student")
+            {
+                <nav class="col-md-2 d-none d-md-block sidebar">
+                    <div class="nav-header">Student Panel</div>
+                    <a class="nav-link @(curAction=="Index"?"active":"")" asp-controller="Student" asp-action="Index">📊 Dashboard</a>
+                    <a class="nav-link @(curAction=="Marks"?"active":"")" asp-controller="Student" asp-action="Marks">📝 My Marks</a>
+                    <a class="nav-link @(curAction=="Performance"?"active":"")" asp-controller="Student" asp-action="Performance">📈 Performance</a>
+                    <a class="nav-link @(curAction=="Profile"?"active":"")" asp-controller="Student" asp-action="Profile">👤 Profile</a>
+                </nav>
+            }
+            <main class="@(role != null ? "col-md-10" : "col-12") main-content">@RenderBody()</main>
+        </div>
+    </div>
+}
+
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+<script src="~/js/site.js" asp-append-version="true"></script>
+@await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
