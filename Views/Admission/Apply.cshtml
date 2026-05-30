@@ -1,0 +1,783 @@
+﻿@* @{
+    ViewData["Title"] = "Apply for Admission";
+    var courses = ViewBag.Courses as List<CoachingMVC.ViewModels.Shared.CourseViewModel> ?? new();
+}
+
+<style>
+    .admission-hero {
+        background: linear-gradient(135deg,#1a237e 0%,#0d47a1 60%,#1565c0 100%);
+        border-radius: 16px;
+        padding: 2.5rem 2rem 2rem;
+        color: white;
+        margin-bottom: 2rem;
+    }
+
+    .step-badge {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background: rgba(255,255,255,0.2);
+        color: white;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: .9rem;
+        flex-shrink: 0;
+    }
+
+        .step-badge.active {
+            background: #fff;
+            color: #0d47a1;
+        }
+
+    .form-section {
+        background: #fff;
+        border: 1px solid #e9ecef;
+        border-radius: 14px;
+        padding: 1.75rem;
+        margin-bottom: 1.25rem;
+    }
+
+    .form-section-title {
+        font-weight: 700;
+        font-size: 1rem;
+        margin-bottom: 1.25rem;
+        display: flex;
+        align-items: center;
+        gap: .5rem;
+        color: #212529;
+    }
+
+    .admission-btn {
+        background: #0d6efd;
+        color: white !important;
+        border-radius: 8px;
+        padding: 8px 16px !important;
+        transition: 0.3s;
+    }
+
+        .admission-btn:hover {
+            background: #0b5ed7;
+        }
+</style>
+
+<!-- Hero -->
+<div class="admission-hero">
+    <div class="d-flex align-items-center gap-3 flex-wrap">
+        <div>
+            <h2 class="fw-bold mb-1" style="font-size:1.8rem">🎓 Admission Application</h2>
+            <p class="mb-0" style="opacity:.9">Fill in your details below. We'll contact you within 24 hours.</p>
+        </div>
+        <div class="ms-auto text-end">
+            <div style="font-size:.85rem;opacity:.8">N.M.CoachingCentre</div>
+            <div style="font-size:.8rem;opacity:.7">Admissions Open</div>
+        </div>
+    </div>
+    <!-- Steps -->
+    <div class="d-flex align-items-center gap-2 mt-3 flex-wrap">
+        <span class="step-badge active">1</span>
+        <span style="font-size:.85rem;opacity:.9">Fill Form</span>
+        <span style="opacity:.5">──</span>
+        <span class="step-badge">2</span>
+        <span style="font-size:.85rem;opacity:.7">Review</span>
+        <span style="opacity:.5">──</span>
+        <span class="step-badge">3</span>
+        <span style="font-size:.85rem;opacity:.7">Confirmation</span>
+    </div>
+</div>
+
+@if (ViewBag.FormError != null)
+{
+    <div class="alert alert-danger alert-dismissible rounded-3">
+        ❌ @ViewBag.FormError
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<form asp-action="Apply" method="post" id="admissionForm">
+    <div class="row g-0">
+        <div class="col-lg-8">
+
+            <!-- Personal Info -->
+            <div class="form-section">
+                <div class="form-section-title">👤 Personal Information</div>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Full Name <span class="text-danger">*</span></label>
+                        <input name="fullName" class="form-control" placeholder="Your full name"
+                               value="@ViewBag.FullName" required maxlength="100" />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Date of Birth</label>
+                        <input name="dateOfBirth" type="date" class="form-control" />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Email <span class="text-danger">*</span></label>
+                        <input name="email" type="email" class="form-control" placeholder="you@email.com"
+                               value="@ViewBag.Email" required maxlength="150" />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Phone Number <span class="text-danger">*</span></label>
+                        <input name="phoneNumber" type="tel" class="form-control" placeholder="+91 98765 43210"
+                               value="@ViewBag.PhoneNumber" required maxlength="20" />
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label fw-semibold">Address</label>
+                        <input name="address" class="form-control" placeholder="Your full address"
+                               value="@ViewBag.Address" maxlength="300" />
+                    </div>
+                </div>
+            </div>
+
+            <!-- Parent Info -->
+            <div class="form-section">
+                <div class="form-section-title">👨‍👩‍👧 Parent / Guardian Information</div>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Parent / Guardian Name</label>
+                        <input name="parentName" class="form-control" placeholder="Father / Mother name"
+                               value="@ViewBag.ParentName" maxlength="100" />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Parent Phone</label>
+                        <input name="parentPhone" type="tel" class="form-control" placeholder="+91 98765 43210"
+                               value="@ViewBag.ParentPhone" maxlength="20" />
+                    </div>
+                </div>
+            </div>
+
+            <!-- Academic Info -->
+            <div class="form-section">
+                <div class="form-section-title">📚 Academic Background</div>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Previous School / College</label>
+                        <input name="previousSchool" class="form-control"
+                               placeholder="e.g. DAV Public School"
+                               value="@ViewBag.PreviousSchool" maxlength="200" />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Last Class / Standard Passed</label>
+                        <input name="lastClassPassed" class="form-control"
+                               placeholder="e.g. Class 10, 12th PCM"
+                               maxlength="100" />
+                    </div>
+                </div>
+            </div>
+
+            <!-- Course Interest -->
+            <div class="form-section">
+                <div class="form-section-title">🎯 Course Interest</div>
+                <div class="row g-3">
+                    <div class="col-12">
+                        <label class="form-label fw-semibold">Select Course (if known)</label>
+                        <select name="courseId" class="form-select">
+                            <option value="">— Not sure yet, I'll discuss —</option>
+                            @foreach (var c in courses)
+                            {
+                                <option value="@c.Id">@c.Name — @c.CategoryName (@c.DurationMonths months)</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label fw-semibold">Or describe your interest</label>
+                        <input name="courseInterest" class="form-control"
+                               placeholder="e.g. I want to prepare for JEE / NEET"
+                               value="@ViewBag.CourseInterest" maxlength="200" />
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label fw-semibold">Message / Additional Info</label>
+                        <textarea name="message" class="form-control" rows="3"
+                                  placeholder="Any questions or details you'd like to share..."
+                                  maxlength="1000">@ViewBag.Message</textarea>
+                    </div>
+                </div>
+            </div>
+
+            <div class="d-flex gap-3 align-items-center flex-wrap mt-2 mb-4">
+                <button type="submit" class="btn btn-primary btn-lg px-5" id="submitBtn">
+                    📨 Submit Application
+                </button>
+                <a asp-controller="Home" asp-action="Index" class="btn btn-outline-secondary btn-lg">
+                    ← Back to Home
+                </a>
+            </div>
+
+        </div>
+
+        <!-- RIGHT SIDEBAR -->
+        <div class="col-lg-4 ps-lg-4">
+            <div class="card border-0 shadow-sm rounded-3 mb-3" style="background:#f0f7ff;">
+                <div class="card-body">
+                    <h6 class="fw-bold mb-3">📋 What happens next?</h6>
+                    <div class="d-flex gap-2 mb-3">
+                        <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center fw-bold flex-shrink-0"
+                             style="width:28px;height:28px;font-size:.8rem">
+                            1
+                        </div>
+                        <div class="small">
+                            <strong>Submit your application</strong><br>
+                            <span class="text-muted">Takes only 2 minutes</span>
+                        </div>
+                    </div>
+                    <div class="d-flex gap-2 mb-3">
+                        <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center fw-bold flex-shrink-0"
+                             style="width:28px;height:28px;font-size:.8rem">
+                            2
+                        </div>
+                        <div class="small">
+                            <strong>We review your application</strong><br>
+                            <span class="text-muted">Within 24 hours</span>
+                        </div>
+                    </div>
+                    <div class="d-flex gap-2 mb-3">
+                        <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center fw-bold flex-shrink-0"
+                             style="width:28px;height:28px;font-size:.8rem">
+                            3
+                        </div>
+                        <div class="small">
+                            <strong>We call you back</strong><br>
+                            <span class="text-muted">Discuss course & schedule</span>
+                        </div>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <div class="rounded-circle bg-success text-white d-flex align-items-center justify-content-center fw-bold flex-shrink-0"
+                             style="width:28px;height:28px;font-size:.8rem">
+                            ✓
+                        </div>
+                        <div class="small">
+                            <strong>Get enrolled!</strong><br>
+                            <span class="text-muted">Start your journey</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card border-0 shadow-sm rounded-3">
+                <div class="card-body">
+                    <h6 class="fw-bold mb-3">📞 Contact Us Directly</h6>
+                    <div class="small text-muted mb-2">📍 Sector 17, Chandigarh</div>
+                    <div class="small text-muted mb-2">📞 +91 98765 43210</div>
+                    <div class="small text-muted mb-2">📧 info@edupeak.in</div>
+                    <div class="small text-muted">🕐 Mon–Sat, 9 AM – 6 PM</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+@section Scripts {
+    <script>
+        document.getElementById('admissionForm').addEventListener('submit', function () {
+            const btn = document.getElementById('submitBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Submitting...';
+        });
+    </script>
+} *@
+@{
+    ViewData["Title"] = "Apply for Admission";
+    var courses = ViewBag.Courses as List<CoachingMVC.ViewModels.Shared.CourseViewModel> ?? new();
+}
+
+<style>
+    :root {
+        --nm-navy: #0a1628;
+        --nm-blue: #1e40af;
+        --nm-accent: #f59e0b;
+        --nm-green: #10b981;
+        --nm-light: #f0f4ff;
+        --nm-text: #1e293b;
+        --nm-muted: #64748b;
+    }
+
+    /* HERO */
+    .admission-hero {
+        background: var(--nm-navy);
+        border-radius: 20px;
+        padding: 3rem 2.5rem;
+        color: white;
+        margin-bottom: 2rem;
+        position: relative;
+        overflow: hidden;
+    }
+
+        .admission-hero::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(ellipse 70% 60% at 75% 40%, rgba(30,64,175,0.45) 0%, transparent 70%), radial-gradient(ellipse 50% 80% at 5% 90%, rgba(245,158,11,0.12) 0%, transparent 60%);
+        }
+
+    .admission-hero-grid {
+        position: absolute;
+        inset: 0;
+        background-image: linear-gradient(rgba(255,255,255,.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.03) 1px, transparent 1px);
+        background-size: 50px 50px;
+    }
+
+    .admission-hero .hero-inner {
+        position: relative;
+        z-index: 1;
+    }
+
+    .hero-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: .5rem;
+        background: rgba(245,158,11,0.15);
+        border: 1px solid rgba(245,158,11,0.35);
+        color: #fbbf24;
+        border-radius: 50px;
+        padding: .35rem 1rem;
+        font-size: .8rem;
+        font-weight: 600;
+        margin-bottom: 1rem;
+    }
+
+    .admission-hero h2 {
+        font-family: 'Sora',sans-serif;
+        font-weight: 800;
+        font-size: clamp(1.6rem,3vw,2.4rem);
+        letter-spacing: -1px;
+        margin-bottom: .5rem;
+    }
+
+        .admission-hero h2 .accent {
+            color: var(--nm-accent);
+        }
+
+    .admission-hero p {
+        color: rgba(255,255,255,.65);
+        margin-bottom: 0;
+        font-size: 1.05rem;
+    }
+
+    /* STEPS */
+    .step-badge {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background: rgba(255,255,255,0.12);
+        border: 1px solid rgba(255,255,255,.2);
+        color: rgba(255,255,255,.7);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-family: 'Sora',sans-serif;
+        font-weight: 700;
+        font-size: .9rem;
+        flex-shrink: 0;
+        transition: all .25s;
+    }
+
+        .step-badge.active {
+            background: var(--nm-accent);
+            border-color: var(--nm-accent);
+            color: var(--nm-navy);
+            box-shadow: 0 4px 16px rgba(245,158,11,.35);
+        }
+
+    .step-line {
+        flex: 0 0 28px;
+        height: 2px;
+        background: rgba(255,255,255,.2);
+    }
+
+    .step-text {
+        font-size: .85rem;
+        color: rgba(255,255,255,.6);
+    }
+
+        .step-text.active {
+            color: white;
+            font-weight: 600;
+        }
+
+    /* SECTION LABEL */
+    .section-label {
+        display: inline-flex;
+        align-items: center;
+        gap: .4rem;
+        background: var(--nm-light);
+        color: var(--nm-blue);
+        border-radius: 50px;
+        padding: .3rem .9rem;
+        font-size: .78rem;
+        font-weight: 700;
+        letter-spacing: .5px;
+        text-transform: uppercase;
+        margin-bottom: .75rem;
+    }
+
+    /* FORM SECTIONS */
+    .form-section {
+        background: #fff;
+        border: 1.5px solid #e8edf5;
+        border-radius: 16px;
+        padding: 1.75rem;
+        margin-bottom: 1.25rem;
+        transition: all .25s;
+    }
+
+        .form-section:hover {
+            border-color: #d6e0f0;
+            box-shadow: 0 8px 30px rgba(30,64,175,.06);
+        }
+
+    .form-section-title {
+        font-family: 'Sora',sans-serif;
+        font-weight: 700;
+        font-size: 1.05rem;
+        margin-bottom: 1.25rem;
+        display: flex;
+        align-items: center;
+        gap: .6rem;
+        color: var(--nm-text);
+        padding-bottom: .75rem;
+        border-bottom: 1px solid #f1f5f9;
+    }
+
+        .form-section-title .fs-icon {
+            font-size: 1.3rem;
+        }
+
+    .form-label {
+        font-weight: 600;
+        font-size: .85rem;
+        color: var(--nm-text);
+    }
+
+    .admission-form .form-control,
+    .admission-form .form-select {
+        border: 1.5px solid #e2e8f0;
+        border-radius: 10px;
+        padding: .6rem .85rem;
+        font-size: .92rem;
+        transition: all .2s;
+    }
+
+        .admission-form .form-control:focus,
+        .admission-form .form-select:focus {
+            border-color: var(--nm-blue);
+            box-shadow: 0 0 0 3px rgba(30,64,175,.1);
+        }
+
+    /* BUTTONS */
+    .nm-btn-primary {
+        background: var(--nm-accent);
+        color: var(--nm-navy) !important;
+        border: none;
+        font-family: 'Sora',sans-serif;
+        font-weight: 700;
+        font-size: .95rem;
+        padding: .8rem 2.25rem;
+        border-radius: 10px;
+        transition: all .2s;
+    }
+
+        .nm-btn-primary:hover {
+            background: #d97706;
+            color: white !important;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(245,158,11,.35);
+        }
+
+        .nm-btn-primary:disabled {
+            opacity: .7;
+            transform: none;
+        }
+
+    .nm-btn-secondary {
+        border: 1.5px solid #cbd5e1;
+        color: var(--nm-text);
+        font-weight: 600;
+        font-size: .95rem;
+        padding: .8rem 1.75rem;
+        border-radius: 10px;
+        background: white;
+        transition: all .2s;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+    }
+
+        .nm-btn-secondary:hover {
+            border-color: var(--nm-blue);
+            color: var(--nm-blue);
+            background: var(--nm-light);
+        }
+
+    /* SIDEBAR */
+    .sidebar-card {
+        border: 1.5px solid #e8edf5;
+        border-radius: 16px;
+        background: white;
+        overflow: hidden;
+    }
+
+        .sidebar-card.highlight {
+            background: linear-gradient(135deg, var(--nm-navy) 0%, var(--nm-blue) 100%);
+            color: white;
+            border: none;
+        }
+
+    .sidebar-title {
+        font-family: 'Sora',sans-serif;
+        font-weight: 700;
+        font-size: 1rem;
+        margin-bottom: 1.25rem;
+        display: flex;
+        align-items: center;
+        gap: .5rem;
+    }
+
+    .next-step-num {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        background: rgba(255,255,255,.15);
+        border: 1px solid rgba(255,255,255,.25);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: 'Sora',sans-serif;
+        font-weight: 700;
+        font-size: .8rem;
+        flex-shrink: 0;
+    }
+
+        .next-step-num.done {
+            background: var(--nm-green);
+            border-color: var(--nm-green);
+        }
+
+    .contact-row {
+        font-size: .88rem;
+        color: var(--nm-muted);
+        margin-bottom: .6rem;
+        display: flex;
+        align-items: center;
+        gap: .5rem;
+    }
+</style>
+
+<div class="container py-4">
+
+    <!-- ════════════ HERO ════════════ -->
+    <div class="admission-hero">
+        <div class="admission-hero-grid"></div>
+        <div class="hero-inner">
+            <div class="d-flex align-items-start gap-3 flex-wrap">
+                <div>
+                    <div class="hero-badge">🎓 Admissions Open</div>
+                    <h2>Start Your <span class="accent">Application</span></h2>
+                    <p>Fill in your details below — we'll contact you within 24 hours.</p>
+                </div>
+                <div class="ms-auto text-end d-none d-md-block">
+                    <div style="font-family:'Sora',sans-serif;font-weight:700;font-size:1.05rem">N.M. Coaching Centre</div>
+                    <div style="font-size:.85rem;color:rgba(255,255,255,.6)">Empowering Students Since 2014</div>
+                </div>
+            </div>
+
+            <!-- Steps -->
+            <div class="d-flex align-items-center gap-2 mt-4 flex-wrap">
+                <span class="step-badge active">1</span>
+                <span class="step-text active">Fill Form</span>
+                <span class="step-line"></span>
+                <span class="step-badge">2</span>
+                <span class="step-text">Review</span>
+                <span class="step-line"></span>
+                <span class="step-badge">3</span>
+                <span class="step-text">Confirmation</span>
+            </div>
+        </div>
+    </div>
+
+    @if (ViewBag.FormError != null)
+    {
+        <div class="alert alert-danger alert-dismissible rounded-3 d-flex align-items-center gap-2">
+            <span>❌</span>
+            <div>@ViewBag.FormError</div>
+            <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <form asp-action="Apply" method="post" id="admissionForm" class="admission-form">
+        <div class="row g-4">
+            <div class="col-lg-8">
+
+                <!-- Personal Info -->
+                <div class="form-section">
+                    <div class="form-section-title"><span class="fs-icon">👤</span> Personal Information</div>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Full Name <span class="text-danger">*</span></label>
+                            <input name="fullName" class="form-control" placeholder="Your full name"
+                                   value="@ViewBag.FullName" required maxlength="100" />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Date of Birth</label>
+                            <input name="dateOfBirth" type="date" class="form-control" />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Email <span class="text-danger">*</span></label>
+                            <input name="email" type="email" class="form-control" placeholder="you@email.com"
+                                   value="@ViewBag.Email" required maxlength="150" />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Phone Number <span class="text-danger">*</span></label>
+                            <input name="phoneNumber" type="tel" class="form-control" placeholder="+91 98765 43210"
+                                   value="@ViewBag.PhoneNumber" required maxlength="20" />
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Address</label>
+                            <input name="address" class="form-control" placeholder="Your full address"
+                                   value="@ViewBag.Address" maxlength="300" />
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Parent Info -->
+                <div class="form-section">
+                    <div class="form-section-title"><span class="fs-icon">👨‍👩‍👧</span> Parent / Guardian Information</div>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Parent / Guardian Name</label>
+                            <input name="parentName" class="form-control" placeholder="Father / Mother name"
+                                   value="@ViewBag.ParentName" maxlength="100" />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Parent Phone</label>
+                            <input name="parentPhone" type="tel" class="form-control" placeholder="+91 98765 43210"
+                                   value="@ViewBag.ParentPhone" maxlength="20" />
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Academic Info -->
+                <div class="form-section">
+                    <div class="form-section-title"><span class="fs-icon">📚</span> Academic Background</div>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Previous School / College</label>
+                            <input name="previousSchool" class="form-control"
+                                   placeholder="e.g. DAV Public School"
+                                   value="@ViewBag.PreviousSchool" maxlength="200" />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Last Class / Standard Passed</label>
+                            <input name="lastClassPassed" class="form-control"
+                                   placeholder="e.g. Class 10, 12th PCM"
+                                   maxlength="100" />
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Course Interest -->
+                <div class="form-section">
+                    <div class="form-section-title"><span class="fs-icon">🎯</span> Course Interest</div>
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <label class="form-label">Select Course (if known)</label>
+                            <select name="courseId" class="form-select">
+                                <option value="">— Not sure yet, I'll discuss —</option>
+                                @foreach (var c in courses)
+                                {
+                                    <option value="@c.Id">@c.Name — @c.CategoryName (@c.DurationMonths months)</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Or describe your interest</label>
+                            <input name="courseInterest" class="form-control"
+                                   placeholder="e.g. I want to prepare for JEE / NEET"
+                                   value="@ViewBag.CourseInterest" maxlength="200" />
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Message / Additional Info</label>
+                            <textarea name="message" class="form-control" rows="3"
+                                      placeholder="Any questions or details you'd like to share..."
+                                      maxlength="1000">@ViewBag.Message</textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-flex gap-3 align-items-center flex-wrap mt-2 mb-4">
+                    <button type="submit" class="nm-btn-primary" id="submitBtn">
+                        📨 Submit Application
+                    </button>
+                    <a asp-controller="Home" asp-action="Index" class="nm-btn-secondary">
+                        ← Back to Home
+                    </a>
+                </div>
+
+            </div>
+
+            <!-- RIGHT SIDEBAR -->
+            <div class="col-lg-4">
+
+                <!-- What happens next -->
+                <div class="sidebar-card highlight mb-3">
+                    <div class="card-body p-4">
+                        <div class="sidebar-title">📋 What happens next?</div>
+
+                        <div class="d-flex gap-3 mb-3">
+                            <div class="next-step-num">1</div>
+                            <div class="small">
+                                <strong>Submit your application</strong><br>
+                                <span style="color:rgba(255,255,255,.6)">Takes only 2 minutes</span>
+                            </div>
+                        </div>
+                        <div class="d-flex gap-3 mb-3">
+                            <div class="next-step-num">2</div>
+                            <div class="small">
+                                <strong>We review your application</strong><br>
+                                <span style="color:rgba(255,255,255,.6)">Within 24 hours</span>
+                            </div>
+                        </div>
+                        <div class="d-flex gap-3 mb-3">
+                            <div class="next-step-num">3</div>
+                            <div class="small">
+                                <strong>We call you back</strong><br>
+                                <span style="color:rgba(255,255,255,.6)">Discuss course & schedule</span>
+                            </div>
+                        </div>
+                        <div class="d-flex gap-3">
+                            <div class="next-step-num done">✓</div>
+                            <div class="small">
+                                <strong>Get enrolled!</strong><br>
+                                <span style="color:rgba(255,255,255,.6)">Start your journey</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Contact -->
+                <div class="sidebar-card">
+                    <div class="card-body p-4">
+                        <div class="sidebar-title" style="color:var(--nm-text)">📞 Contact Us Directly</div>
+                        <div class="contact-row">📍 Sector 17, Chandigarh</div>
+                        <div class="contact-row">📞 +91 98765 43210</div>
+                        <div class="contact-row">📧 info@edupeak.in</div>
+                        <div class="contact-row mb-0">🕐 Mon–Sat, 9 AM – 6 PM</div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </form>
+
+</div>
+
+@section Scripts {
+    <script>
+        document.getElementById('admissionForm').addEventListener('submit', function () {
+            const btn = document.getElementById('submitBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Submitting...';
+        });
+    </script>
+}

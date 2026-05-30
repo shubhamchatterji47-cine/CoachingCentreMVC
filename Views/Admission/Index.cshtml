@@ -1,0 +1,155 @@
+﻿@model List<CoachingMVC.ViewModels.Admission.AdmissionApplicationViewModel>
+@{
+    ViewData["Title"] = "Admission Applications";
+    var counts = ViewBag.Counts as CoachingMVC.ViewModels.Admission.AdmissionCountViewModel ?? new();
+    var statusFilter = ViewBag.StatusFilter as string;
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+    <div>
+        <h4 class="fw-bold mb-0">📋 Admission Applications</h4>
+        <div class="text-muted small">Review and manage student admission requests</div>
+    </div>
+    <span class="badge bg-warning text-dark fs-6">@counts.Pending Pending</span>
+</div>
+
+<!-- Status Filter Tabs -->
+<div class="d-flex gap-2 mb-3 flex-wrap">
+    <a asp-action="Index" class="btn btn-sm @(statusFilter == null ? "btn-dark" : "btn-outline-secondary")">
+        All <span class="badge bg-secondary ms-1">@counts.Total</span>
+    </a>
+    <a asp-action="Index" asp-route-status="Pending"
+       class="btn btn-sm @(statusFilter == "Pending" ? "btn-warning text-dark" : "btn-outline-warning")">
+        🕐 Pending <span class="badge bg-warning text-dark ms-1">@counts.Pending</span>
+    </a>
+    <a asp-action="Index" asp-route-status="Reviewed"
+       class="btn btn-sm @(statusFilter == "Reviewed" ? "btn-info" : "btn-outline-info")">
+        👁️ Reviewed <span class="badge bg-info ms-1">@counts.Reviewed</span>
+    </a>
+    <a asp-action="Index" asp-route-status="Approved"
+       class="btn btn-sm @(statusFilter == "Approved" ? "btn-success" : "btn-outline-success")">
+        ✅ Approved <span class="badge bg-success ms-1">@counts.Approved</span>
+    </a>
+    <a asp-action="Index" asp-route-status="Rejected"
+       class="btn btn-sm @(statusFilter == "Rejected" ? "btn-danger" : "btn-outline-danger")">
+        ❌ Rejected <span class="badge bg-danger ms-1">@counts.Rejected</span>
+    </a>
+</div>
+
+<!-- Search -->
+<div class="card shadow-sm mb-3">
+    <div class="card-body py-2">
+        <input type="text" id="searchInput" class="form-control form-control-sm"
+               placeholder="🔍 Search by name, email or phone..."
+               oninput="filterApps()" />
+    </div>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-body p-0">
+        @if (!Model.Any())
+        {
+            <div class="text-center text-muted py-5">
+                <div style="font-size:48px">📋</div>
+                <div class="fw-semibold mt-2">No applications found</div>
+                <div class="small">@(statusFilter != null ? $"No {statusFilter} applications." : "No applications yet.")</div>
+            </div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>#</th>
+                            <th>Applicant</th>
+                            <th>Contact</th>
+                            <th>Course Interest</th>
+                            <th>Applied</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="appsBody">
+                        @{
+                            int i = 1;
+                        }
+                        @foreach (var a in Model)
+                        {
+                            <tr>
+                                <td class="text-muted small">@i</td>
+                                @{
+                                    i++;
+                                }
+                                <td>
+                                    <div class="fw-semibold">@a.FullName</div>
+                                    <div class="text-muted small">@a.Email</div>
+                                </td>
+                                <td>
+                                    <div class="small">📞 @a.PhoneNumber</div>
+                                    @if (!string.IsNullOrEmpty(a.ParentName))
+                                    {
+                                        <div class="text-muted small">👨 @a.ParentName</div>
+                                    }
+                                </td>
+                                <td>
+                                    @if (!string.IsNullOrEmpty(a.CourseName))
+                                    {
+                                        <span class="badge bg-primary">@a.CourseName</span>
+                                    }
+                                    else if (!string.IsNullOrEmpty(a.CourseInterest))
+                                    {
+                                        <span class="text-muted small">@a.CourseInterest</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted small">Not specified</span>
+                                    }
+                                </td>
+                                <td class="small text-muted">
+                                    @a.AppliedAt.ToString("dd MMM yyyy")<br />
+                                    <span style="font-size:11px">@a.AppliedAt.ToString("hh:mm tt")</span>
+                                </td>
+                                <td>
+                                    @{
+                                        var badgeClass = a.Status switch
+                                        {
+                                            "Pending" => "bg-warning text-dark",
+                                            "Reviewed" => "bg-info",
+                                            "Approved" => "bg-success",
+                                            "Rejected" => "bg-danger",
+                                            _ => "bg-secondary"
+                                        };
+                                    }
+                                    <span class="badge @badgeClass">@a.Status</span>
+                                </td>
+                                <td>
+                                    <div class="d-flex gap-1">
+                                        <a asp-action="Detail" asp-route-id="@a.Id"
+                                           class="btn btn-sm btn-outline-primary">👁️ View</a>
+                                        <form asp-action="Delete" method="post" style="display:inline"
+                                              onsubmit="return confirm('Delete this application?')">
+                                            <input type="hidden" name="id" value="@a.Id" />
+                                            <button type="submit" class="btn btn-sm btn-outline-danger">🗑️</button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function filterApps() {
+            const q = document.getElementById('searchInput').value.toLowerCase();
+            document.querySelectorAll('#appsBody tr').forEach(row => {
+                row.style.display = !q || row.innerText.toLowerCase().includes(q) ? '' : 'none';
+            });
+        }
+    </script>
+}

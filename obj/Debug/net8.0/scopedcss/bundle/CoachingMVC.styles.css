@@ -1,0 +1,70 @@
+/* _content/CoachingMVC/Views/Shared/_Layout.cshtml.rz.scp.css */
+/* Please see documentation at https://learn.microsoft.com/aspnet/core/client-side/bundling-and-minification
+for details on configuring this project to bundle and minify static web assets. */
+
+a.navbar-brand[b-68lelo2oxy] {
+  white-space: normal;
+  text-align: center;
+  word-break: break-all;
+}
+
+a[b-68lelo2oxy] {
+  color: #0077cc;
+}
+
+.btn-primary[b-68lelo2oxy] {
+  color: #fff;
+  background-color: #1b6ec2;
+  border-color: #1861ac;
+}
+
+.nav-pills .nav-link.active[b-68lelo2oxy], .nav-pills .show > .nav-link[b-68lelo2oxy] {
+  color: #fff;
+  background-color: #1b6ec2;
+  border-color: #1861ac;
+}
+
+.border-top[b-68lelo2oxy] {
+  border-top: 1px solid #e5e5e5;
+}
+.border-bottom[b-68lelo2oxy] {
+  border-bottom: 1px solid #e5e5e5;
+}
+
+.box-shadow[b-68lelo2oxy] {
+  box-shadow: 0 .25rem .75rem rgba(0, 0, 0, .05);
+}
+
+button.accept-policy[b-68lelo2oxy] {
+  font-size: 1rem;
+  line-height: inherit;
+}
+
+.footer[b-68lelo2oxy] {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  white-space: nowrap;
+  line-height: 60px;
+}
+.sidebar[b-68lelo2oxy] {
+    background: linear-gradient( 180deg, #0f172a, #111827 );
+}
+
+    .sidebar .nav-link[b-68lelo2oxy] {
+        position: relative;
+    }
+
+        .sidebar .nav-link.active[b-68lelo2oxy] {
+            background: linear-gradient( 135deg, #2563eb, #1e40af );
+        }
+
+            .sidebar .nav-link.active[b-68lelo2oxy]::before {
+                content: "";
+                width: 4px;
+                height: 100%;
+                position: absolute;
+                left: 0;
+                top: 0;
+                background: white;
+            }

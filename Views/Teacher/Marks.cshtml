@@ -1,0 +1,255 @@
+﻿@model List<CoachingMVC.ViewModels.Student.MarkViewModel>
+@using CoachingMVC.ViewModels.Shared
+@using CoachingMVC.ViewModels.Student
+@{
+    ViewData["Title"] = "Marks Management";
+    var classes      = ViewBag.Classes as List<ClassViewModel> ?? new();
+    var students     = ViewBag.Students as List<StudentViewModel> ?? new();
+    var subjects     = ViewBag.Subjects as List<SubjectViewModel> ?? new();
+    var selectedClassId = (int)(ViewBag.SelectedClassId ?? 0);
+    var examType     = ViewBag.ExamType?.ToString() ?? "All";
+    var examTypes    = new[] { "Test", "Midterm", "Final", "Assignment", "Quiz" };
+
+    // Group all marks by exam type for the "All" tab
+    var grouped = Model.GroupBy(m => m.ExamType).OrderBy(g => g.Key).ToList();
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h4 class="fw-bold mb-0">📝 Marks Management</h4>
+    @if (selectedClassId > 0)
+    {
+        <button class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#addMarkModal">➕ Add Mark</button>
+    }
+</div>
+
+<!-- Class Tabs -->
+<ul class="nav nav-tabs mb-3">
+    @foreach (var c in classes)
+    {
+        <li class="nav-item">
+            <a class="nav-link @(c.Id == selectedClassId ? "active" : "")"
+               asp-action="Marks" asp-route-classId="@c.Id" asp-route-examType="All">@c.Name</a>
+        </li>
+    }
+</ul>
+
+@if (selectedClassId > 0)
+{
+    <!-- Exam Type Filter Tabs with counts -->
+    <div class="mb-3 d-flex gap-2 flex-wrap align-items-center">
+        <a asp-action="Marks" asp-route-classId="@selectedClassId" asp-route-examType="All"
+           class="btn btn-sm @(examType == "All" ? "btn-dark" : "btn-outline-secondary")">
+            All
+            <span class="badge @(examType == "All" ? "bg-light text-dark" : "bg-secondary") ms-1">@Model.Count</span>
+        </a>
+        @foreach (var et in examTypes)
+        {
+            var count = Model.Count(m => m.ExamType == et);
+            <a asp-action="Marks" asp-route-classId="@selectedClassId" asp-route-examType="@et"
+               class="btn btn-sm @(et == examType ? "btn-primary" : "btn-outline-secondary")">
+                @et
+                @if (count > 0)
+                {
+                    <span class="badge @(et == examType ? "bg-light text-dark" : "bg-primary") ms-1">@count</span>
+                }
+            </a>
+        }
+    </div>
+
+    @if (examType == "All" && grouped.Any())
+    {
+        <!-- Show all marks grouped by exam type -->
+        @foreach (var group in grouped)
+        {
+            <div class="mb-4">
+                <div class="d-flex align-items-center gap-2 mb-2">
+                    <h6 class="fw-bold mb-0">
+                        @(group.Key switch {
+                            "Midterm"    => "📋",
+                            "Final"      => "🎯",
+                            "Test"       => "✏️",
+                            "Assignment" => "📄",
+                            "Quiz"       => "⚡",
+                            _            => "📝"
+                        })
+                        @group.Key
+                    </h6>
+                    <span class="badge bg-secondary">@group.Count() marks</span>
+                    @{
+                        var avg = group.Average(m => m.Percentage);
+                        var avgColor = avg >= 75 ? "success" : avg >= 50 ? "warning" : "danger";
+                    }
+                    <span class="badge bg-@avgColor">Avg: @avg.ToString("F1")%</span>
+                </div>
+                <div class="card shadow-sm">
+                    <div class="card-body p-0">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-dark">
+                                <tr><th>Student</th><th>Subject</th><th>Marks</th><th>Max</th><th>%</th><th>Grade</th><th>Date</th><th>Remarks</th><th></th></tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var m in group.OrderBy(m => m.StudentName))
+                                {
+                                    var bc = m.Grade switch { "A+" or "A" => "success", "B+" or "B" => "primary", "C" => "warning", _ => "danger" };
+                                    <tr>
+                                        <td class="fw-semibold">@m.StudentName</td>
+                                        <td>@m.SubjectName</td>
+                                        <td>@m.ObtainedMarks</td>
+                                        <td>@m.MaxMarks</td>
+                                        <td>
+                                            <div class="d-flex align-items-center gap-2">
+                                                <div class="progress flex-grow-1" style="height:6px;min-width:60px">
+                                                    <div class="progress-bar bg-@bc" style="width:@((int)m.Percentage)%"></div>
+                                                </div>
+                                                <span class="small">@m.Percentage.ToString("F1")%</span>
+                                            </div>
+                                        </td>
+                                        <td><span class="badge bg-@bc">@m.Grade</span></td>
+                                        <td class="small">@m.ExamDate.ToString("dd MMM yyyy")</td>
+                                        <td class="small text-muted">@(m.Remarks ?? "-")</td>
+                                        <td>
+                                            <form asp-action="DeleteMark" method="post" onsubmit="return confirm('Delete this mark?')">
+                                                <input type="hidden" name="id" value="@m.Id" />
+                                                <input type="hidden" name="classId" value="@selectedClassId" />
+                                                <input type="hidden" name="examType" value="All" />
+                                                <button class="btn btn-sm btn-outline-danger">🗑</button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+    else
+    {
+        <!-- Single exam type view -->
+        <div class="card shadow-sm">
+            <div class="card-body p-0">
+                <table class="table table-hover mb-0">
+                    <thead class="table-dark">
+                        <tr><th>Student</th><th>Subject</th><th>Marks</th><th>Max</th><th>%</th><th>Grade</th><th>Date</th><th>Remarks</th><th></th></tr>
+                    </thead>
+                    <tbody>
+                        @if (Model.Any())
+                        {
+                            @foreach (var m in Model.OrderBy(m => m.StudentName))
+                            {
+                                var bc = m.Grade switch { "A+" or "A" => "success", "B+" or "B" => "primary", "C" => "warning", _ => "danger" };
+                                <tr>
+                                    <td class="fw-semibold">@m.StudentName</td>
+                                    <td>@m.SubjectName</td>
+                                    <td>@m.ObtainedMarks</td>
+                                    <td>@m.MaxMarks</td>
+                                    <td>
+                                        <div class="d-flex align-items-center gap-2">
+                                            <div class="progress flex-grow-1" style="height:6px;min-width:60px">
+                                                <div class="progress-bar bg-@bc" style="width:@((int)m.Percentage)%"></div>
+                                            </div>
+                                            <span class="small">@m.Percentage.ToString("F1")%</span>
+                                        </div>
+                                    </td>
+                                    <td><span class="badge bg-@bc">@m.Grade</span></td>
+                                    <td class="small">@m.ExamDate.ToString("dd MMM yyyy")</td>
+                                    <td class="small text-muted">@(m.Remarks ?? "-")</td>
+                                    <td>
+                                        <form asp-action="DeleteMark" method="post" onsubmit="return confirm('Delete this mark?')">
+                                            <input type="hidden" name="id" value="@m.Id" />
+                                            <input type="hidden" name="classId" value="@selectedClassId" />
+                                            <input type="hidden" name="examType" value="@examType" />
+                                            <button class="btn btn-sm btn-outline-danger">🗑</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr><td colspan="9" class="text-center text-muted py-4">No marks recorded for @examType.</td></tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
+}
+else
+{
+    <div class="card shadow-sm">
+        <div class="card-body p-0">
+            <table class="table mb-0">
+                <thead class="table-dark">
+                    <tr><th>Student</th><th>Subject</th><th>Marks</th><th>Max</th><th>%</th><th>Grade</th><th>Date</th><th>Remarks</th><th></th></tr>
+                </thead>
+                <tbody>
+                    <tr><td colspan="9" class="text-center text-muted py-4">Select a class to view marks.</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+}
+
+<!-- Add Mark Modal -->
+<div class="modal fade" id="addMarkModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add Mark</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form asp-action="AddMark" method="post">
+                <input type="hidden" name="classId" value="@selectedClassId" />
+                <div class="modal-body row g-3">
+                    <div class="col-12">
+                        <label class="form-label">Student *</label>
+                        <select name="studentId" class="form-select" required>
+                            <option value="">Select student</option>
+                            @foreach (var s in students)
+                            {
+                                <option value="@s.Id">@s.FullName (@(s.RollNumber ?? s.Email))</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label">Subject *</label>
+                        <select name="subjectId" class="form-select" required>
+                            <option value="">Select subject</option>
+                            @foreach (var s in subjects)
+                            {
+                                <option value="@s.Id">@s.Name (Max: @s.MaxMarks)</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Obtained Marks *</label>
+                        <input name="obtainedMarks" type="number" step="0.5" class="form-control" min="0" required />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Exam Type *</label>
+                        <select name="examType" class="form-select">
+                            @foreach (var et in examTypes)
+                            {
+                                <option value="@et" selected="@(et == (examType == "All" ? "Test" : examType))">@et</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Exam Date *</label>
+                        <input name="examDate" type="date" class="form-control" value="@DateTime.Today.ToString("yyyy-MM-dd")" required />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Remarks</label>
+                        <input name="remarks" class="form-control" />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-success">Save Mark</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

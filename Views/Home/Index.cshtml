@@ -1,0 +1,1117 @@
+﻿@* @{
+    ViewData["Title"] = "Home";
+    var courses = ViewBag.Courses as List<CoachingMVC.ViewModels.Shared.CourseViewModel> ?? new();
+    var categories = ViewBag.Categories as List<CoachingMVC.ViewModels.Admin.CategoryViewModel> ?? new();
+    var announcements = ViewBag.Announcements as List<CoachingMVC.ViewModels.Admin.AnnouncementViewModel> ?? new();
+}
+
+<style>
+    .hero-section {
+        background: linear-gradient(135deg, #1a237e 0%, #0d47a1 50%, #1565c0 100%);
+        border-radius: 16px;
+        padding: 4rem 2rem;
+        text-align: center;
+        color: white;
+        margin-bottom: 2rem;
+        position: relative;
+        overflow: hidden;
+    }
+
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -10%;
+            width: 400px;
+            height: 400px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 50%;
+        }
+
+        .hero-section::after {
+            content: '';
+            position: absolute;
+            bottom: -30%;
+            left: -5%;
+            width: 300px;
+            height: 300px;
+            background: rgba(255,255,255,0.04);
+            border-radius: 50%;
+        }
+
+    /* Category cards */
+    .cat-card {
+        border: 2px solid #e9ecef;
+        border-radius: 14px;
+        padding: 1.5rem 1rem;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.25s ease;
+        background: #fff;
+        user-select: none;
+    }
+
+        .cat-card:hover {
+            border-color: #0d6efd;
+            box-shadow: 0 4px 18px rgba(13,110,253,0.15);
+            transform: translateY(-3px);
+        }
+
+        .cat-card.active {
+            border-color: #0d6efd;
+            background: #e7f0ff;
+            box-shadow: 0 4px 18px rgba(13,110,253,0.2);
+        }
+
+        .cat-card .cat-icon {
+            font-size: 2.4rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .cat-card .cat-name {
+            font-weight: 600;
+            font-size: .95rem;
+            color: #212529;
+        }
+
+        .cat-card.active .cat-name {
+            color: #0d6efd;
+        }
+
+    /* Category detail panel */
+    .cat-detail-panel {
+        display: none;
+        animation: fadeSlideIn 0.3s ease;
+    }
+
+        .cat-detail-panel.visible {
+            display: block;
+        }
+
+    @@keyframes fadeSlideIn {
+        from {
+            opacity: 0;
+            transform: translateY(8px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .cat-feature-list li {
+        padding: 0.35rem 0;
+    }
+
+        .cat-feature-list li::before {
+            content: "✓ ";
+            color: #0d6efd;
+            font-weight: 700;
+        }
+
+    /* Course cards */
+    .course-card {
+        border-radius: 12px;
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+        .course-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+        }
+
+        .course-card[data-category] {
+            transition: opacity 0.3s, transform 0.3s;
+        }
+
+        .course-card.hidden {
+            display: none;
+        }
+</style>
+
+<!-- Hero -->
+<div class="hero-section">
+    <div style="font-size:3rem;margin-bottom:.75rem;">🎓</div>
+    <h1 style="font-size:2.4rem;font-weight:800;margin-bottom:.75rem;">Welcome to Coaching Centre</h1>
+    <p style="font-size:1.1rem;opacity:.9;margin-bottom:2rem;">Empowering students with quality education and expert guidance</p>
+    <div class="d-flex gap-3 justify-content-center flex-wrap">
+        <a asp-action="Courses" class="btn btn-light btn-lg px-4 fw-semibold">Browse Courses</a>
+        <a asp-action="Classes" class="btn btn-outline-light btn-lg px-4 fw-semibold">View Classes</a>
+        <a asp-controller="Admission" asp-action="Apply" class="btn btn-warning btn-lg px-4 fw-semibold text-dark">📝 Apply / Register</a>
+    </div>
+</div>
+
+<!-- Announcement banner -->
+@if (announcements.Any())
+{
+    <div class="alert alert-info d-flex align-items-start gap-2 mb-4 rounded-3">
+        <span class="fs-5">📢</span>
+        <div>
+            <strong>Notice:</strong> @announcements.First().Title —
+            <span class="text-muted small">@announcements.First().Content</span>
+        </div>
+    </div>
+}
+
+<!-- ───── CATEGORIES ───── -->
+<h4 class="fw-bold mb-3">Explore Categories</h4>
+
+@{
+    // Static enrichment data per category keyword
+    var catData = new Dictionary<string, (string Icon, string Tagline, string[] Features, string[] Exams, string Color)>
+    {
+        ["academic"] = ("📚", "Strong foundation for school & college",
+            new[] { "CBSE & ICSE Board prep", "Science, Maths, English, SST", "Regular tests & doubt sessions", "Performance tracking", "Chapter-wise notes" },
+            new[] { "Class 9–12 Boards", "College Entrance", "Olympiads", "NTSE" }, "#0d6efd"),
+
+        ["competitive"] = ("🏆", "Crack India's toughest entrance exams",
+            new[] { "Expert faculty with 10+ years experience", "Full-length mock tests", "Previous year paper analysis", "Rank improvement programs", "24/7 doubt support" },
+            new[] { "JEE Main & Advanced", "NEET UG", "CUET", "NDA", "CAT / MBA" }, "#dc3545"),
+
+        ["skill"] = ("🛠️", "Practical skills for the real world",
+            new[] { "Hands-on project-based learning", "Industry-aligned curriculum", "Certificate on completion", "Small batch sizes", "Job placement support" },
+            new[] { "Web Development", "Data Science", "Digital Marketing", "Graphic Design", "Spoken English" }, "#198754"),
+
+        ["language"] = ("🌐", "Communicate confidently in any language",
+            new[] { "Native & certified instructors", "Conversational practice sessions", "Grammar & writing workshops", "Cultural immersion activities", "Online + offline batches" },
+            new[] { "English Communication", "Hindi", "French", "German", "Sanskrit" }, "#fd7e14"),
+    };
+
+    string MatchKey(string name)
+    {
+        var n = name.ToLower();
+        if (n.Contains("academ") || n.Contains("school") || n.Contains("board")) return "academic";
+        if (n.Contains("compet") || n.Contains("exam") || n.Contains("entrance") || n.Contains("jee") || n.Contains("neet")) return "competitive";
+        if (n.Contains("skill") || n.Contains("voc") || n.Contains("tech") || n.Contains("it") || n.Contains("computer")) return "skill";
+        if (n.Contains("lang") || n.Contains("english") || n.Contains("hindi") || n.Contains("french")) return "language";
+        return "academic"; // default fallback
+    }
+}
+
+<div class="row g-3 mb-2" id="catRow">
+    @for (int i = 0; i < categories.Count; i++)
+    {
+        var cat = categories[i];
+        var key = MatchKey(cat.Name);
+        var d = catData.ContainsKey(key) ? catData[key] : catData["academic"];
+        <div class="col-6 col-md-3">
+            <div class="cat-card" data-cat-id="cat-@i" onclick="selectCategory(this, 'cat-@i')">
+                <div class="cat-icon">@(cat.Icon ?? d.Icon)</div>
+                <div class="cat-name">@cat.Name</div>
+            </div>
+        </div>
+    }
+</div>
+
+<!-- Category Detail Panels -->
+@for (int i = 0; i < categories.Count; i++)
+{
+    var cat = categories[i];
+    var key = MatchKey(cat.Name);
+    var d = catData.ContainsKey(key) ? catData[key] : catData["academic"];
+    <div class="cat-detail-panel mb-4" id="cat-@i">
+        <div class="card border-0 shadow-sm rounded-3 overflow-hidden">
+            <div class="card-body p-0">
+                <div class="row g-0">
+                    <!-- Left: info -->
+                    <div class="col-md-8 p-4">
+                        <div class="d-flex align-items-center gap-2 mb-3">
+                            <span style="font-size:2rem;">@(cat.Icon ?? d.Icon)</span>
+                            <div>
+                                <h5 class="fw-bold mb-0" style="color:@d.Color">@cat.Name</h5>
+                                <div class="text-muted small">@d.Tagline</div>
+                            </div>
+                        </div>
+                        <div class="row g-3">
+                            <div class="col-sm-6">
+                                <div class="fw-semibold mb-2 small text-uppercase text-muted">What you get</div>
+                                <ul class="list-unstyled cat-feature-list mb-0">
+                                    @foreach (var f in d.Features)
+                                    {
+                                        <li class="small">@f</li>
+                                    }
+                                </ul>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="fw-semibold mb-2 small text-uppercase text-muted">Courses / Exams covered</div>
+                                <div class="d-flex flex-wrap gap-2">
+                                    @foreach (var e in d.Exams)
+                                    {
+                                        <span class="badge rounded-pill py-2 px-3" style="background:@d.Color;font-size:.8rem;">@e</span>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Right: stats + CTA -->
+                    <div class="col-md-4 p-4 d-flex flex-column justify-content-between"
+                         style="background:@d.Color;color:white;">
+                        <div>
+                            <div class="fw-bold mb-3" style="font-size:1.1rem;">@cat.Name at a Glance</div>
+                            <div class="d-flex flex-column gap-3">
+                                <div>
+                                    <div style="font-size:1.8rem;font-weight:800;">@(courses.Count(c => c.CategoryName == cat.Name))</div>
+                                    <div style="opacity:.85;font-size:.85rem;">Available Courses</div>
+                                </div>
+                                <div>
+                                    <div style="font-size:1.8rem;font-weight:800;">@d.Exams.Length+</div>
+                                    <div style="opacity:.85;font-size:.85rem;">Exam Targets</div>
+                                </div>
+                                <div>
+                                    <div style="font-size:1.8rem;font-weight:800;">95%</div>
+                                    <div style="opacity:.85;font-size:.85rem;">Success Rate</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mt-3">
+                            <button onclick="filterCourses('@cat.Name')"
+                                    class="btn btn-light fw-semibold w-100">
+                                View @cat.Name Courses →
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<!-- ───── FEATURED COURSES ───── -->
+<div class="d-flex justify-content-between align-items-center mb-3 mt-2">
+    <h4 class="fw-bold mb-0">
+        Featured Courses
+        <span id="filterLabel" class="badge bg-primary ms-2 small" style="display:none;"></span>
+    </h4>
+    <div class="d-flex gap-2 align-items-center">
+        <button id="clearFilterBtn" onclick="clearFilter()" class="btn btn-sm btn-outline-secondary" style="display:none;">✕ Show All</button>
+        <a asp-action="Courses" class="btn btn-outline-primary btn-sm">View All</a>
+    </div>
+</div>
+
+@if (courses.Any())
+{
+    <div class="row g-3 mb-4" id="courseGrid">
+        @foreach (var c in courses)
+        {
+            <div class="col-md-4 course-card-wrap" data-category="@c.CategoryName">
+                <div class="card course-card shadow-sm h-100">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start mb-1">
+                            <h6 class="fw-bold mb-0">@c.Name</h6>
+                            <span class="badge rounded-pill bg-light text-dark border small">@c.CategoryName</span>
+                        </div>
+                        <p class="text-muted small mb-2">@(c.Description ?? "Quality education delivered by expert instructors.")</p>
+                        <div class="d-flex gap-2 flex-wrap small">
+                            <span class="badge bg-light text-dark">⏱ @c.DurationMonths months</span>
+                            @if (c.Fee.HasValue)
+                            {
+                                <span class="badge bg-success text-white">💰 ₹@c.Fee</span>
+                            }
+                            <span class="badge bg-info text-dark">🏫 @c.ClassCount class@(c.ClassCount != 1 ? "es" : "")</span>
+                        </div>
+                    </div>
+                    <div class="card-footer bg-transparent pt-0 border-0 pb-3 px-3">
+                        <a asp-action="Courses" class="btn btn-sm btn-primary w-100">Enroll Now</a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+    <div id="noCoursesMsg" class="text-muted text-center py-4" style="display:none;">
+        No courses found in this category yet.
+    </div>
+}
+else
+{
+    <div class="text-muted text-center py-4 mb-4">No courses available yet.</div>
+}
+
+<!-- Stats -->
+<div class="row g-3 text-center rounded-3 py-4 mb-2" style="background:#f8f9fa;">
+    <div class="col-sm-4">
+        <div class="fs-2 fw-bold text-primary">500+</div>
+        <div class="text-muted">Students Enrolled</div>
+    </div>
+    <div class="col-sm-4">
+        <div class="fs-2 fw-bold text-success">50+</div>
+        <div class="text-muted">Expert Teachers</div>
+    </div>
+    <div class="col-sm-4">
+        <div class="fs-2 fw-bold text-info">95%</div>
+        <div class="text-muted">Success Rate</div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        var activeCard = null;
+
+        function selectCategory(el, panelId) {
+            // Toggle off if clicking same card
+            if (activeCard === el) {
+                el.classList.remove('active');
+                document.getElementById(panelId).classList.remove('visible');
+                activeCard = null;
+                return;
+            }
+            // Deactivate all
+            document.querySelectorAll('.cat-card').forEach(c => c.classList.remove('active'));
+            document.querySelectorAll('.cat-detail-panel').forEach(p => p.classList.remove('visible'));
+            // Activate clicked
+            el.classList.add('active');
+            document.getElementById(panelId).classList.add('visible');
+            activeCard = el;
+            // Smooth scroll to panel
+            setTimeout(() => {
+                document.getElementById(panelId).scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }, 50);
+        }
+
+        function filterCourses(categoryName) {
+            var wraps = document.querySelectorAll('.course-card-wrap');
+            var shown = 0;
+            wraps.forEach(function(w) {
+                if (w.dataset.category === categoryName) { w.style.display = ''; shown++; }
+                else { w.style.display = 'none'; }
+            });
+            document.getElementById('filterLabel').textContent = categoryName;
+            document.getElementById('filterLabel').style.display = '';
+            document.getElementById('clearFilterBtn').style.display = '';
+            document.getElementById('noCoursesMsg').style.display = shown === 0 ? '' : 'none';
+            // Scroll to courses
+            document.getElementById('courseGrid').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        function clearFilter() {
+            document.querySelectorAll('.course-card-wrap').forEach(w => w.style.display = '');
+            document.getElementById('filterLabel').style.display = 'none';
+            document.getElementById('clearFilterBtn').style.display = 'none';
+            document.getElementById('noCoursesMsg').style.display = 'none';
+        }
+    </script>
+} *@
+@{
+    ViewData["Title"] = "Home";
+    var courses = ViewBag.Courses as List<CoachingMVC.ViewModels.Shared.CourseViewModel> ?? new();
+    var categories = ViewBag.Categories as List<CoachingMVC.ViewModels.Admin.CategoryViewModel> ?? new();
+    var announcements = ViewBag.Announcements as List<CoachingMVC.ViewModels.Admin.AnnouncementViewModel> ?? new();
+}
+
+<style>
+    :root {
+        --nm-navy: #0a1628;
+        --nm-blue: #1e40af;
+        --nm-accent: #f59e0b;
+        --nm-green: #10b981;
+        --nm-light: #f0f4ff;
+        --nm-text: #1e293b;
+    }
+    /* HERO */
+    .hero-section {
+        background: var(--nm-navy);
+        min-height: 88vh;
+        display: flex;
+        align-items: center;
+        position: relative;
+        overflow: hidden;
+    }
+
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(ellipse 80% 60% at 70% 50%, rgba(30,64,175,0.45) 0%, transparent 70%), radial-gradient(ellipse 50% 80% at 10% 80%, rgba(245,158,11,0.12) 0%, transparent 60%);
+        }
+
+    .hero-grid {
+        position: absolute;
+        inset: 0;
+        background-image: linear-gradient(rgba(255,255,255,.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.03) 1px, transparent 1px);
+        background-size: 60px 60px;
+    }
+
+    .hero-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: .5rem;
+        background: rgba(245,158,11,0.15);
+        border: 1px solid rgba(245,158,11,0.35);
+        color: #fbbf24;
+        border-radius: 50px;
+        padding: .35rem 1rem;
+        font-size: .8rem;
+        font-weight: 600;
+        margin-bottom: 1.5rem;
+    }
+
+    .hero-title {
+        font-family: 'Sora',sans-serif;
+        font-weight: 800;
+        font-size: clamp(2.2rem,5vw,3.8rem);
+        line-height: 1.1;
+        color: white;
+        letter-spacing: -1.5px;
+    }
+
+        .hero-title .accent {
+            color: var(--nm-accent);
+        }
+
+    .hero-subtitle {
+        color: rgba(255,255,255,.65);
+        font-size: 1.1rem;
+        line-height: 1.75;
+        max-width: 520px;
+        margin: 1.25rem 0 2rem;
+    }
+
+    .hero-btn-primary {
+        background: var(--nm-accent);
+        color: var(--nm-navy);
+        border: none;
+        font-family: 'Sora',sans-serif;
+        font-weight: 700;
+        font-size: .95rem;
+        padding: .75rem 2rem;
+        border-radius: 10px;
+        text-decoration: none;
+        transition: all .2s;
+        display: inline-block;
+    }
+
+        .hero-btn-primary:hover {
+            background: #d97706;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(245,158,11,.35);
+        }
+
+    .hero-btn-secondary {
+        border: 1.5px solid rgba(255,255,255,.25);
+        color: rgba(255,255,255,.85);
+        font-weight: 600;
+        font-size: .95rem;
+        padding: .75rem 2rem;
+        border-radius: 10px;
+        text-decoration: none;
+        transition: all .2s;
+        display: inline-block;
+    }
+
+        .hero-btn-secondary:hover {
+            border-color: white;
+            color: white;
+            background: rgba(255,255,255,.07);
+        }
+
+    .hero-stat {
+        text-align: center;
+    }
+
+    .hero-stat-num {
+        font-family: 'Sora',sans-serif;
+        font-weight: 800;
+        font-size: 2rem;
+        color: white;
+        line-height: 1;
+    }
+
+    .hero-stat-label {
+        color: rgba(255,255,255,.5);
+        font-size: .78rem;
+        margin-top: .2rem;
+    }
+
+    .hero-card {
+        background: rgba(255,255,255,.06);
+        backdrop-filter: blur(16px);
+        border: 1px solid rgba(255,255,255,.1);
+        border-radius: 16px;
+        padding: 1.5rem;
+        color: white;
+    }
+
+    .hero-card-tag {
+        font-size: .72rem;
+        font-weight: 600;
+        letter-spacing: .8px;
+        text-transform: uppercase;
+        opacity: .5;
+        margin-bottom: .5rem;
+    }
+
+    .hero-card-title {
+        font-family: 'Sora',sans-serif;
+        font-weight: 700;
+        font-size: 1.05rem;
+        margin-bottom: .35rem;
+    }
+
+    .hero-pill {
+        display: inline-block;
+        background: rgba(16,185,129,.15);
+        border: 1px solid rgba(16,185,129,.3);
+        color: #34d399;
+        border-radius: 50px;
+        padding: .2rem .7rem;
+        font-size: .72rem;
+        font-weight: 600;
+    }
+    /* SECTIONS */
+    .section-label {
+        display: inline-flex;
+        align-items: center;
+        gap: .4rem;
+        background: var(--nm-light);
+        color: var(--nm-blue);
+        border-radius: 50px;
+        padding: .3rem .9rem;
+        font-size: .78rem;
+        font-weight: 700;
+        letter-spacing: .5px;
+        text-transform: uppercase;
+        margin-bottom: .75rem;
+    }
+
+    .section-title {
+        font-family: 'Sora',sans-serif;
+        font-weight: 800;
+        font-size: clamp(1.75rem,3.5vw,2.5rem);
+        color: var(--nm-text);
+        letter-spacing: -1px;
+        line-height: 1.2;
+    }
+    /* CATEGORIES */
+    .cat-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: .6rem;
+        background: white;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 12px;
+        padding: .75rem 1.25rem;
+        cursor: pointer;
+        transition: all .25s;
+        font-weight: 600;
+        font-size: .9rem;
+        color: var(--nm-text);
+        text-decoration: none;
+    }
+
+        .cat-chip:hover, .cat-chip.active {
+            border-color: var(--nm-blue);
+            background: var(--nm-light);
+            color: var(--nm-blue);
+            box-shadow: 0 4px 16px rgba(30,64,175,.12);
+        }
+
+        .cat-chip .cat-emoji {
+            font-size: 1.3rem;
+        }
+    /* COURSE CARDS */
+    .course-card {
+        border: 1.5px solid #e8edf5;
+        border-radius: 16px;
+        background: white;
+        transition: all .25s;
+        overflow: hidden;
+        height: 100%;
+    }
+
+        .course-card:hover {
+            border-color: var(--nm-blue);
+            box-shadow: 0 12px 40px rgba(30,64,175,.12);
+            transform: translateY(-4px);
+        }
+
+    .course-card-top {
+        background: linear-gradient(135deg,var(--nm-blue),#1d4ed8);
+        padding: 1.5rem;
+        color: white;
+        position: relative;
+        overflow: hidden;
+    }
+
+        .course-card-top::after {
+            content: '';
+            position: absolute;
+            top: -20px;
+            right: -20px;
+            width: 80px;
+            height: 80px;
+            background: rgba(255,255,255,.07);
+            border-radius: 50%;
+        }
+
+    .course-card-icon {
+        font-size: 2rem;
+        margin-bottom: .5rem;
+    }
+
+    .course-card-body {
+        padding: 1.25rem;
+    }
+
+    .course-tag {
+        display: inline-block;
+        background: var(--nm-light);
+        color: var(--nm-blue);
+        border-radius: 6px;
+        padding: .2rem .6rem;
+        font-size: .72rem;
+        font-weight: 700;
+    }
+
+    .course-meta {
+        display: flex;
+        gap: 1rem;
+        font-size: .8rem;
+        color: var(--nm-muted);
+        margin-top: .75rem;
+        border-top: 1px solid #f1f5f9;
+        padding-top: .75rem;
+    }
+
+    .course-enroll {
+        display: block;
+        text-align: center;
+        background: var(--nm-navy);
+        color: white;
+        border-radius: 8px;
+        padding: .6rem;
+        font-weight: 700;
+        font-size: .85rem;
+        text-decoration: none;
+        transition: all .2s;
+        margin-top: .75rem;
+    }
+
+        .course-enroll:hover {
+            background: var(--nm-blue);
+            color: white;
+        }
+    /* TEACHER CARDS */
+    .teacher-card {
+        border-radius: 16px;
+        background: white;
+        border: 1.5px solid #e8edf5;
+        transition: all .25s;
+        overflow: hidden;
+        text-align: center;
+        padding: 1.75rem 1.25rem;
+    }
+
+        .teacher-card:hover {
+            box-shadow: 0 12px 40px rgba(30,64,175,.12);
+            transform: translateY(-4px);
+            border-color: var(--nm-blue);
+        }
+
+    .teacher-avatar {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        margin: 0 auto .75rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: 'Sora',sans-serif;
+        font-weight: 800;
+        font-size: 1.6rem;
+        color: white;
+    }
+
+    .teacher-name {
+        font-family: 'Sora',sans-serif;
+        font-weight: 700;
+        font-size: 1rem;
+        margin-bottom: .2rem;
+    }
+
+    .teacher-subject {
+        font-size: .82rem;
+        color: var(--nm-muted);
+        margin-bottom: .5rem;
+    }
+    /* TESTIMONIALS */
+    .testimonial-card {
+        background: white;
+        border: 1.5px solid #e8edf5;
+        border-radius: 16px;
+        padding: 1.75rem;
+        transition: all .25s;
+    }
+
+        .testimonial-card:hover {
+            box-shadow: 0 12px 40px rgba(0,0,0,.08);
+        }
+
+    .testimonial-quote {
+        font-size: 2.5rem;
+        color: var(--nm-accent);
+        line-height: 1;
+        margin-bottom: .5rem;
+    }
+
+    .testimonial-text {
+        color: #475569;
+        line-height: 1.75;
+        font-size: .92rem;
+        margin-bottom: 1rem;
+    }
+
+    .testimonial-stars {
+        color: var(--nm-accent);
+        font-size: .9rem;
+    }
+
+    .testimonial-name {
+        font-family: 'Sora',sans-serif;
+        font-weight: 700;
+        font-size: .92rem;
+    }
+
+    .testimonial-batch {
+        font-size: .78rem;
+        color: var(--nm-muted);
+    }
+    /* HOW IT WORKS */
+    .step-card {
+        text-align: center;
+        padding: 1.5rem 1rem;
+    }
+
+    .step-num {
+        width: 52px;
+        height: 52px;
+        border-radius: 50%;
+        background: var(--nm-blue);
+        color: white;
+        font-family: 'Sora',sans-serif;
+        font-weight: 800;
+        font-size: 1.2rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1rem;
+    }
+    /* CTA STRIP */
+    .cta-strip {
+        background: linear-gradient(135deg,var(--nm-navy) 0%,var(--nm-blue) 100%);
+        color: white;
+        border-radius: 20px;
+        padding: 3rem 2.5rem;
+    }
+    /* ANNOUNCEMENT */
+    .ann-strip {
+        background: rgba(245,158,11,.08);
+        border-left: 4px solid var(--nm-accent);
+        border-radius: 0 8px 8px 0;
+        padding: .75rem 1.25rem;
+    }
+</style>
+
+<!-- ════════════ HERO ════════════ -->
+<section class="hero-section">
+    <div class="hero-grid"></div>
+    <div class="container position-relative py-5">
+        <div class="row align-items-center g-5">
+            <div class="col-lg-6">
+                <div class="hero-badge">🏆 Ranked #1 Coaching in the Region</div>
+                <h1 class="hero-title">
+                    Learn Smarter.<br>
+                    Score <span class="accent">Higher.</span><br>
+                    Dream Bigger.
+                </h1>
+                <p class="hero-subtitle">
+                    N.M. Coaching Centre — founded by Neeraj Sisodiya — has guided 500+ students to top scores in JEE, NEET, Board exams and beyond. Small batches. Expert faculty. Real results.
+                </p>
+                <div class="d-flex gap-3 flex-wrap">
+                    <a asp-action="Courses" class="hero-btn-primary">Explore Courses</a>
+                    <a asp-controller="Admission" asp-action="Apply" class="hero-btn-primary">📝 Apply / Register</a>
+                </div>
+                <div class="d-flex gap-4 mt-4 pt-2 border-top border-secondary">
+                    <div class="hero-stat"><div class="hero-stat-num">500+</div><div class="hero-stat-label">Students</div></div>
+                    <div class="hero-stat"><div class="hero-stat-num">95%</div><div class="hero-stat-label">Success Rate</div></div>
+                    <div class="hero-stat"><div class="hero-stat-num">10+</div><div class="hero-stat-label">Years</div></div>
+                    <div class="hero-stat"><div class="hero-stat-num">50+</div><div class="hero-stat-label">Teachers</div></div>
+                </div>
+            </div>
+            <div class="col-lg-6 d-none d-lg-block">
+                <div class="row g-3">
+                    <div class="col-12">
+                        <div class="hero-card">
+                            <div class="hero-card-tag">Today's Highlight</div>
+                            <div class="hero-card-title">JEE Advanced Batch 2025 — Now Enrolling</div>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="hero-pill">🟢 Seats Available</span>
+                                <a asp-action="Courses" class="text-warning small fw-bold text-decoration-none">Enroll →</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="hero-card">
+                            <div class="hero-card-tag">Results 2024</div>
+                            <div class="hero-card-title" style="font-size:.95rem">12 Students in Top 1000 JEE</div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="hero-card">
+                            <div class="hero-card-tag">NEET 2024</div>
+                            <div class="hero-card-title" style="font-size:.95rem">8 Students scored 680+</div>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <div class="hero-card d-flex align-items-center gap-3">
+                            <div style="font-size:2.5rem">👨‍🏫</div>
+                            <div>
+                                <div class="hero-card-tag">Founder & Director</div>
+                                <div class="hero-card-title" style="font-size:.95rem">Neeraj Sisodiya — M.Sc. Mathematics, 10+ yrs</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ANNOUNCEMENT STRIP -->
+@if (announcements.Any())
+{
+    <div class="bg-warning bg-opacity-10 py-2 border-bottom">
+        <div class="container">
+            <div class="ann-strip d-flex align-items-center gap-2">
+                <span class="fw-bold text-warning small">📢 Notice:</span>
+                <span class="small text-dark">@announcements.First().Title — @announcements.First().Content</span>
+            </div>
+        </div>
+    </div>
+}
+
+<!-- ════════════ CATEGORIES ════════════ -->
+<section class="py-5" style="background:#fafbff">
+    <div class="container">
+        <div class="text-center mb-4">
+            <div class="section-label">📚 What We Teach</div>
+            <h2 class="section-title">Explore Our <span style="color:var(--nm-blue)">Programs</span></h2>
+        </div>
+        <div class="d-flex flex-wrap justify-content-center gap-3">
+            @{
+                var catIcons = new[] { "📐", "🔬", "🏆", "🌐", "💻", "📖" };
+                int ci = 0;
+            }
+            @foreach (var cat in categories)
+            {
+                <a asp-action="Courses" class="cat-chip">
+                    <span class="cat-emoji">@catIcons[ci % catIcons.Length]</span>
+                    @cat.Name
+                </a>
+                ci++;
+            }
+            @if (!categories.Any())
+            {
+                foreach (var item in new[] { ("📐", "Mathematics"), ("🔬", "Science"), ("🏆", "Competitive Exams"), ("🌐", "Languages"), ("💻", "Computer Science") })
+                {
+                    <a asp-action="Courses" class="cat-chip"><span class="cat-emoji">@item.Item1</span>@item.Item2</a>
+                }
+            }
+        </div>
+    </div>
+</section>
+
+<!-- ════════════ FEATURED COURSES ════════════ -->
+<section class="py-5">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-end mb-4 flex-wrap gap-2">
+            <div>
+                <div class="section-label">🎯 Top Picks</div>
+                <h2 class="section-title mb-0">Featured <span style="color:var(--nm-blue)">Courses</span></h2>
+            </div>
+            <a asp-action="Courses" class="btn btn-outline-primary rounded-pill px-4 fw-600">View All Courses →</a>
+        </div>
+        @{
+            var courseIcons = new[] { "📐", "🔬", "🧬", "💻", "🌐", "📖", "🏆", "✏️" };
+            int courseIdx = 0;
+        }
+        <div class="row g-3">
+            @if (courses.Any())
+            {
+                @foreach (var c in courses.Take(6))
+                {
+                    <div class="col-md-4">
+                        <div class="course-card">
+                            <div class="course-card-top">
+                                <div class="course-card-icon">@courseIcons[courseIdx % courseIcons.Length]</div>
+                                <div style="font-family:'Sora',sans-serif;font-weight:700;font-size:1.05rem">@c.Name</div>
+                                @if (c.Fee.HasValue)
+                                {
+                                    <div style="font-size:.85rem;opacity:.8;margin-top:.25rem">₹@c.Fee · @c.DurationMonths months</div>
+                                }
+                            </div>
+                            <div class="course-card-body">
+                                <span class="course-tag">@c.CategoryName</span>
+                                <p class="mt-2 mb-0 small" style="color:#64748b;line-height:1.6">
+                                    @(string.IsNullOrEmpty(c.Description) ? "Expert-led course with structured curriculum, regular tests, and personal mentoring." : c.Description)
+                                </p>
+                                <div class="course-meta">
+                                    <span>🏫 @c.ClassCount class@(c.ClassCount != 1 ? "es" : "")</span>
+                                    <span>⏱ @c.DurationMonths months</span>
+                                    @if (c.Fee.HasValue)
+                                    {
+                                        <span>💰 ₹@c.Fee</span>
+                                    }
+                                </div>
+                                <a asp-controller="Account" asp-action="Login" class="course-enroll">Enroll Now</a>
+                            </div>
+                        </div>
+                    </div>
+                    courseIdx++;
+                }
+            }
+            else
+            {
+                foreach (var item in new[] {
+                        ("📐","JEE Mathematics","Competitive Exams","Full syllabus coverage with 500+ practice problems."),
+                        ("🔬","NEET Physics","Science","Topic-wise study with previous year analysis."),
+                        ("🧬","NEET Biology","Science","In-depth NCERT-based preparation."),
+                        ("💻","Computer Science","Technology","Programming, algorithms, and board prep."),
+                        ("📖","English Communication","Language","Spoken & written English for all ages."),
+                        ("🏆","Board Exam Booster","Academic","Class 10 & 12 complete preparation.")
+                        })
+                {
+                    <div class="col-md-4">
+                        <div class="course-card">
+                            <div class="course-card-top">
+                                <div class="course-card-icon">@item.Item1</div>
+                                <div style="font-family:'Sora',sans-serif;font-weight:700;font-size:1.05rem">@item.Item2</div>
+                            </div>
+                            <div class="course-card-body">
+                                <span class="course-tag">@item.Item3</span>
+                                <p class="mt-2 mb-0 small" style="color:#64748b;line-height:1.6">@item.Item4</p>
+                                <a asp-controller="Account" asp-action="Login" class="course-enroll mt-3">Enroll Now</a>
+                            </div>
+                        </div>
+                    </div>
+                }
+            }
+        </div>
+    </div>
+</section>
+
+<!-- ════════════ HOW IT WORKS ════════════ -->
+<section class="py-5" style="background:#fafbff">
+    <div class="container">
+        <div class="text-center mb-5">
+            <div class="section-label">🚀 Simple Process</div>
+            <h2 class="section-title">How It <span style="color:var(--nm-blue)">Works</span></h2>
+        </div>
+        <div class="row g-3 text-center">
+            @foreach (var step in new[] {
+                        ("01","Choose a Course","Browse our programs and find the one that matches your goal.","📚"),
+                        ("02","Register & Enroll","Login and complete your enrollment in minutes.","📝"),
+                        ("03","Attend Classes","Join small-batch classes with expert teachers.","🏫"),
+                        ("04","Track Progress","Monitor marks, performance reports, and improvement tips.","📈")
+                        })
+            {
+                <div class="col-md-3">
+                    <div class="step-card">
+                        <div class="step-num">@step.Item1</div>
+                        <div style="font-size:2rem;margin-bottom:.5rem">@step.Item4</div>
+                        <div style="font-family:'Sora',sans-serif;font-weight:700;font-size:1rem;margin-bottom:.4rem">@step.Item2</div>
+                        <div style="color:#64748b;font-size:.875rem;line-height:1.6">@step.Item3</div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</section>
+
+<!-- ════════════ TEACHERS ════════════ -->
+<section class="py-5">
+    <div class="container">
+        <div class="text-center mb-5">
+            <div class="section-label">👨‍🏫 Our Experts</div>
+            <h2 class="section-title">Meet Our <span style="color:var(--nm-blue)">Teachers</span></h2>
+            <p class="text-muted mt-2">Qualified, experienced, and passionate about your success</p>
+        </div>
+        <div class="row g-3 justify-content-center">
+            @{
+                var teacherColors = new[] { "#1e40af", "#0f766e", "#7c3aed", "#b45309", "#be185d" };
+                var teacherData = new[] {
+                        ("N","Neeraj Sisodiya","Mathematics","M.Sc. Math · 10+ yrs","Founder & Director"),
+                        ("P","Parveen Kaur","Chemistry","M.Sc. Chemistry · 5 yrs","Senior Faculty"),
+                        ("R","Rahul Sharma","Physics","B.Tech · IIT · 7 yrs","Physics Expert"),
+                        ("A","Anita Singh","Biology","M.Sc. Biology · 6 yrs","NEET Specialist")
+                        };
+                int ti = 0;
+            }
+            @foreach (var t in teacherData)
+            {
+                <div class="col-6 col-md-3">
+                    <div class="teacher-card">
+                        <div class="teacher-avatar" style="background:@teacherColors[ti % teacherColors.Length]">@t.Item1</div>
+                        <div class="teacher-name">@t.Item2</div>
+                        <div class="teacher-subject">@t.Item3</div>
+                        <div class="d-flex justify-content-center gap-1 flex-wrap">
+                            <span class="badge" style="background:#f0f4ff;color:#1e40af;font-size:.7rem">@t.Item4</span>
+                        </div>
+                        <div class="mt-2" style="font-size:.75rem;color:#94a3b8">@t.Item5</div>
+                    </div>
+                </div>
+                ti++;
+            }
+        </div>
+    </div>
+</section>
+
+<!-- ════════════ TESTIMONIALS ════════════ -->
+<section class="py-5" style="background:#fafbff">
+    <div class="container">
+        <div class="text-center mb-5">
+            <div class="section-label">💬 Student Stories</div>
+            <h2 class="section-title">What Our <span style="color:var(--nm-blue)">Students Say</span></h2>
+        </div>
+        <div class="row g-3">
+            @foreach (var tm in new[] {
+                        ("Rohit Sharma","JEE 2024 · AIR 847","The structured teaching and weekly tests at N.M. Coaching made all the difference. Cleared JEE with AIR 847 — something I never imagined possible two years ago.","⭐⭐⭐⭐⭐"),
+                        ("Priya Patel","NEET 2024 · 695/720","Sir's biology notes are gold. The personal attention in small batches and regular doubt sessions helped me score 695 in NEET. Forever grateful!","⭐⭐⭐⭐⭐"),
+                        ("Amit Kumar","Class 12 Boards · 97%","From 72% in Class 11 to 97% in Boards — that transformation happened here. The teachers genuinely care about each student's improvement.","⭐⭐⭐⭐⭐")
+                        })
+            {
+                <div class="col-md-4">
+                    <div class="testimonial-card">
+                        <div class="testimonial-quote">"</div>
+                        <p class="testimonial-text">@tm.Item3</p>
+                        <div class="testimonial-stars mb-2">@tm.Item4</div>
+                        <div class="d-flex align-items-center gap-2">
+                            <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center fw-bold" style="width:38px;height:38px;font-family:'Sora',sans-serif;flex-shrink:0">@tm.Item1[0]</div>
+                            <div>
+                                <div class="testimonial-name">@tm.Item1</div>
+                                <div class="testimonial-batch">@tm.Item2</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</section>
+
+<!-- ════════════ CTA ════════════ -->
+<section class="py-5">
+    <div class="container">
+        <div class="cta-strip text-center">
+            <div style="font-size:2.5rem;margin-bottom:.75rem">🚀</div>
+            <h2 style="font-family:'Sora',sans-serif;font-weight:800;font-size:2rem;margin-bottom:.75rem">Ready to Start Your Success Story?</h2>
+            <p style="color:rgba(255,255,255,.7);max-width:480px;margin:0 auto 1.75rem;line-height:1.7">
+                Join hundreds of students who trusted N.M. Coaching Centre and achieved their dreams. Limited seats available.
+            </p>
+            <div class="d-flex gap-3 justify-content-center flex-wrap">
+                <a asp-controller="Account" asp-action="Login" class="hero-btn-primary" style="font-size:1rem;padding:.85rem 2.5rem">Get Started Today</a>
+                <a asp-action="Contact" class="hero-btn-secondary" style="font-size:1rem;padding:.85rem 2.5rem">Talk to Us</a>
+            </div>
+        </div>
+    </div>
+</section>

@@ -1,0 +1,175 @@
+﻿@model List<CoachingMVC.ViewModels.Shared.CourseViewModel>
+@using CoachingMVC.ViewModels.Admin
+@{
+    ViewData["Title"] = "Courses";
+    var categories = ViewBag.Categories as List<CategoryViewModel> ?? new();
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h4 class="fw-bold mb-0">📚 Courses</h4>
+    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addCourseModal">➕ Add Course</button>
+</div>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show">@TempData["Success"]<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show">@TempData["Error"]<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
+}
+
+<div class="row g-3">
+    @foreach (var c in Model)
+    {
+        <div class="col-md-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <h6 class="card-title fw-bold mb-1">@c.Name</h6>
+                        @if (c.IsActive)
+                        {
+                            <span class="badge bg-success">Active</span>
+                        }
+                        else
+                        {
+
+                            <span class="badge bg-secondary">Inactive</span>
+                        }
+                    </div>
+                    <p class="text-muted small">@(c.Description ?? "No description")</p>
+                    <div class="small">
+                        <span class="badge bg-light text-dark me-1">📁 @c.CategoryName</span>
+                        <span class="badge bg-light text-dark me-1">⏱ @c.DurationMonths months</span>
+                        @if (c.Fee.HasValue)
+                        {
+                            <span class="badge bg-light text-dark">💰 ₹@c.Fee</span>
+                        }
+                    </div>
+                    <div class="mt-2 text-muted small">@c.ClassCount class@(c.ClassCount != 1 ? "es" : "")</div>
+                </div>
+                <div class="card-footer bg-transparent d-flex gap-2">
+                    <button class="btn btn-sm btn-outline-warning flex-fill"
+                            onclick="openEditCourse(@c.Id, '@Html.Raw(c.Name.Replace("'", "\\\'"))', '@Html.Raw((c.Description ?? "").Replace("'", "\\\'"))', @c.CategoryId, @(c.Fee.HasValue? c.Fee.Value.ToString() : "null"), @c.DurationMonths)">
+                        ✏️ Edit
+                    </button>
+                    <form asp-action="DeleteCourse" method="post"
+                          onsubmit="return confirm('Delete \'@c.Name\'?')">
+                        <input type="hidden" name="id" value="@c.Id" />
+                        <button type="submit" class="btn btn-sm btn-outline-danger">🗑</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    }
+    @if (!Model.Any())
+    {
+        <div class="col-12"><p class="text-muted text-center py-4">No courses found.</p></div>
+    }
+</div>
+
+<!-- ── ADD COURSE MODAL ─────────────────────────────────────────── -->
+<div class="modal fade" id="addCourseModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add New Course</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form asp-action="CreateCourse" method="post">
+                <div class="modal-body row g-3">
+                    <div class="col-12">
+                        <label class="form-label">Course Name *</label>
+                        <input name="name" class="form-control" required />
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label">Description</label>
+                        <textarea name="description" class="form-control" rows="2"></textarea>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Category *</label>
+                        <select name="categoryId" class="form-select" required>
+                            <option value="">Select category</option>
+                            @foreach (var cat in categories)
+                            {
+                                <option value="@cat.Id">@cat.Name</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Duration (Months) *</label>
+                        <input name="durationMonths" type="number" class="form-control" value="6" min="1" required />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Fee (₹)</label>
+                        <input name="fee" type="number" step="0.01" class="form-control" />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Add Course</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- ── EDIT COURSE MODAL ────────────────────────────────────────── -->
+<div class="modal fade" id="editCourseModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">✏️ Edit Course</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form asp-action="UpdateCourse" method="post">
+                <input type="hidden" name="id" id="editCourseId" />
+                <div class="modal-body row g-3">
+                    <div class="col-12">
+                        <label class="form-label">Course Name *</label>
+                        <input name="name" id="editCourseName" class="form-control" required />
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label">Description</label>
+                        <textarea name="description" id="editCourseDesc" class="form-control" rows="2"></textarea>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Category *</label>
+                        <select name="categoryId" id="editCourseCat" class="form-select" required>
+                            @foreach (var cat in categories)
+                            {
+                                <option value="@cat.Id">@cat.Name</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Duration (Months) *</label>
+                        <input name="durationMonths" id="editCourseDuration" type="number" class="form-control" min="1" required />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Fee (₹)</label>
+                        <input name="fee" id="editCourseFee" type="number" step="0.01" class="form-control" />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-warning">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function openEditCourse(id, name, desc, catId, fee, duration) {
+            document.getElementById('editCourseId').value       = id;
+            document.getElementById('editCourseName').value     = name;
+            document.getElementById('editCourseDesc').value     = desc;
+            document.getElementById('editCourseCat').value      = catId;
+            document.getElementById('editCourseFee').value      = fee !== 'null' ? fee : '';
+            document.getElementById('editCourseDuration').value = duration;
+            new bootstrap.Modal(document.getElementById('editCourseModal')).show();
+        }
+    </script>
+}

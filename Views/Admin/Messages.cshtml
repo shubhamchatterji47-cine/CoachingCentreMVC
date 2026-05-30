@@ -1,0 +1,235 @@
+﻿@model List<CoachingMVC.ViewModels.Contact.ContactMessageViewModel>
+@using CoachingMVC.ViewModels.Contact
+@{
+    ViewData["Title"] = "Contact Messages";
+    var counts = ViewBag.Counts as ContactCountViewModel ?? new();
+    var statusFilter = ViewBag.StatusFilter as string;
+}
+
+<style>
+    .msg-card {
+        border: 1.5px solid #e8edf5;
+        border-radius: 14px;
+        background: white;
+        transition: all .2s;
+        overflow: hidden;
+    }
+
+        .msg-card:hover {
+            box-shadow: 0 6px 24px rgba(0,0,0,.08);
+            border-color: #c7d6f5;
+        }
+
+        .msg-card.unread {
+            border-left: 4px solid #1e40af;
+            background: #fafcff;
+        }
+
+        .msg-card.replied {
+            border-left: 4px solid #10b981;
+        }
+
+    .status-badge-new {
+        background: #dbeafe;
+        color: #1e40af;
+    }
+
+    .status-badge-read {
+        background: #f1f5f9;
+        color: #64748b;
+    }
+
+    .status-badge-replied {
+        background: #d1fae5;
+        color: #065f46;
+    }
+
+    .filter-btn {
+        border: 1.5px solid #e2e8f0;
+        background: white;
+        color: #475569;
+        border-radius: 50px;
+        padding: .35rem 1rem;
+        font-size: .82rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all .2s;
+        text-decoration: none;
+        display: inline-block;
+    }
+
+        .filter-btn:hover, .filter-btn.active {
+            border-color: #1e40af;
+            background: #eff6ff;
+            color: #1e40af;
+        }
+
+    .reply-box {
+        background: #f8fafc;
+        border-radius: 10px;
+        padding: 1rem;
+        border: 1px solid #e2e8f0;
+        margin-top: .75rem;
+    }
+</style>
+
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+    <div>
+        <h4 class="fw-bold mb-0">📨 Contact Messages</h4>
+        <p class="text-muted small mb-0">Messages sent from the Contact page</p>
+    </div>
+    <div class="d-flex gap-2 flex-wrap">
+        @if (counts.Unread > 0)
+        {
+            <span class="badge bg-danger fs-6">@counts.Unread Unread</span>
+        }
+        @if (counts.Replied > 0)
+        {
+            <span class="badge bg-success fs-6">@counts.Replied Replied</span>
+        }
+        <span class="badge bg-secondary fs-6">@counts.Total Total</span>
+    </div>
+</div>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show">@TempData["Success"]<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show">@TempData["Error"]<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
+}
+
+<!-- Status Filter -->
+<div class="d-flex gap-2 mb-4 flex-wrap">
+    <a asp-action="Messages" class="filter-btn @(statusFilter == null ? "active" : "")">
+        All (@counts.Total)
+    </a>
+    <a asp-action="Messages" asp-route-status="New" class="filter-btn @(statusFilter == "New" ? "active" : "")">
+        🔵 New (@counts.Unread)
+    </a>
+    <a asp-action="Messages" asp-route-status="Read" class="filter-btn @(statusFilter == "Read" ? "active" : "")">
+        ✅ Read
+    </a>
+    <a asp-action="Messages" asp-route-status="Replied" class="filter-btn @(statusFilter == "Replied" ? "active" : "")">
+        💬 Replied (@counts.Replied)
+    </a>
+</div>
+
+@if (!Model.Any())
+{
+    <div class="text-center py-5 text-muted">
+        <div style="font-size:3rem">📭</div>
+        <div class="fw-semibold mt-2">No messages yet</div>
+        <div class="small mt-1">Messages from the Contact page will appear here</div>
+    </div>
+}
+else
+{
+    <div class="d-flex flex-column gap-3">
+        @foreach (var m in Model)
+        {
+            var cardClass = !m.IsRead ? "unread" : m.Status == "Replied" ? "replied" : "";
+            var statusClass = m.Status == "New" ? "status-badge-new" : m.Status == "Replied" ? "status-badge-replied" : "status-badge-read";
+            <div class="msg-card @cardClass">
+                <div class="p-3">
+                    <!-- Header row -->
+                    <div class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-2">
+                        <div class="d-flex align-items-center gap-2">
+                            <div class="rounded-circle d-flex align-items-center justify-content-center fw-bold text-white"
+                                 style="width:38px;height:38px;background:#1e40af;font-size:.9rem;flex-shrink:0">
+                                @m.Name[0].ToString().ToUpper()
+                            </div>
+                            <div>
+                                <div class="fw-semibold" style="font-family:'Sora',sans-serif">
+                                    @m.Name
+                                    @if (!m.IsRead)
+                                    {
+                                        <span class="badge bg-primary ms-1" style="font-size:.65rem">NEW</span>
+                                    }
+                                </div>
+                                <div class="small text-muted">@m.Email @(!string.IsNullOrEmpty(m.Phone) ? $"· {m.Phone}" : "")</div>
+                            </div>
+                        </div>
+                        <div class="d-flex align-items-center gap-2 flex-wrap">
+                            @if (!string.IsNullOrEmpty(m.Subject))
+                            {
+                                <span class="badge bg-light text-dark border" style="font-size:.75rem">@m.Subject</span>
+                            }
+                            <span class="badge @statusClass rounded-pill px-2" style="font-size:.72rem">@m.Status</span>
+                            <span class="text-muted small">@m.SentAt.ToString("dd MMM yyyy, hh:mm tt")</span>
+                        </div>
+                    </div>
+
+                    <!-- Message body -->
+                    <div class="p-3 rounded-3 mb-2" style="background:#f8fafc;border:1px solid #e2e8f0;font-size:.9rem;line-height:1.65;color:#374151">
+                        @m.Message
+                    </div>
+
+                    <!-- Admin Reply (if any) -->
+                    @if (!string.IsNullOrEmpty(m.AdminReply))
+                    {
+                        <div class="reply-box">
+                            <div class="small fw-semibold text-success mb-1">💬 Your Reply</div>
+                            <div class="small text-muted">@m.AdminReply</div>
+                        </div>
+                    }
+
+                    <!-- Actions -->
+                    <div class="d-flex gap-2 flex-wrap mt-2">
+                        @if (!m.IsRead)
+                        {
+                            <form asp-action="MarkMessageRead" method="post" style="display:inline">
+                                <input type="hidden" name="id" value="@m.Id" />
+                                <button type="submit" class="btn btn-sm btn-outline-primary">✅ Mark Read</button>
+                            </form>
+                        }
+
+                        <!-- Reply toggle -->
+                        <button class="btn btn-sm btn-outline-success"
+                                onclick="toggleReply(@m.Id)">
+                            💬 @(string.IsNullOrEmpty(m.AdminReply) ? "Reply" : "Edit Reply")
+                        </button>
+
+                        <a href="mailto:@m.Email?subject=Re: @(m.Subject ?? "Your message to N.M. Coaching")"
+                           class="btn btn-sm btn-outline-info">
+                            📧 Email Directly
+                        </a>
+
+                        <form asp-action="DeleteMessage" method="post" style="display:inline"
+                              onsubmit="return confirm('Delete this message from @m.Name?')">
+                            <input type="hidden" name="id" value="@m.Id" />
+                            <button type="submit" class="btn btn-sm btn-outline-danger">🗑 Delete</button>
+                        </form>
+                    </div>
+
+                    <!-- Reply form (hidden by default) -->
+                    <div id="replyForm_@m.Id" style="display:none;margin-top:.75rem">
+                        <form asp-action="ReplyMessage" method="post">
+                            <input type="hidden" name="id" value="@m.Id" />
+                            <div class="mb-2">
+                                <label class="form-label small fw-semibold">Your Reply to @m.Name</label>
+                                <textarea name="reply" class="form-control form-control-sm" rows="3"
+                                  placeholder="Type your reply here...">@m.AdminReply</textarea>
+                            </div>
+                            <button type="submit" class="btn btn-sm btn-success">Send Reply</button>
+                            <button type="button" class="btn btn-sm btn-light ms-1"
+                                    onclick="toggleReply(@m.Id)">
+                                Cancel
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
+
+@section Scripts {
+    <script>
+        function toggleReply(id) {
+            const el = document.getElementById('replyForm_' + id);
+            el.style.display = el.style.display === 'none' ? 'block' : 'none';
+        }
+    </script>
+}

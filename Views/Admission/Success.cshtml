@@ -1,0 +1,42 @@
+﻿@{
+    ViewData["Title"] = "Application Submitted";
+}
+
+<div class="text-center py-5">
+    <div style="font-size:5rem;margin-bottom:1rem">🎉</div>
+    <h2 class="fw-bold text-success mb-2">Application Submitted Successfully!</h2>
+    <p class="text-muted fs-5 mb-4">Thank you for applying to N.M.CoachingCentre.</p>
+
+    <div class="card border-0 shadow-sm rounded-3 mx-auto mb-4" style="max-width:500px;">
+        <div class="card-body p-4">
+            <h6 class="fw-bold mb-3">What happens next?</h6>
+            <div class="text-start">
+                <div class="d-flex gap-2 mb-2">
+                    <span class="text-success fw-bold">✓</span>
+                    <span class="small">Your application has been received and is under review.</span>
+                </div>
+                <div class="d-flex gap-2 mb-2">
+                    <span class="text-primary fw-bold">→</span>
+                    <span class="small">Our team will call you within <strong>24 hours</strong>.</span>
+                </div>
+                <div class="d-flex gap-2 mb-2">
+                    <span class="text-primary fw-bold">→</span>
+                    <span class="small">We'll discuss your course, batch timing and fee structure.</span>
+                </div>
+                <div class="d-flex gap-2">
+                    <span class="text-primary fw-bold">→</span>
+                    <span class="small">You can also reach us at <strong>+91 98765 43210</strong>.</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="d-flex gap-3 justify-content-center flex-wrap">
+        <a asp-controller="Home" asp-action="Index" class="btn btn-primary btn-lg px-4">
+            🏠 Back to Home
+        </a>
+        <a asp-controller="Home" asp-action="Courses" class="btn btn-outline-primary btn-lg px-4">
+            📚 Browse Courses
+        </a>
+    </div>
+</div>

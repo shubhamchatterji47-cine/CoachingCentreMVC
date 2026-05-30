@@ -1,0 +1,123 @@
+﻿@{
+    ViewData["Title"] = "My Profile";
+    var token = Context.Session.GetString("Token") ?? "";
+    var fullName = Context.Session.GetString("FullName") ?? "T";
+    var t = ViewBag.Teacher as CoachingMVC.ViewModels.Admin.TeacherViewModel;
+}
+
+<h4 class="fw-bold mb-4">👤 My Profile</h4>
+
+<div class="row g-4">
+    <div class="col-md-5">
+        <div class="card shadow-sm">
+            <div class="card-body text-center py-4">
+                <div class="rounded-circle bg-success text-white mx-auto d-flex align-items-center justify-content-center mb-3"
+                     style="width:80px;height:80px;font-size:2rem;font-weight:700;">
+                    @fullName[0]
+                </div>
+                <h5 class="fw-bold mb-0">@fullName</h5>
+                <span class="badge bg-success mt-1">Teacher</span>
+            </div>
+            @if (t != null)
+            {
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item d-flex justify-content-between">
+                        <span class="text-muted small">📧 Email</span>
+                        <span class="fw-semibold small">@t.Email</span>
+                    </li>
+                    @if (!string.IsNullOrEmpty(t.Qualification))
+                    {
+                        <li class="list-group-item d-flex justify-content-between">
+                            <span class="text-muted small">🎓 Qualification</span>
+                            <span class="fw-semibold small">@t.Qualification</span>
+                        </li>
+                    }
+                    @if (!string.IsNullOrEmpty(t.Specialization))
+                    {
+                        <li class="list-group-item d-flex justify-content-between">
+                            <span class="text-muted small">🔬 Specialization</span>
+                            <span class="fw-semibold small">@t.Specialization</span>
+                        </li>
+                    }
+                    <li class="list-group-item d-flex justify-content-between">
+                        <span class="text-muted small">📅 Experience</span>
+                        <span class="fw-semibold small">@t.ExperienceYears years</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between">
+                        <span class="text-muted small">✅ Status</span>
+                        @if (t.IsActive)
+                        {
+                            <span class="badge bg-success">Active</span>
+                        }
+                        else
+                        {
+
+                            <span class="badge bg-secondary">Inactive</span>
+                        }
+                    </li>
+                </ul>
+            }
+        </div>
+    </div>
+
+    <div class="col-md-7">
+        <div class="card shadow-sm">
+            <div class="card-header fw-semibold">🔐 Change Password</div>
+            <div class="card-body">
+                <div id="pwMsg"></div>
+                <div class="row g-3">
+                    <div class="col-12">
+                        <label class="form-label">Current Password</label>
+                        <input id="currentPassword" type="password" class="form-control" placeholder="Enter current password" />
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label">New Password</label>
+                        <input id="newPassword" type="password" class="form-control" placeholder="Enter new password" />
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label">Confirm New Password</label>
+                        <input id="confirmPassword" type="password" class="form-control" placeholder="Confirm new password" />
+                    </div>
+                    <div class="col-12">
+                        <button id="changePwBtn" onclick="changePassword()" class="btn btn-success">Change Password</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        const TOKEN = '@token';
+        async function changePassword() {
+            const current = document.getElementById('currentPassword').value.trim();
+            const newPw   = document.getElementById('newPassword').value.trim();
+            const confirm = document.getElementById('confirmPassword').value.trim();
+            const msg     = document.getElementById('pwMsg');
+            const btn     = document.getElementById('changePwBtn');
+            msg.innerHTML = '';
+            if (!current || !newPw || !confirm) { msg.innerHTML = '<div class="alert alert-warning">Please fill in all fields.</div>'; return; }
+            if (newPw !== confirm) { msg.innerHTML = '<div class="alert alert-danger">Passwords do not match.</div>'; return; }
+            if (newPw.length < 6) { msg.innerHTML = '<div class="alert alert-warning">Minimum 6 characters required.</div>'; return; }
+            btn.disabled = true; btn.textContent = 'Changing...';
+            try {
+                const res = await fetch('/Account/ChangePassword', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', },
+                    body: JSON.stringify({ currentPassword: current, newPassword: newPw })
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    msg.innerHTML = '<div class="alert alert-success">✅ Password changed successfully!</div>';
+                    document.getElementById('currentPassword').value = '';
+                    document.getElementById('newPassword').value = '';
+                    document.getElementById('confirmPassword').value = '';
+                } else {
+                    msg.innerHTML = `<div class="alert alert-danger">${data.message ?? 'Failed.'}</div>`;
+                }
+            } catch { msg.innerHTML = '<div class="alert alert-danger">Connection error.</div>'; }
+            btn.disabled = false; btn.textContent = 'Change Password';
+        }
+    </script>
+}

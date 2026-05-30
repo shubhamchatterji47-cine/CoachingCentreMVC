@@ -1,0 +1,863 @@
+﻿@* @{
+    ViewData["Title"] = "About Us";
+}
+
+<style>
+    .about-hero {
+        background: linear-gradient(135deg, #1a237e 0%, #0d47a1 60%, #1565c0 100%);
+        border-radius: 16px;
+        color: white;
+        padding: 3rem 2rem;
+        margin-bottom: 2.5rem;
+    }
+
+    .founder-card {
+        border: none;
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+    }
+
+    .founder-avatar {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #0d6efd, #0056b3);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2.5rem;
+        font-weight: 800;
+        color: white;
+        margin: 0 auto 1rem;
+        border: 4px solid white;
+        box-shadow: 0 4px 16px rgba(13,110,253,0.3);
+    }
+
+    .stat-card {
+        border-radius: 12px;
+        padding: 1.5rem 1rem;
+        text-align: center;
+        transition: transform 0.2s;
+    }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+        }
+
+    .value-item {
+        border-left: 4px solid #0d6efd;
+        padding: 0.75rem 1rem;
+        margin-bottom: 0.75rem;
+        background: #f8f9ff;
+        border-radius: 0 8px 8px 0;
+    }
+
+    .timeline-item {
+        position: relative;
+        padding-left: 2rem;
+        margin-bottom: 1.25rem;
+    }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 6px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #0d6efd;
+        }
+
+        .timeline-item::after {
+            content: '';
+            position: absolute;
+            left: 5px;
+            top: 18px;
+            width: 2px;
+            height: calc(100% + 2px);
+            background: #dee2e6;
+        }
+
+        .timeline-item:last-child::after {
+            display: none;
+        }
+</style>
+
+<!-- Hero Banner -->
+<div class="about-hero text-center">
+    <div style="font-size:3rem;margin-bottom:0.75rem;">🎓</div>
+    <h1 class="fw-bold mb-2" style="font-size:2.2rem;">N.M. Coaching Centre</h1>
+    <p class="mb-0 opacity-90" style="font-size:1.1rem;">Empowering Students. Building Futures. Transforming Lives.</p>
+    <div class="mt-3 opacity-75 small">Founded by <strong>Neeraj Sisodiya</strong> · Est. 2015</div>
+</div>
+
+<!-- Stats Row -->
+<div class="row g-3 mb-4">
+    <div class="col-6 col-md-3">
+        <div class="stat-card bg-primary text-white shadow-sm">
+            <div class="fs-1 fw-bold">10+</div>
+            <div class="small opacity-85">Years of Excellence</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="stat-card bg-success text-white shadow-sm">
+            <div class="fs-1 fw-bold">500+</div>
+            <div class="small opacity-85">Students Taught</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="stat-card bg-info text-white shadow-sm">
+            <div class="fs-1 fw-bold">50+</div>
+            <div class="small opacity-85">Expert Teachers</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="stat-card bg-warning text-white shadow-sm">
+            <div class="fs-1 fw-bold">95%</div>
+            <div class="small opacity-85">Success Rate</div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4 mb-4">
+
+    <!-- Founder Section -->
+    <div class="col-md-4">
+        <div class="card founder-card h-100">
+            <div class="card-body text-center py-4">
+                <div class="founder-avatar">N</div>
+                <h5 class="fw-bold mb-0">Neeraj Sisodiya</h5>
+                <div class="text-primary fw-semibold small mb-2">Founder & Director</div>
+                <span class="badge bg-primary mb-3">M.Sc. Mathematics</span>
+                <p class="text-muted small mb-3">
+                    With over 10 years of teaching experience, Neeraj Sisodiya founded N.M. Coaching Centre
+                    with a singular vision — to make quality education accessible to every student, regardless
+                    of their background.
+                </p>
+                <p class="text-muted small mb-3">
+                    A passionate educator and mentor, he has personally guided hundreds of students to
+                    excel in competitive exams including JEE, NEET, and Board examinations.
+                </p>
+                <div class="d-flex justify-content-center gap-3 mt-3">
+                    <div class="text-center">
+                        <div class="fw-bold text-primary fs-5">10+</div>
+                        <div class="text-muted" style="font-size:11px">Years Teaching</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="fw-bold text-success fs-5">500+</div>
+                        <div class="text-muted" style="font-size:11px">Students Mentored</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="fw-bold text-warning fs-5">95%</div>
+                        <div class="text-muted" style="font-size:11px">Pass Rate</div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer bg-primary text-white text-center py-2 small">
+                🏆 Best Coaching Centre Award 2023
+            </div>
+        </div>
+    </div>
+
+    <!-- Mission & Vision -->
+    <div class="col-md-8">
+        <div class="row g-3 h-100">
+
+            <div class="col-12">
+                <div class="card shadow-sm border-0 h-100">
+                    <div class="card-body">
+                        <h5 class="fw-bold mb-3">🎯 Our Mission</h5>
+                        <p class="text-muted mb-0">
+                            At N.M. Coaching Centre, our mission is to nurture every student's potential through
+                            structured learning, personal attention, and a results-driven approach. We believe
+                            education is not just about marks — it is about building confident, curious, and
+                            capable individuals ready to face the world.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="card shadow-sm border-0 h-100">
+                    <div class="card-body">
+                        <h6 class="fw-bold mb-3">✅ Why Choose Us?</h6>
+                        <div class="value-item small">👨‍🏫 Experienced & qualified teachers</div>
+                        <div class="value-item small">👥 Small batch sizes for personal attention</div>
+                        <div class="value-item small">📊 Regular tests & performance tracking</div>
+                        <div class="value-item small">📱 Modern teaching methods & resources</div>
+                        <div class="value-item small">🤝 Transparent communication with parents</div>
+                        <div class="value-item small">🏆 Proven track record of results</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="card shadow-sm border-0 h-100">
+                    <div class="card-body">
+                        <h6 class="fw-bold mb-3">📚 What We Offer</h6>
+                        <div class="value-item small" style="border-color:#198754">🔬 Science (Physics, Chemistry, Biology)</div>
+                        <div class="value-item small" style="border-color:#198754">📐 Mathematics & Statistics</div>
+                        <div class="value-item small" style="border-color:#198754">🏫 CBSE & ICSE Board Preparation</div>
+                        <div class="value-item small" style="border-color:#198754">🎯 JEE & NEET Coaching</div>
+                        <div class="value-item small" style="border-color:#198754">💻 Computer Science</div>
+                        <div class="value-item small" style="border-color:#198754">🌐 Language & Communication</div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- Journey Timeline -->
+<div class="card shadow-sm border-0 mb-4">
+    <div class="card-body">
+        <h5 class="fw-bold mb-4">🗓️ Our Journey</h5>
+        <div class="row g-0">
+            <div class="col-md-6">
+                <div class="timeline-item">
+                    <div class="fw-semibold">2015 — Founded</div>
+                    <div class="text-muted small">Neeraj Sisodiya started N.M. Coaching Centre with just 12 students and a dream to transform education.</div>
+                </div>
+                <div class="timeline-item">
+                    <div class="fw-semibold">2017 — First Batch Results</div>
+                    <div class="text-muted small">Our first JEE batch achieved 90% selection rate — validating our teaching methodology.</div>
+                </div>
+                <div class="timeline-item">
+                    <div class="fw-semibold">2019 — Expansion</div>
+                    <div class="text-muted small">Expanded to 10 teachers, added NEET, Board Prep, and Language courses to the curriculum.</div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="timeline-item">
+                    <div class="fw-semibold">2021 — Digital Integration</div>
+                    <div class="text-muted small">Launched online classes and digital study materials to reach students across the region.</div>
+                </div>
+                <div class="timeline-item">
+                    <div class="fw-semibold">2023 — Best Coaching Award</div>
+                    <div class="text-muted small">Recognized as the Best Coaching Centre in the region by the State Education Board.</div>
+                </div>
+                <div class="timeline-item">
+                    <div class="fw-semibold">2025 — 500+ Alumni</div>
+                    <div class="text-muted small">Proud community of 500+ successful alumni in top colleges, careers, and competitive positions.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Core Values -->
+<div class="card shadow-sm border-0 mb-2">
+    <div class="card-body">
+        <h5 class="fw-bold mb-3">💡 Our Core Values</h5>
+        <div class="row g-3 text-center">
+            <div class="col-6 col-md-3">
+                <div class="p-3 rounded-3 bg-light h-100">
+                    <div class="fs-2 mb-2">🎯</div>
+                    <div class="fw-semibold">Excellence</div>
+                    <div class="text-muted small">We set high standards and help every student reach them.</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="p-3 rounded-3 bg-light h-100">
+                    <div class="fs-2 mb-2">❤️</div>
+                    <div class="fw-semibold">Dedication</div>
+                    <div class="text-muted small">Every teacher is personally invested in each student's success.</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="p-3 rounded-3 bg-light h-100">
+                    <div class="fs-2 mb-2">🤝</div>
+                    <div class="fw-semibold">Integrity</div>
+                    <div class="text-muted small">Honest feedback, transparent results, trusted by families.</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="p-3 rounded-3 bg-light h-100">
+                    <div class="fs-2 mb-2">🚀</div>
+                    <div class="fw-semibold">Innovation</div>
+                    <div class="text-muted small">Modern methods, technology, and adaptive learning techniques.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div> *@
+```cshtml
+@{
+    ViewData["Title"] = "About Us";
+}
+
+<style>
+    :root {
+        --nm-navy: #0a1628;
+        --nm-blue: #1e40af;
+        --nm-accent: #f59e0b;
+        --nm-light: #f0f4ff;
+        --nm-text: #1e293b;
+        --nm-muted: #64748b;
+    }
+
+    body {
+        background: #f8fafc;
+    }
+
+    /* HERO */
+    .about-hero {
+        background: var(--nm-navy);
+        border-radius: 24px;
+        padding: 4rem 3rem;
+        color: white;
+        margin-bottom: 2.5rem;
+        position: relative;
+        overflow: hidden;
+    }
+
+        .about-hero::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at top right, rgba(30,64,175,0.45), transparent 40%), radial-gradient(circle at bottom left, rgba(245,158,11,0.18), transparent 35%);
+        }
+
+    .about-hero-grid {
+        position: absolute;
+        inset: 0;
+        background-image: linear-gradient(rgba(255,255,255,.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.03) 1px, transparent 1px);
+        background-size: 50px 50px;
+    }
+
+    .hero-content {
+        position: relative;
+        z-index: 2;
+    }
+
+    .hero-badge {
+        display: inline-block;
+        background: rgba(245,158,11,.15);
+        border: 1px solid rgba(245,158,11,.35);
+        color: #fbbf24;
+        padding: .4rem 1rem;
+        border-radius: 50px;
+        font-size: .8rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+    }
+
+    .about-hero h1 {
+        font-size: clamp(2rem, 5vw, 3rem);
+        font-weight: 800;
+        margin-bottom: .8rem;
+        letter-spacing: -1px;
+    }
+
+    .about-hero p {
+        color: rgba(255,255,255,.7);
+        font-size: 1.05rem;
+    }
+
+    /* SECTION LABEL */
+    .section-label {
+        display: inline-flex;
+        align-items: center;
+        gap: .4rem;
+        background: var(--nm-light);
+        color: var(--nm-blue);
+        border-radius: 50px;
+        padding: .35rem 1rem;
+        font-size: .78rem;
+        font-weight: 700;
+        letter-spacing: .5px;
+        text-transform: uppercase;
+        margin-bottom: .75rem;
+    }
+
+    /* CARDS */
+    .card {
+        border: 1px solid #e8edf5 !important;
+        border-radius: 18px !important;
+        overflow: hidden;
+        transition: .25s;
+        box-shadow: 0 4px 20px rgba(0,0,0,.04);
+    }
+
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 35px rgba(30,64,175,.08);
+        }
+
+    /* FOUNDER */
+    .founder-avatar {
+        width: 110px;
+        height: 110px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--nm-blue), #2563eb);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2.8rem;
+        font-weight: 800;
+        color: white;
+        margin: 0 auto 1rem;
+        border: 4px solid white;
+        box-shadow: 0 8px 24px rgba(37,99,235,.3);
+    }
+
+    /* STATS */
+    .stat-card {
+        border-radius: 18px;
+        padding: 2rem 1rem;
+        text-align: center;
+        transition: .25s;
+        border: none;
+    }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,.12);
+        }
+
+    /* VALUE ITEMS */
+    .value-item {
+        border-left: 4px solid var(--nm-blue);
+        padding: .85rem 1rem;
+        margin-bottom: .8rem;
+        background: #f8faff;
+        border-radius: 0 10px 10px 0;
+        transition: .2s;
+    }
+
+        .value-item:hover {
+            transform: translateX(4px);
+            background: #eef4ff;
+        }
+
+    /* TIMELINE */
+    .timeline-item {
+        position: relative;
+        padding-left: 2rem;
+        margin-bottom: 1.5rem;
+    }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 6px;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: var(--nm-blue);
+            box-shadow: 0 0 0 4px rgba(30,64,175,.12);
+        }
+
+        .timeline-item::after {
+            content: '';
+            position: absolute;
+            left: 6px;
+            top: 22px;
+            width: 2px;
+            height: calc(100% + 10px);
+            background: #dbe4f0;
+        }
+
+        .timeline-item:last-child::after {
+            display: none;
+        }
+
+    /* ANIMATION */
+    .card,
+    .stat-card,
+    .value-item {
+        animation: fadeUp .5s ease;
+    }
+
+    @@keyframes fadeUp {
+        from {
+            opacity: 0;
+            transform: translateY(12px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+</style>
+
+<div class="container py-4">
+
+    <!-- HERO -->
+    <div class="about-hero">
+        <div class="about-hero-grid"></div>
+
+        <div class="hero-content text-center">
+            <div class="hero-badge">🎓 Since 2015</div>
+
+            <div style="font-size:4rem;margin-bottom:1rem;">🏆</div>
+
+            <h1>N.M. Coaching Centre</h1>
+
+            <p class="mb-3">
+                Empowering Students. Building Futures. Transforming Lives.
+            </p>
+
+            <div class="small text-light opacity-75">
+                Founded by <strong>Neeraj Sisodiya</strong>
+            </div>
+        </div>
+    </div>
+
+    <!-- STATS -->
+    <div class="row g-3 mb-4">
+        <div class="col-6 col-md-3">
+            <div class="stat-card bg-primary text-white">
+                <div class="fs-1 fw-bold">10+</div>
+                <div class="small opacity-75">Years of Excellence</div>
+            </div>
+        </div>
+
+        <div class="col-6 col-md-3">
+            <div class="stat-card bg-success text-white">
+                <div class="fs-1 fw-bold">500+</div>
+                <div class="small opacity-75">Students Taught</div>
+            </div>
+        </div>
+
+        <div class="col-6 col-md-3">
+            <div class="stat-card bg-info text-white">
+                <div class="fs-1 fw-bold">50+</div>
+                <div class="small opacity-75">Expert Teachers</div>
+            </div>
+        </div>
+
+        <div class="col-6 col-md-3">
+            <div class="stat-card bg-warning text-white">
+                <div class="fs-1 fw-bold">95%</div>
+                <div class="small opacity-75">Success Rate</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div class="row g-4 mb-4">
+
+        <!-- FOUNDER -->
+        <div class="col-lg-4">
+            <div class="card h-100">
+                <div class="card-body text-center py-4">
+
+                    <div class="founder-avatar">N</div>
+
+                    <h4 class="fw-bold mb-1">Neeraj Sisodiya</h4>
+
+                    <div class="text-primary fw-semibold small mb-2">
+                        Founder & Director
+                    </div>
+
+                    <span class="badge bg-primary mb-3">
+                        M.Sc. Mathematics
+                    </span>
+
+                    <p class="text-muted small">
+                        With over 10 years of teaching experience,
+                        Neeraj Sisodiya founded N.M. Coaching Centre
+                        with a mission to make quality education
+                        accessible for every student.
+                    </p>
+
+                    <p class="text-muted small">
+                        He has guided hundreds of students toward
+                        success in JEE, NEET, and Board examinations.
+                    </p>
+
+                    <div class="d-flex justify-content-center gap-4 mt-4">
+
+                        <div>
+                            <div class="fw-bold text-primary fs-5">10+</div>
+                            <div class="text-muted small">Years</div>
+                        </div>
+
+                        <div>
+                            <div class="fw-bold text-success fs-5">500+</div>
+                            <div class="text-muted small">Students</div>
+                        </div>
+
+                        <div>
+                            <div class="fw-bold text-warning fs-5">95%</div>
+                            <div class="text-muted small">Results</div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="card-footer bg-primary text-white text-center py-2 small">
+                    🏆 Best Coaching Centre Award 2023
+                </div>
+            </div>
+        </div>
+
+        <!-- MISSION -->
+        <div class="col-lg-8">
+
+            <div class="row g-3 h-100">
+
+                <div class="col-12">
+                    <div class="card h-100">
+                        <div class="card-body">
+
+                            <div class="section-label">
+                                About Institute
+                            </div>
+
+                            <h5 class="fw-bold mb-3">
+                                🎯 Our Mission
+                            </h5>
+
+                            <p class="text-muted mb-0">
+                                Our mission is to nurture every student's
+                                potential through structured learning,
+                                personal attention, and modern teaching methods.
+                                We believe education builds confidence,
+                                discipline, and future leaders.
+                            </p>
+
+                        </div>
+                    </div>
+                </div>
+
+                <!-- WHY CHOOSE -->
+                <div class="col-md-6">
+                    <div class="card h-100">
+                        <div class="card-body">
+
+                            <div class="section-label">
+                                Why Choose Us
+                            </div>
+
+                            <h6 class="fw-bold mb-3">
+                                ✅ Our Strengths
+                            </h6>
+
+                            <div class="value-item small">
+                                👨‍🏫 Experienced teachers
+                            </div>
+
+                            <div class="value-item small">
+                                👥 Small batch sizes
+                            </div>
+
+                            <div class="value-item small">
+                                📊 Performance tracking
+                            </div>
+
+                            <div class="value-item small">
+                                📱 Smart learning methods
+                            </div>
+
+                            <div class="value-item small">
+                                🤝 Parent communication
+                            </div>
+
+                            <div class="value-item small">
+                                🏆 Proven results
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+                <!-- COURSES -->
+                <div class="col-md-6">
+                    <div class="card h-100">
+                        <div class="card-body">
+
+                            <div class="section-label">
+                                Courses
+                            </div>
+
+                            <h6 class="fw-bold mb-3">
+                                📚 What We Offer
+                            </h6>
+
+                            <div class="value-item small" style="border-color:#10b981">
+                                🔬 Science Coaching
+                            </div>
+
+                            <div class="value-item small" style="border-color:#10b981">
+                                📐 Mathematics
+                            </div>
+
+                            <div class="value-item small" style="border-color:#10b981">
+                                🏫 Board Preparation
+                            </div>
+
+                            <div class="value-item small" style="border-color:#10b981">
+                                🎯 JEE & NEET
+                            </div>
+
+                            <div class="value-item small" style="border-color:#10b981">
+                                💻 Computer Science
+                            </div>
+
+                            <div class="value-item small" style="border-color:#10b981">
+                                🌐 Communication Skills
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- JOURNEY -->
+    <div class="card mb-4">
+        <div class="card-body p-4">
+
+            <div class="section-label">
+                Timeline
+            </div>
+
+            <h5 class="fw-bold mb-4">
+                🗓️ Our Journey
+            </h5>
+
+            <div class="row">
+
+                <div class="col-md-6">
+
+                    <div class="timeline-item">
+                        <div class="fw-semibold">
+                            2015 — Founded
+                        </div>
+
+                        <div class="text-muted small">
+                            Started with 12 students and a dream to transform education.
+                        </div>
+                    </div>
+
+                    <div class="timeline-item">
+                        <div class="fw-semibold">
+                            2017 — First Major Results
+                        </div>
+
+                        <div class="text-muted small">
+                            Achieved 90% success rate in competitive exams.
+                        </div>
+                    </div>
+
+                    <div class="timeline-item">
+                        <div class="fw-semibold">
+                            2019 — Expansion
+                        </div>
+
+                        <div class="text-muted small">
+                            Added more courses and expert faculty members.
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="col-md-6">
+
+                    <div class="timeline-item">
+                        <div class="fw-semibold">
+                            2021 — Digital Learning
+                        </div>
+
+                        <div class="text-muted small">
+                            Introduced online classes and digital study material.
+                        </div>
+                    </div>
+
+                    <div class="timeline-item">
+                        <div class="fw-semibold">
+                            2023 — Award Winning
+                        </div>
+
+                        <div class="text-muted small">
+                            Received Best Coaching Centre Award.
+                        </div>
+                    </div>
+
+                    <div class="timeline-item">
+                        <div class="fw-semibold">
+                            2025 — 500+ Alumni
+                        </div>
+
+                        <div class="text-muted small">
+                            Students placed in top colleges and careers.
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- CORE VALUES -->
+    <div class="card">
+        <div class="card-body p-4">
+
+            <div class="section-label">
+                Values
+            </div>
+
+            <h5 class="fw-bold mb-4">
+                💡 Our Core Values
+            </h5>
+
+            <div class="row g-3 text-center">
+
+                <div class="col-6 col-md-3">
+                    <div class="p-4 rounded-4 bg-light h-100">
+                        <div class="fs-2 mb-2">🎯</div>
+                        <div class="fw-semibold">Excellence</div>
+                        <div class="text-muted small">
+                            High standards in everything.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-6 col-md-3">
+                    <div class="p-4 rounded-4 bg-light h-100">
+                        <div class="fs-2 mb-2">❤️</div>
+                        <div class="fw-semibold">Dedication</div>
+                        <div class="text-muted small">
+                            Personal attention for every student.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-6 col-md-3">
+                    <div class="p-4 rounded-4 bg-light h-100">
+                        <div class="fs-2 mb-2">🤝</div>
+                        <div class="fw-semibold">Integrity</div>
+                        <div class="text-muted small">
+                            Honest and transparent guidance.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-6 col-md-3">
+                    <div class="p-4 rounded-4 bg-light h-100">
+                        <div class="fs-2 mb-2">🚀</div>
+                        <div class="fw-semibold">Innovation</div>
+                        <div class="text-muted small">
+                            Modern learning methods and technology.
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+

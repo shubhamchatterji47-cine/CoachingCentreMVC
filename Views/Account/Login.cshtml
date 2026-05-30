@@ -1,0 +1,251 @@
+﻿@* @model CoachingMVC.ViewModels.Account.LoginViewModel
+@{
+    ViewData["Title"] = "Login";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="min-vh-75 d-flex align-items-center justify-content-center py-5">
+    <div class="card shadow-lg" style="width: 420px;">
+        <div class="card-body p-4">
+            <div class="text-center mb-4">
+                <div style="font-size:3rem;">🎓</div>
+                <h3 class="fw-bold">N.M.Coaching Centre</h3>
+                <p class="text-muted">Sign in to your account</p>
+            </div>
+
+            @if (ViewBag.Error != null)
+            {
+                <div class="alert alert-danger alert-dismissible fade show">
+                    @ViewBag.Error
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            }
+
+            <form asp-action="Login" method="post">
+                <div class="mb-3">
+                    <label asp-for="Email" class="form-label fw-semibold">Email Address</label>
+                    <input asp-for="Email" class="form-control form-control-lg" placeholder="you@example.com" autocomplete="email" />
+                    <span asp-validation-for="Email" class="text-danger small"></span>
+                </div>
+                <div class="mb-4">
+                    <label asp-for="Password" class="form-label fw-semibold">Password</label>
+                    <input asp-for="Password" type="password" class="form-control form-control-lg" placeholder="••••••••" autocomplete="current-password" />
+                    <span asp-validation-for="Password" class="text-danger small"></span>
+                </div>
+                <button type="submit" class="btn btn-primary btn-lg w-100">Log In</button>
+            </form>
+
+            <div class="mt-3 p-3 bg-light rounded small text-muted">
+                <strong>Demo Credentials:</strong><br />
+                Admin: admin@coaching.com / Admin@123<br />
+                Teacher/Student: use assigned credentials
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+} *@
+@model CoachingMVC.ViewModels.Account.LoginViewModel
+@{
+    ViewData["Title"] = "Login";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    :root {
+        --nm-navy: #0a1628;
+        --nm-blue: #1e40af;
+        --nm-accent: #f59e0b;
+        --nm-green: #10b981;
+        --nm-light: #f0f4ff;
+        --nm-text: #1e293b;
+        --nm-muted: #64748b;
+    }
+
+    .login-wrap {
+        min-height: 88vh;
+        background: var(--nm-navy);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        overflow: hidden;
+        padding: 2.5rem 1rem;
+    }
+
+        .login-wrap::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(ellipse 70% 60% at 75% 30%, rgba(30,64,175,0.45) 0%, transparent 70%), radial-gradient(ellipse 55% 80% at 10% 90%, rgba(245,158,11,0.12) 0%, transparent 60%);
+        }
+
+    .login-grid {
+        position: absolute;
+        inset: 0;
+        background-image: linear-gradient(rgba(255,255,255,.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.03) 1px, transparent 1px);
+        background-size: 55px 55px;
+    }
+
+    .login-card {
+        position: relative;
+        z-index: 1;
+        width: 100%;
+        max-width: 430px;
+        background: rgba(255,255,255,.06);
+        backdrop-filter: blur(18px);
+        border: 1px solid rgba(255,255,255,.1);
+        border-radius: 20px;
+        padding: 2.5rem 2.25rem;
+        color: white;
+        box-shadow: 0 24px 60px rgba(0,0,0,.4);
+    }
+
+    .login-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: .5rem;
+        background: rgba(245,158,11,0.15);
+        border: 1px solid rgba(245,158,11,0.35);
+        color: #fbbf24;
+        border-radius: 50px;
+        padding: .3rem .9rem;
+        font-size: .75rem;
+        font-weight: 600;
+        margin-bottom: 1rem;
+    }
+
+    .login-title {
+        font-family: 'Sora',sans-serif;
+        font-weight: 800;
+        font-size: 1.6rem;
+        letter-spacing: -.5px;
+        margin-bottom: .25rem;
+        color: white;
+    }
+
+        .login-title .accent {
+            color: var(--nm-accent);
+        }
+
+    .login-subtitle {
+        color: rgba(255,255,255,.6);
+        font-size: .92rem;
+        margin-bottom: 0;
+    }
+
+    .login-card .form-label {
+        font-weight: 600;
+        font-size: .85rem;
+        color: rgba(255,255,255,.85);
+        margin-bottom: .4rem;
+    }
+
+    .login-card .form-control {
+        background: rgba(255,255,255,.07);
+        border: 1.5px solid rgba(255,255,255,.15);
+        border-radius: 10px;
+        color: white;
+        padding: .7rem .9rem;
+        font-size: .95rem;
+        transition: all .2s;
+    }
+
+        .login-card .form-control::placeholder {
+            color: rgba(255,255,255,.4);
+        }
+
+        .login-card .form-control:focus {
+            background: rgba(255,255,255,.1);
+            border-color: var(--nm-accent);
+            box-shadow: 0 0 0 3px rgba(245,158,11,.15);
+            color: white;
+        }
+
+    .login-btn {
+        background: var(--nm-accent);
+        color: var(--nm-navy);
+        border: none;
+        font-family: 'Sora',sans-serif;
+        font-weight: 700;
+        font-size: 1rem;
+        padding: .8rem;
+        border-radius: 10px;
+        width: 100%;
+        transition: all .2s;
+    }
+
+        .login-btn:hover {
+            background: #d97706;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(245,158,11,.35);
+        }
+
+    .login-demo {
+        background: rgba(255,255,255,.05);
+        border: 1px solid rgba(255,255,255,.1);
+        border-radius: 12px;
+        padding: .9rem 1rem;
+        font-size: .82rem;
+        color: rgba(255,255,255,.6);
+        line-height: 1.7;
+    }
+
+        .login-demo strong {
+            color: rgba(255,255,255,.85);
+        }
+
+    .login-card .alert {
+        border-radius: 10px;
+        font-size: .9rem;
+    }
+</style>
+
+<div class="login-wrap">
+    <div class="login-grid"></div>
+
+    <div class="login-card">
+        <div class="text-center mb-4">
+            <div class="login-badge">🎓 Welcome Back</div>
+            <h3 class="login-title">N.M. <span class="accent">Coaching</span> Centre</h3>
+            <p class="login-subtitle">Sign in to your account</p>
+        </div>
+
+        @if (ViewBag.Error != null)
+        {
+            <div class="alert alert-danger alert-dismissible fade show d-flex align-items-center gap-2">
+                <span>❌</span>
+                <div>@ViewBag.Error</div>
+                <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert"></button>
+            </div>
+        }
+
+        <form asp-action="Login" method="post">
+            <div class="mb-3">
+                <label asp-for="Email" class="form-label">Email Address</label>
+                <input asp-for="Email" class="form-control" placeholder="you@example.com" autocomplete="email" />
+                <span asp-validation-for="Email" class="text-warning small"></span>
+            </div>
+            <div class="mb-4">
+                <label asp-for="Password" class="form-label">Password</label>
+                <input asp-for="Password" type="password" class="form-control" placeholder="••••••••" autocomplete="current-password" />
+                <span asp-validation-for="Password" class="text-warning small"></span>
+            </div>
+            <button type="submit" class="login-btn">Log In</button>
+        </form>
+
+        <div class="login-demo mt-4">
+            <strong>Demo Credentials:</strong><br />
+            Admin: admin@coaching.com / Admin@123<br />
+            Teacher/Student: use assigned credentials
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
+

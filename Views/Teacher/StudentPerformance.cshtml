@@ -1,0 +1,89 @@
+﻿@model CoachingMVC.ViewModels.Student.StudentPerformanceViewModel
+@{
+    ViewData["Title"] = "Student Performance";
+}
+
+<div class="d-flex align-items-center mb-4">
+    <a asp-action="Index" class="btn btn-sm btn-outline-secondary me-3">← Back</a>
+    <h4 class="fw-bold mb-0">📈 Student Performance — @Model.Student.FullName</h4>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-sm-3">
+        <div class="card border-0 bg-primary text-white text-center shadow-sm">
+            <div class="card-body">
+                <div class="fs-2 fw-bold">@Model.OverallPercentage.ToString("F1")%</div>
+                <div class="small">Overall %</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-3">
+        <div class="card border-0 bg-success text-white text-center shadow-sm">
+            <div class="card-body">
+                <div class="fs-2 fw-bold">@Model.OverallGrade</div>
+                <div class="small">Overall Grade</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-3">
+        <div class="card border-0 bg-info text-white text-center shadow-sm">
+            <div class="card-body">
+                <div class="fs-2 fw-bold">@Model.AttendancePercentage.ToString("F0")%</div>
+                <div class="small">Attendance</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-3">
+        <div class="card border-0 bg-warning text-white text-center shadow-sm">
+            <div class="card-body">
+                <div class="fs-2 fw-bold">@Model.PerformanceTrend</div>
+                <div class="small">Trend</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3">
+    <div class="col-md-8">
+        <div class="card shadow-sm">
+            <div class="card-header fw-semibold">Subject-wise Performance</div>
+            <div class="card-body p-0">
+                <table class="table mb-0">
+                    <thead class="table-light">
+                        <tr><th>Subject</th><th>Avg %</th><th>Grade</th><th>Trend</th><th>Tests</th></tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var sp in Model.SubjectPerformances)
+                        {
+                            var bc = sp.Grade.StartsWith("A") ? "success"
+                            : sp.Grade.StartsWith("B") ? "primary"
+                            : sp.Grade == "C" ? "warning"
+                            : "danger";
+                            <tr>
+                                <td class="fw-semibold">@sp.SubjectName</td>
+                                <td>@sp.AveragePercentage.ToString("F1")%</td>
+                                <td><span class="badge bg-@bc">@sp.Grade</span></td>
+                                <td>@sp.Trend</td>
+                                <td>@sp.Marks.Count</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        @if (Model.ImprovementTips.Any())
+        {
+            <div class="card shadow-sm">
+                <div class="card-header fw-semibold">💡 Improvement Tips</div>
+                <ul class="list-group list-group-flush">
+                    @foreach (var tip in Model.ImprovementTips)
+                    {
+                        <li class="list-group-item small">@tip</li>
+                    }
+                </ul>
+            </div>
+        }
+    </div>
+</div>

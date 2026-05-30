@@ -1,0 +1,460 @@
+﻿@* @model List<CoachingMVC.ViewModels.Admin.AnnouncementViewModel>
+@{
+    ViewData["Title"] = "Announcements";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h4 class="fw-bold mb-0">
+        📢 Announcements
+        <span class="badge bg-secondary fs-6">@Model.Count</span>
+    </h4>
+    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addModal">➕ Post Announcement</button>
+</div>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show">
+        @TempData["Success"] <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show">
+        @TempData["Error"] <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<div class="row g-3">
+    @foreach (var a in Model)
+    {
+        <div class="col-md-6">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start gap-2">
+                        <h6 class="fw-bold mb-1">@a.Title</h6>
+                        @if (!string.IsNullOrEmpty(a.TargetRole))
+                        {
+                            <span class="badge bg-primary flex-shrink-0">@a.TargetRole</span>
+                        }
+                        else
+                        {
+
+                            <span class="badge bg-secondary flex-shrink-0">All Users</span>
+                        }
+                    </div>
+                    <p class="text-muted small mb-2">@a.Content</p>
+                    <div class="small text-muted">🕐 @a.CreatedAt.ToString("dd MMM yyyy, hh:mm tt")</div>
+                </div>
+                <div class="card-footer bg-transparent d-flex justify-content-end">
+                    <form asp-action="DeleteAnnouncement" method="post"
+                          onsubmit="return confirm('Delete announcement \'@Html.Raw(a.Title.Replace("'", "\\'"))\'?')">
+                        <input type="hidden" name="id" value="@a.Id" />
+                        <button type="submit" class="btn btn-sm btn-outline-danger">🗑 Delete</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    }
+    @if (!Model.Any())
+    {
+        <div class="col-12">
+            <p class="text-muted text-center py-5">
+                <span style="font-size:2.5rem">📢</span><br />
+                No announcements yet. Post one using the button above.
+            </p>
+        </div>
+    }
+</div>
+
+<!-- Add Modal -->
+<div class="modal fade" id="addModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">📢 Post Announcement</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form asp-action="CreateAnnouncement" method="post">
+                <div class="modal-body row g-3">
+                    <div class="col-12">
+                        <label class="form-label fw-semibold">Title *</label>
+                        <input name="title" class="form-control" required maxlength="200" />
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label fw-semibold">Content *</label>
+                        <textarea name="content" class="form-control" rows="3" required maxlength="1000"></textarea>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label fw-semibold">Target</label>
+                        <select name="targetRole" class="form-select">
+                            <option value="">👥 All Users</option>
+                            <option value="Student">🎓 Students Only</option>
+                            <option value="Teacher">👨‍🏫 Teachers Only</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Post</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div> *@
+@model List<CoachingMVC.ViewModels.Admin.AnnouncementViewModel>
+
+@{
+    ViewData["Title"] = "Announcements";
+}
+
+<style>
+    :root {
+        --nm-navy: #0a1628;
+        --nm-blue: #1e40af;
+        --nm-accent: #f59e0b;
+        --nm-light: #f0f4ff;
+        --nm-text: #1e293b;
+    }
+
+    .page-header {
+        background: linear-gradient(135deg,var(--nm-navy),var(--nm-blue));
+        color: white;
+        padding: 25px;
+        border-radius: 18px;
+        margin-bottom: 25px;
+    }
+
+    .section-title {
+        font-family: 'Sora', sans-serif;
+        font-weight: 800;
+        margin-bottom: 0;
+    }
+
+    .nm-btn-primary {
+        background: var(--nm-accent);
+        color: var(--nm-navy);
+        border: none;
+        font-weight: 700;
+        border-radius: 10px;
+        padding: 10px 18px;
+    }
+
+        .nm-btn-primary:hover {
+            background: #d97706;
+            color: white;
+        }
+
+    .announcement-card {
+        border: 1px solid #e8edf5;
+        border-radius: 18px;
+        overflow: hidden;
+        background: white;
+        transition: all .3s ease;
+        height: 100%;
+    }
+
+        .announcement-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--nm-blue);
+            box-shadow: 0 12px 30px rgba(30,64,175,.12);
+        }
+
+    .announcement-header {
+        background: linear-gradient(135deg,var(--nm-blue),#2563eb);
+        color: white;
+        padding: 16px;
+    }
+
+    .announcement-body {
+        padding: 20px;
+    }
+
+    .announcement-footer {
+        border-top: 1px solid #edf2f7;
+        padding: 15px 20px;
+        background: #fafbff;
+    }
+
+    .role-badge {
+        background: rgba(255,255,255,.2);
+        color: white;
+        padding: 6px 12px;
+        border-radius: 30px;
+        font-size: .75rem;
+    }
+
+    .empty-state {
+        background: white;
+        border: 1px solid #e8edf5;
+        border-radius: 18px;
+        padding: 60px 20px;
+        text-align: center;
+    }
+
+    .modal-content {
+        border-radius: 18px;
+        overflow: hidden;
+        border: none;
+    }
+
+    .modal-header {
+        background: linear-gradient(135deg,var(--nm-navy),var(--nm-blue));
+        color: white;
+    }
+
+    .form-control:focus,
+    .form-select:focus {
+        border-color: var(--nm-blue);
+        box-shadow: 0 0 0 .2rem rgba(30,64,175,.15);
+    }
+
+    .btn-delete {
+        border-radius: 8px;
+        font-weight: 600;
+    }
+
+    .count-badge {
+        background: rgba(255,255,255,.15);
+        padding: 6px 12px;
+        border-radius: 30px;
+    }
+</style>
+
+<!-- Header -->
+
+<div class="page-header d-flex justify-content-between align-items-center flex-wrap gap-3">
+    <div>
+        <h2 class="section-title">
+            📢 Announcements
+            <span class="count-badge ms-2">@Model.Count</span>
+        </h2>
+        <small class="opacity-75">
+            Manage notices and updates for students & teachers
+        </small>
+    </div>
+
+    <button class="nm-btn-primary"
+            data-bs-toggle="modal"
+            data-bs-target="#addModal">
+        ➕ Post Announcement
+
+    </button>
+</div>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show">
+        @TempData["Success"]
+        <button type="button"
+                class="btn-close"
+                data-bs-dismiss="alert">
+        </button>
+    </div>
+}
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show">
+        @TempData["Error"]
+        <button type="button"
+                class="btn-close"
+                data-bs-dismiss="alert">
+        </button>
+    </div>
+}
+
+<div class="row g-4">
+
+    @if (Model.Any())
+    {
+        @foreach (var a in Model)
+        {
+            <div class="col-md-6">
+                <div class="announcement-card">
+
+                    <div class="announcement-header">
+                        <div class="d-flex justify-content-between align-items-center">
+
+                            <h6 class="fw-bold mb-0">
+                                @a.Title
+                            </h6>
+
+                            @if (!string.IsNullOrEmpty(a.TargetRole))
+                            {
+                                <span class="role-badge">
+                                    @a.TargetRole
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="role-badge">
+                                    All Users
+                                </span>
+                            }
+
+                        </div>
+                    </div>
+
+                    <div class="announcement-body">
+
+                        <p class="text-muted mb-0">
+                            @a.Content
+                        </p>
+
+                    </div>
+
+                    <div class="announcement-footer d-flex justify-content-between align-items-center">
+
+                        <small class="text-muted">
+                            🕐 @a.CreatedAt.ToString("dd MMM yyyy, hh:mm tt")
+                        </small>
+
+                        <form asp-action="DeleteAnnouncement"
+                              method="post"
+                              onsubmit="return confirm('Delete announcement?')">
+
+                            <input type="hidden"
+                                   name="id"
+                                   value="@a.Id" />
+
+                            <button type="submit"
+                                    class="btn btn-outline-danger btn-sm btn-delete">
+                                🗑 Delete
+                            </button>
+
+                        </form>
+
+                    </div>
+
+                </div>
+            </div>
+        }
+    }
+    else
+    {
+        <div class="col-12">
+
+            <div class="empty-state">
+
+                <div style="font-size:4rem">
+                    📢
+                </div>
+
+                <h3 class="mt-3 fw-bold">
+                    No Announcements Yet
+                </h3>
+
+                <p class="text-muted">
+                    Post your first announcement to notify students and teachers.
+                </p>
+
+                <button class="nm-btn-primary"
+                        data-bs-toggle="modal"
+                        data-bs-target="#addModal">
+                    Create First Announcement
+                </button>
+
+            </div>
+
+        </div>
+    }
+
+</div>
+
+<!-- Add Announcement Modal -->
+
+<div class="modal fade"
+     id="addModal"
+     tabindex="-1">
+
+    <div class="modal-dialog">
+
+        <div class="modal-content">
+
+            <div class="modal-header">
+
+                <h5 class="modal-title">
+                    📢 Post Announcement
+                </h5>
+
+                <button type="button"
+                        class="btn-close btn-close-white"
+                        data-bs-dismiss="modal">
+                </button>
+
+            </div>
+
+            <form asp-action="CreateAnnouncement"
+                  method="post">
+
+                <div class="modal-body row g-3">
+
+                    <div class="col-12">
+                        <label class="form-label fw-semibold">
+                            Title *
+                        </label>
+
+                        <input name="title"
+                               class="form-control"
+                               required
+                               maxlength="200" />
+                    </div>
+
+                    <div class="col-12">
+                        <label class="form-label fw-semibold">
+                            Content *
+                        </label>
+
+                        <textarea name="content"
+                                  class="form-control"
+                                  rows="4"
+                                  required
+                                  maxlength="1000"></textarea>
+                    </div>
+
+                    <div class="col-12">
+                        <label class="form-label fw-semibold">
+                            Target Audience
+                        </label>
+
+                        <select name="targetRole"
+                                class="form-select">
+
+                            <option value="">
+                                👥 All Users
+                            </option>
+
+                            <option value="Student">
+                                🎓 Students Only
+                            </option>
+
+                            <option value="Teacher">
+                                👨‍🏫 Teachers Only
+                            </option>
+
+                        </select>
+                    </div>
+
+                </div>
+
+                <div class="modal-footer">
+
+                    <button type="button"
+                            class="btn btn-secondary"
+                            data-bs-dismiss="modal">
+                        Cancel
+                    </button>
+
+                    <button type="submit"
+                            class="nm-btn-primary">
+                        Post Announcement
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+</div>

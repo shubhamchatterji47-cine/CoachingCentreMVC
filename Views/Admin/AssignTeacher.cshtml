@@ -1,0 +1,232 @@
+﻿@using CoachingMVC.ViewModels.Admin
+@using CoachingMVC.ViewModels.Shared
+@{
+    ViewData["Title"] = "Assign Teacher";
+    var teachers = ViewBag.Teachers as List<TeacherViewModel> ?? new();
+    var classes = ViewBag.Classes as List<ClassViewModel> ?? new();
+    var subjects = ViewBag.Subjects as List<SubjectViewModel> ?? new();
+    var assignments = ViewBag.Assignments as List<AssignmentViewModel> ?? new();
+
+    // Build subjects lookup as lowercase JSON so JS can read it reliably
+    var subjectsJson = Newtonsoft.Json.JsonConvert.SerializeObject(
+        subjects.Select(s => new { id = s.Id, name = s.Name, courseId = s.CourseId })
+    );
+
+    // Build classes lookup so JS can get courseId from classId
+    var classesJson = Newtonsoft.Json.JsonConvert.SerializeObject(
+        classes.Select(c => new { id = c.Id, courseId = c.CourseId, name = c.Name })
+    );
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h4 class="fw-bold mb-0">🔗 Assign Teacher to Class</h4>
+    <span class="badge bg-primary fs-6">@assignments.Count Assignment(s)</span>
+</div>
+
+<div class="row g-4">
+
+    <!-- LEFT: Assign Form -->
+    <div class="col-lg-5">
+        <div class="card shadow-sm">
+            <div class="card-header bg-primary text-white fw-semibold">➕ New Assignment</div>
+            <div class="card-body">
+                <form asp-action="AssignTeacher" method="post" class="row g-3" id="assignForm">
+
+                    <div class="col-12">
+                        <label class="form-label fw-semibold">Teacher *</label>
+                        <select name="teacherId" class="form-select" required>
+                            <option value="">— Select a teacher —</option>
+                            @foreach (var t in teachers.Where(t => t.IsActive))
+                            {
+                                <option value="@t.Id">
+                                    @t.FullName @(!string.IsNullOrEmpty(t.Specialization) ? $"— {t.Specialization}" : "")
+                                </option>
+                            }
+                        </select>
+                    </div>
+
+                    <div class="col-12">
+                        <label class="form-label fw-semibold">Class *</label>
+                        <select name="classId" class="form-select" required id="classSelect"
+                                onchange="filterSubjects(this.value)">
+                            <option value="">— Select a class —</option>
+                            @foreach (var c in classes)
+                            {
+                                <option value="@c.Id">@c.Name — @c.CourseName</option>
+                            }
+                        </select>
+                    </div>
+
+                    <div class="col-12">
+                        <label class="form-label fw-semibold">Subject *</label>
+                        <select name="subjectId" class="form-select" required id="subjectSelect">
+                            <option value="">— Select a class first —</option>
+                        </select>
+                    </div>
+
+                    <div class="col-12">
+                        <button type="submit" class="btn btn-primary w-100" id="assignBtn">
+                            🔗 Assign Teacher
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Debug info - shows course mapping (remove after testing) -->
+        <div class="card shadow-sm mt-3 border-warning">
+            <div class="card-header small text-muted">ℹ️ Course → Subject mapping</div>
+            <div class="card-body p-2">
+                @foreach (var grp in subjects.GroupBy(s => s.CourseName))
+                {
+                    <div class="small"><strong>@grp.Key:</strong> @string.Join(", ", grp.Select(s => s.Name))</div>
+                }
+                @if (!subjects.Any())
+                {
+                    <div class="small text-danger">No subjects found. Add subjects in the Subjects page first.</div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- RIGHT: Current Assignments -->
+    <div class="col-lg-7">
+        <div class="card shadow-sm">
+            <div class="card-header fw-semibold d-flex justify-content-between align-items-center flex-wrap gap-2">
+                <span>📋 Current Assignments (@assignments.Count)</span>
+                <input type="text" id="searchInput" class="form-control form-control-sm"
+                       placeholder="🔍 Search..." style="max-width:200px"
+                       oninput="filterTable()" />
+            </div>
+            <div class="card-body p-0">
+                @if (!assignments.Any())
+                {
+                    <div class="text-center text-muted py-5">
+                        <div style="font-size:40px">🔗</div>
+                        <div class="fw-semibold mt-2">No assignments yet</div>
+                        <div class="small">Use the form to assign a teacher.</div>
+                    </div>
+                }
+                else
+                {
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>#</th>
+                                    <th>Teacher</th>
+                                    <th>Class</th>
+                                    <th>Course</th>
+                                    <th>Subject</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="assignBody">
+                                @{
+                                    int i = 1;
+                                }
+                                @foreach (var a in assignments)
+                                {
+                                    <tr>
+                                        <td class="text-muted small">@i++</td>
+                                        <td class="fw-semibold">@a.TeacherName</td>
+                                        <td>@a.ClassName</td>
+                                        <td><span class="badge bg-info text-dark">@a.CourseName</span></td>
+                                        <td><span class="badge bg-secondary">@a.SubjectName</span></td>
+                                        <td>
+                                            <form asp-action="RemoveAssignment" method="post"
+                                                  onsubmit="return confirm('Remove this assignment?')">
+                                                <input type="hidden" name="id" value="@a.Id" />
+                                                <button type="submit" class="btn btn-sm btn-outline-danger">🗑️</button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                        <div id="noResult" class="text-center text-muted py-3" style="display:none">
+                            No assignments match your search.
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+
+        @if (assignments.Any())
+        {
+            <div class="card shadow-sm mt-3">
+                <div class="card-header fw-semibold">👨‍🏫 Summary by Teacher</div>
+                <div class="card-body p-0">
+                    @foreach (var grp in assignments.GroupBy(a => a.TeacherName).OrderBy(g => g.Key))
+                    {
+                        <div class="px-3 py-2 border-bottom d-flex justify-content-between align-items-start">
+                            <div>
+                                <div class="fw-semibold small">@grp.Key</div>
+                                <div class="text-muted" style="font-size:12px">
+                                    @string.Join(" · ", grp.Select(a => $"{a.SubjectName} ({a.ClassName})"))
+                                </div>
+                            </div>
+                            <span class="badge bg-primary rounded-pill">@grp.Count()</span>
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // All data passed from server as camelCase JSON
+        const ALL_CLASSES  = @Html.Raw(classesJson);
+        const ALL_SUBJECTS = @Html.Raw(subjectsJson);
+
+        function filterSubjects(classId) {
+            const subjectSelect = document.getElementById('subjectSelect');
+            subjectSelect.innerHTML = '';
+
+            if (!classId) {
+                subjectSelect.innerHTML = '<option value="">— Select a class first —</option>';
+                return;
+            }
+
+            // Find courseId for selected class
+            const cls = ALL_CLASSES.find(c => c.id === parseInt(classId));
+            if (!cls) {
+                subjectSelect.innerHTML = '<option value="">— Class not found —</option>';
+                return;
+            }
+
+            const courseId = cls.courseId;
+
+            // Filter subjects by courseId
+            const filtered = ALL_SUBJECTS.filter(s => s.courseId === courseId);
+
+            if (filtered.length === 0) {
+                subjectSelect.innerHTML = '<option value="">No subjects for this course — add in Subjects page</option>';
+            } else {
+                subjectSelect.innerHTML = '<option value="">— Select a subject —</option>' +
+                    filtered.map(s => `<option value="${s.id}">${s.name}</option>`).join('');
+            }
+        }
+
+        function filterTable() {
+            const q    = document.getElementById('searchInput').value.toLowerCase();
+            const rows = document.querySelectorAll('#assignBody tr');
+            let visible = 0;
+            rows.forEach(row => {
+                const show = !q || row.innerText.toLowerCase().includes(q);
+                row.style.display = show ? '' : 'none';
+                if (show) visible++;
+            });
+            const noResult = document.getElementById('noResult');
+            if (noResult) noResult.style.display = (visible === 0 && q) ? '' : 'none';
+        }
+
+        document.getElementById('assignForm').addEventListener('submit', function () {
+            const btn = document.getElementById('assignBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Assigning...';
+        });
+    </script>
+}

@@ -1,0 +1,165 @@
+﻿@model CoachingMVC.ViewModels.Student.StudentViewModel
+@{
+    ViewData["Title"] = "My Profile";
+    var token = Context.Session.GetString("Token") ?? "";
+    var fullName = Context.Session.GetString("FullName") ?? "S";
+}
+
+<h4 class="fw-bold mb-4">👤 My Profile</h4>
+
+<div class="row g-4">
+    <!-- Left: Profile Card -->
+    <div class="col-md-5">
+        <div class="card shadow-sm">
+            <div class="card-body text-center py-4">
+                <div class="rounded-circle bg-primary text-white mx-auto d-flex align-items-center justify-content-center mb-3"
+                     style="width:80px;height:80px;font-size:2rem;font-weight:700;">
+                    @fullName[0]
+                </div>
+                <h5 class="fw-bold mb-0">@fullName</h5>
+                <span class="badge bg-success mt-1">Student</span>
+            </div>
+            @if (Model != null)
+            {
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item d-flex justify-content-between">
+                        <span class="text-muted small">📧 Email</span>
+                        <span class="fw-semibold small">@Model.Email</span>
+                    </li>
+                    @if (!string.IsNullOrEmpty(Model.PhoneNumber))
+                    {
+                        <li class="list-group-item d-flex justify-content-between">
+                            <span class="text-muted small">📞 Phone</span>
+                            <span class="fw-semibold small">@Model.PhoneNumber</span>
+                        </li>
+                    }
+                    @if (!string.IsNullOrEmpty(Model.RollNumber))
+                    {
+                        <li class="list-group-item d-flex justify-content-between">
+                            <span class="text-muted small">🎫 Roll No</span>
+                            <span class="fw-semibold small">@Model.RollNumber</span>
+                        </li>
+                    }
+                    <li class="list-group-item d-flex justify-content-between">
+                        <span class="text-muted small">🏫 Class</span>
+                        <span class="fw-semibold small">@Model.ClassName</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between">
+                        <span class="text-muted small">📚 Course</span>
+                        <span class="fw-semibold small">@Model.CourseName</span>
+                    </li>
+                    @if (!string.IsNullOrEmpty(Model.ParentName))
+                    {
+                        <li class="list-group-item d-flex justify-content-between">
+                            <span class="text-muted small">👨‍👩‍👦 Parent</span>
+                            <span class="fw-semibold small">@Model.ParentName</span>
+                        </li>
+                    }
+                    <li class="list-group-item d-flex justify-content-between">
+                        <span class="text-muted small">📅 Enrolled</span>
+                        <span class="fw-semibold small">@Model.EnrollmentDate.ToString("dd MMM yyyy")</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between">
+                        <span class="text-muted small">✅ Status</span>
+                        @if (Model.IsActive)
+                        {
+                            <span class="badge bg-success">Active</span>
+                        }
+                        else
+                        {
+
+                            <span class="badge bg-secondary">Inactive</span>
+                        }
+                    </li>
+                </ul>
+            }
+        </div>
+    </div>
+
+    <!-- Right: Change Password -->
+    <div class="col-md-7">
+        <div class="card shadow-sm">
+            <div class="card-header fw-semibold">🔐 Change Password</div>
+            <div class="card-body">
+                <div id="pwMsg"></div>
+                <div class="row g-3">
+                    <div class="col-12">
+                        <label class="form-label">Current Password</label>
+                        <input id="currentPassword" type="password" class="form-control" placeholder="Enter current password" />
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label">New Password</label>
+                        <input id="newPassword" type="password" class="form-control" placeholder="Enter new password" />
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label">Confirm New Password</label>
+                        <input id="confirmPassword" type="password" class="form-control" placeholder="Confirm new password" />
+                    </div>
+                    <div class="col-12">
+                        <button id="changePwBtn" onclick="changePassword()" class="btn btn-primary">
+                            Change Password
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        const TOKEN = '@token';
+
+        async function changePassword() {
+            const current = document.getElementById('currentPassword').value.trim();
+            const newPw   = document.getElementById('newPassword').value.trim();
+            const confirm = document.getElementById('confirmPassword').value.trim();
+            const msg     = document.getElementById('pwMsg');
+            const btn     = document.getElementById('changePwBtn');
+
+            msg.innerHTML = '';
+
+            if (!current || !newPw || !confirm) {
+                msg.innerHTML = '<div class="alert alert-warning">Please fill in all fields.</div>';
+                return;
+            }
+            if (newPw !== confirm) {
+                msg.innerHTML = '<div class="alert alert-danger">New passwords do not match.</div>';
+                return;
+            }
+            if (newPw.length < 6) {
+                msg.innerHTML = '<div class="alert alert-warning">New password must be at least 6 characters.</div>';
+                return;
+            }
+
+            btn.disabled = true;
+            btn.textContent = 'Changing...';
+
+            try {
+                const res = await fetch('/Account/ChangePassword', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                          // ← this was the missing fix
+                    },
+                    body: JSON.stringify({ currentPassword: current, newPassword: newPw })
+                });
+
+                const data = await res.json();
+                if (res.ok) {
+                    msg.innerHTML = '<div class="alert alert-success">✅ Password changed successfully!</div>';
+                    document.getElementById('currentPassword').value = '';
+                    document.getElementById('newPassword').value = '';
+                    document.getElementById('confirmPassword').value = '';
+                } else {
+                    msg.innerHTML = `<div class="alert alert-danger">${data.message ?? 'Failed to change password.'}</div>`;
+                }
+            } catch (e) {
+                msg.innerHTML = '<div class="alert alert-danger">Connection error. Please try again.</div>';
+            }
+
+            btn.disabled = false;
+            btn.textContent = 'Change Password';
+        }
+    </script>
+}

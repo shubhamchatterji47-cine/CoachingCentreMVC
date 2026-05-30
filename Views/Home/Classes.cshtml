@@ -1,0 +1,211 @@
+﻿@* @model List<CoachingMVC.ViewModels.Shared.ClassViewModel>
+@{
+    ViewData["Title"] = "Classes";
+}
+
+<h4 class="fw-bold mb-4">🏫 Available Classes</h4>
+
+<div class="row g-3">
+    @foreach (var c in Model)
+    {
+        var spotsLeft = c.MaxCapacity - c.EnrolledCount;
+        <div class="col-md-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <h6 class="fw-bold">@c.Name</h6>
+                    <span class="badge bg-info text-dark mb-2">@c.CourseName</span>
+                    <p class="small text-muted">@(c.Description ?? "")</p>
+                    <div class="d-flex gap-2 flex-wrap small mb-2">
+                        @if (!string.IsNullOrEmpty(c.Schedule))
+                        { <span class="badge bg-light text-dark">📅 @c.Schedule</span> }
+                        @if (!string.IsNullOrEmpty(c.Timing))
+                        { <span class="badge bg-light text-dark">🕐 @c.Timing</span> }
+                    </div>
+                    <div class="progress mb-1" style="height:6px">
+                        <div class="progress-bar @(spotsLeft < 5 ? "bg-danger" : "bg-success")"
+                             style="width:@((int)(c.EnrolledCount * 100.0 / c.MaxCapacity))%"></div>
+                    </div>
+                    <div class="small @(spotsLeft < 5 ? "text-danger" : "text-muted")">
+                        @(spotsLeft > 0 ? $"{spotsLeft} spots available" : "Class Full")
+                    </div>
+                    <div class="small text-muted mt-1">Started: @c.StartDate.ToString("dd MMM yyyy")</div>
+                </div>
+                <div class="card-footer bg-transparent">
+                    @* <a asp-controller="Account" asp-action="Login" class="btn btn-sm btn-primary w-100"
+                       @(spotsLeft == 0 ? "disabled" : "")>
+                        @(spotsLeft > 0 ? "Join Class" : "Class Full")
+                    </a> *@
+@*                     @if (spotsLeft > 0)
+                    {
+                        <a asp-controller="Account"
+                           asp-action="Login"
+                           class="btn btn-sm btn-primary w-100">
+                            Join Class
+                        </a>
+                    }
+                    else
+                    {
+                        <button class="btn btn-sm btn-secondary w-100" disabled>
+                            Class Full
+                        </button>
+                    }
+                </div>
+            </div>
+        </div>
+    }
+    @if (!Model.Any())
+    {
+        <div class="col-12"><p class="text-muted text-center py-4">No classes available yet.</p></div>
+    }
+</div> *@ 
+
+@model List<CoachingMVC.ViewModels.Shared.ClassViewModel>
+@{
+    ViewData["Title"] = "Classes";
+}
+
+<style>
+    :root {
+        --nm-navy: #0a1628;
+        --nm-blue: #1e40af;
+        --nm-accent: #f59e0b;
+    }
+
+    .page-hero {
+        background: var(--nm-navy);
+        padding: 4rem 0 3rem;
+        color: white;
+    }
+
+    .section-label {
+        display: inline-flex;
+        align-items: center;
+        gap: .4rem;
+        background: rgba(255,255,255,.1);
+        color: rgba(255,255,255,.8);
+        border-radius: 50px;
+        padding: .3rem .9rem;
+        font-size: .78rem;
+        font-weight: 700;
+        letter-spacing: .5px;
+        text-transform: uppercase;
+        margin-bottom: .75rem;
+    }
+
+    .class-card {
+        border: 1.5px solid #e8edf5;
+        border-radius: 16px;
+        background: white;
+        transition: all .25s;
+        overflow: hidden;
+    }
+
+        .class-card:hover {
+            border-color: var(--nm-blue);
+            box-shadow: 0 12px 40px rgba(30,64,175,.12);
+            transform: translateY(-3px);
+        }
+
+    .progress-slim {
+        height: 6px;
+        border-radius: 3px;
+    }
+</style>
+
+<div class="page-hero">
+    <div class="container text-center">
+        <div class="section-label">🏫 All Batches</div>
+        <h1 style="font-family:'Sora',sans-serif;font-weight:800;font-size:2.5rem;letter-spacing:-1px">Available Classes</h1>
+        <p style="color:rgba(255,255,255,.6);max-width:460px;margin:.75rem auto 0">Small batches for focused learning. Limited seats — enroll early.</p>
+    </div>
+</div>
+
+<section class="py-5">
+    <div class="container">
+        <div class="row g-3">
+            @if (Model.Any())
+            {
+                @foreach (var c in Model)
+                {
+                    var spotsLeft = c.MaxCapacity - c.EnrolledCount;
+                    var fillPct = c.MaxCapacity > 0 ? (int)(c.EnrolledCount * 100.0 / c.MaxCapacity) : 0;
+                    var fillColor = spotsLeft <= 5 ? "danger" : spotsLeft <= 10 ? "warning" : "success";
+                    <div class="col-md-4">
+                        <div class="class-card">
+                            <div style="background:linear-gradient(135deg,#0f172a,#1e3a5f);padding:1.25rem;color:white">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <div style="font-family:'Sora',sans-serif;font-weight:700;font-size:1rem">@c.Name</div>
+                                        <span class="badge mt-1" style="background:rgba(245,158,11,.2);color:#fbbf24;font-size:.7rem">@c.CourseName</span>
+                                    </div>
+                                    @if (spotsLeft <= 0)
+                                    {
+                                        <span class="badge bg-danger" style="font-size:.7rem">Full</span>
+                                    }
+                                    else if (spotsLeft <= 5)
+                                    {
+
+                                        <span class="badge bg-warning text-dark" style="font-size:.7rem">Almost Full</span>
+                                    }
+                                    else
+                                    {
+
+                                        <span class="badge bg-success" style="font-size:.7rem">Open</span>
+                                    }
+                                </div>
+                            </div>
+                            <div style="padding:1.25rem">
+                                @if (!string.IsNullOrEmpty(c.Description))
+                                {
+                                    <p class="small text-muted mb-2">@c.Description</p>
+                                }
+                                <div class="d-flex flex-wrap gap-2 small text-muted mb-3">
+                                    @if (!string.IsNullOrEmpty(c.Schedule))
+                                    {
+                                        <span>📅 @c.Schedule</span>
+                                    }
+                                    @if (!string.IsNullOrEmpty(c.Timing))
+                                    {
+                                        <span>🕐 @c.Timing</span>
+                                    }
+                                    <span>📅 @c.StartDate.ToString("dd MMM yyyy")</span>
+                                </div>
+                                <div class="d-flex justify-content-between small mb-1" style="color:#475569">
+                                    <span>Seats Filled</span>
+                                    <span class="fw-semibold">@c.EnrolledCount / @c.MaxCapacity</span>
+                                </div>
+                                <div class="progress progress-slim mb-3">
+                                    <div class="progress-bar bg-@fillColor" style="width:@fillPct%"></div>
+                                </div>
+                                @if (spotsLeft > 0)
+                                {
+                                    <div class="text-@fillColor small fw-semibold mb-2">@spotsLeft seat@(spotsLeft != 1 ? "s" : "") left</div>
+                                    <a asp-controller="Account" asp-action="Login"
+                                       style="display:block;text-align:center;background:var(--nm-navy);color:white;border-radius:8px;padding:.6rem;font-weight:700;font-size:.85rem;text-decoration:none">
+                                        Join This Class
+                                    </a>
+                                }
+                                else
+                                {
+                                    <button disabled style="display:block;width:100%;background:#f1f5f9;color:#94a3b8;border:none;border-radius:8px;padding:.6rem;font-weight:700;font-size:.85rem">
+                                        Class Full
+                                    </button>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                }
+            }
+            else
+            {
+                <div class="col-12 text-center py-5 text-muted">
+                    <div style="font-size:3rem">🏫</div>
+                    <div class="fw-semibold mt-2">No classes available right now.</div>
+                    <div class="small mt-1">Check back soon or contact us for more information.</div>
+                </div>
+            }
+        </div>
+    </div>
+</section>
+
+

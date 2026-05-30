@@ -1,0 +1,159 @@
+﻿@model CoachingMVC.ViewModels.Admin.AdminDashboardViewModel
+@{
+    ViewData["Title"] = "Admin Dashboard";
+}
+
+<div class="mb-4">
+    <h2 class="page-title">📊 Admin Dashboard</h2>
+    <p class="text-muted">
+        Welcome back. Here's what's happening today.
+    </p>
+</div>
+
+<div class="row g-4 mb-4">
+
+    <!-- Students -->
+    <div class="col-sm-6 col-xl-3">
+        <div class="stat-card bg-gradient-blue">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <div class="stat-value">@Model.TotalStudents</div>
+                    <div class="stat-label">Students</div>
+                </div>
+                <div style="font-size:3rem;opacity:.3">👨‍🎓</div>
+            </div>
+
+            <a asp-action="Students"
+               class="text-white text-decoration-none d-block mt-3 small fw-semibold">
+                View Details →
+            </a>
+        </div>
+    </div>
+
+    <!-- Teachers -->
+    <div class="col-sm-6 col-xl-3">
+        <div class="stat-card bg-gradient-green">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <div class="stat-value">@Model.TotalTeachers</div>
+                    <div class="stat-label">Teachers</div>
+                </div>
+                <div style="font-size:3rem;opacity:.3">👩‍🏫</div>
+            </div>
+
+            <a asp-action="Teachers"
+               class="text-white text-decoration-none d-block mt-3 small fw-semibold">
+                View Details →
+            </a>
+        </div>
+    </div>
+
+    <!-- Courses -->
+    <div class="col-sm-6 col-xl-3">
+        <div class="stat-card bg-gradient-purple">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <div class="stat-value">@Model.TotalCourses</div>
+                    <div class="stat-label">Courses</div>
+                </div>
+                <div style="font-size:3rem;opacity:.3">📚</div>
+            </div>
+
+            <a asp-action="Courses"
+               class="text-white text-decoration-none d-block mt-3 small fw-semibold">
+                View Details →
+            </a>
+        </div>
+    </div>
+
+    <!-- Classes -->
+    <div class="col-sm-6 col-xl-3">
+        <div class="stat-card bg-gradient-orange">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <div class="stat-value">@Model.TotalClasses</div>
+                    <div class="stat-label">Classes</div>
+                </div>
+                <div style="font-size:3rem;opacity:.3">🏫</div>
+            </div>
+
+            <a asp-action="Classes"
+               class="text-white text-decoration-none d-block mt-3 small fw-semibold">
+                View Details →
+            </a>
+        </div>
+    </div>
+
+</div>
+<!-- Pending Admissions Alert -->
+@if (ViewBag.PendingAdmissions != null && (int)ViewBag.PendingAdmissions > 0)
+{
+    <div class="alert alert-warning d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
+        <div>
+            <strong>📋 @ViewBag.PendingAdmissions new admission application(s) waiting for review!</strong>
+        </div>
+        <a asp-controller="Admission" asp-action="Index" asp-route-status="Pending"
+           class="btn btn-warning btn-sm fw-semibold">Review Now →</a>
+    </div>
+}
+
+<!-- Unread Messages Alert -->
+@if (ViewBag.UnreadMessages != null && (int)ViewBag.UnreadMessages > 0)
+{
+    <div class="alert alert-info d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
+        <div>
+            <strong>📬 @ViewBag.UnreadMessages unread contact message(s) from visitors!</strong>
+        </div>
+        <a asp-controller="Admin" asp-action="Messages"
+           class="btn btn-info btn-sm fw-semibold text-white">View Messages →</a>
+    </div>
+}
+
+<div class="row g-3">
+    <div class="col-md-6">
+        <div class="card shadow-sm h-100">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span class="fw-semibold">📢 Recent Announcements</span>
+                <a asp-action="Announcements" class="btn btn-sm btn-outline-primary">Manage</a>
+            </div>
+            <div class="card-body p-0">
+                @if (Model.RecentAnnouncements.Any())
+                {
+                    <ul class="list-group list-group-flush">
+                        @foreach (var a in Model.RecentAnnouncements)
+                        {
+                            <li class="list-group-item">
+                                <div class="fw-semibold">
+                                    @a.Title
+                                    @if (!string.IsNullOrEmpty(a.TargetRole))
+                                    {
+                                        <span class="badge bg-secondary ms-1 small">@a.TargetRole</span>
+                                    }
+                                </div>
+                                <div class="small text-muted">@a.Content</div>
+                                <div class="small text-muted mt-1">@a.CreatedAt.ToString("dd MMM yyyy")</div>
+                            </li>
+                        }
+                    </ul>
+                }
+                else
+                {
+                    <p class="text-muted p-3 mb-0">No announcements yet.</p>
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card shadow-sm h-100">
+            <div class="card-header fw-semibold">⚡ Quick Actions</div>
+            <div class="card-body d-grid gap-2">
+                <a asp-action="Teachers" class="btn btn-outline-success">➕ Add New Teacher</a>
+                <a asp-action="Courses" class="btn btn-outline-info">➕ Add New Course</a>
+                <a asp-action="Classes" class="btn btn-outline-warning">➕ Create Class</a>
+                <a asp-action="AssignTeacher" class="btn btn-outline-primary">🔗 Assign Teacher to Class</a>
+                <a asp-action="Announcements" class="btn btn-outline-secondary">📢 Post Announcement</a>
+            </div>
+        </div>
+    </div>
+</div>
