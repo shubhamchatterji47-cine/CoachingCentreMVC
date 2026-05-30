@@ -49,5 +49,23 @@ namespace CoachingMVC.Controllers
             var profile = await _api.GetAsync<StudentViewModel>("student/profile");
             return View(profile);
         }
+        // Courses Page
+public async Task<IActionResult> Courses()
+{
+    var studentId = HttpContext.Session.GetInt32("UserId");
+    var courses = await _httpClient
+        .GetFromJsonAsync<List<CourseViewModel>>(
+            $"api/students/{studentId}/courses");
+    return View(courses ?? new List<CourseViewModel>());
+}
+
+// Announcements Page
+public async Task<IActionResult> Announcements()
+{
+    var announcements = await _httpClient
+        .GetFromJsonAsync<List<AnnouncementViewModel>>(
+            "api/announcements?role=Student");
+    return View(announcements ?? new List<AnnouncementViewModel>());
+}
     }
 }

@@ -293,41 +293,112 @@ else
 
     <div class="container-fluid p-0">
         <div class="row g-0">
-            @if (role == "Admin")
-            {
-                <nav class="col-md-2 d-none d-md-block sidebar">
-                    <div class="nav-header">Admin Panel</div>
-                    <a class="nav-link @(curAction=="Index"?"active":"")" asp-controller="Admin" asp-action="Index">📊 Dashboard</a>
-                    <a class="nav-link @(curAction=="Teachers"?"active":"")" asp-controller="Admin" asp-action="Teachers">👩‍🏫 Teachers</a>
-                    <a class="nav-link @(curAction=="Students"?"active":"")" asp-controller="Admin" asp-action="Students">👨‍🎓 Students</a>
-                    <a class="nav-link @(curAction=="Courses"?"active":"")" asp-controller="Admin" asp-action="Courses">📚 Courses</a>
-                    <a class="nav-link @(curAction=="Classes"?"active":"")" asp-controller="Admin" asp-action="Classes">🏫 Classes</a>
-                    <a class="nav-link @(curAction=="Subjects"?"active":"")" asp-controller="Admin" asp-action="Subjects">📖 Subjects</a>
-                    <a class="nav-link @(curAction=="AssignTeacher"?"active":"")" asp-controller="Admin" asp-action="AssignTeacher">🔗 Assign Teacher</a>
-                    <a class="nav-link @(curAction=="Announcements"?"active":"")" asp-controller="Admin" asp-action="Announcements">📢 Announcements</a>
-                    <a class="nav-link @(curAction=="Profile"?"active":"")" asp-controller="Admin" asp-action="Profile">👤 My Profile</a>
-                </nav>
-            }
-            else if (role == "Teacher")
-            {
-                <nav class="col-md-2 d-none d-md-block sidebar">
-                    <div class="nav-header">Teacher Panel</div>
-                    <a class="nav-link @(curAction=="Index"?"active":"")" asp-controller="Teacher" asp-action="Index">📊 Dashboard</a>
-                    <a class="nav-link @(curAction=="Students"?"active":"")" asp-controller="Teacher" asp-action="Students">👨‍🎓 Students</a>
-                    <a class="nav-link @(curAction=="Marks"?"active":"")" asp-controller="Teacher" asp-action="Marks">📝 Marks</a>
-                    <a class="nav-link @(curAction=="Profile"?"active":"")" asp-controller="Teacher" asp-action="Profile">👤 My Profile</a>
-                </nav>
-            }
-            else if (role == "Student")
-            {
-                <nav class="col-md-2 d-none d-md-block sidebar">
-                    <div class="nav-header">Student Panel</div>
-                    <a class="nav-link @(curAction=="Index"?"active":"")" asp-controller="Student" asp-action="Index">📊 Dashboard</a>
-                    <a class="nav-link @(curAction=="Marks"?"active":"")" asp-controller="Student" asp-action="Marks">📝 My Marks</a>
-                    <a class="nav-link @(curAction=="Performance"?"active":"")" asp-controller="Student" asp-action="Performance">📈 Performance</a>
-                    <a class="nav-link @(curAction=="Profile"?"active":"")" asp-controller="Student" asp-action="Profile">👤 Profile</a>
-                </nav>
-            }
+        @if (role == "Admin")
+{
+    <nav class="col-md-2 d-none d-md-block sidebar">
+        <div class="nav-header">Admin Panel</div>
+        <a class="nav-link @(curAction=="Index"?"active":"")" 
+           asp-controller="Admin" asp-action="Index">
+           📊 Dashboard
+        </a>
+        <a class="nav-link @(curAction=="Teachers"?"active":"")" 
+           asp-controller="Admin" asp-action="Teachers">
+           👩‍🏫 Teachers
+        </a>
+        <a class="nav-link @(curAction=="Students"?"active":"")" 
+           asp-controller="Admin" asp-action="Students">
+           👨‍🎓 Students
+        </a>
+        <a class="nav-link @(curAction=="Courses"?"active":"")" 
+           asp-controller="Admin" asp-action="Courses">
+           📚 Courses
+        </a>
+        <a class="nav-link @(curAction=="Classes"?"active":"")" 
+           asp-controller="Admin" asp-action="Classes">
+           🏫 Classes
+        </a>
+        <a class="nav-link @(curAction=="Subjects"?"active":"")" 
+           asp-controller="Admin" asp-action="Subjects">
+           📖 Subjects
+        </a>
+        <a class="nav-link @(curAction=="AssignTeacher"?"active":"")" 
+           asp-controller="Admin" asp-action="AssignTeacher">
+           🔗 Assign Teacher
+        </a>
+        <a class="nav-link @(curAction=="Announcements"?"active":"")" 
+           asp-controller="Admin" asp-action="Announcements">
+           📢 Announcements
+        </a>
+        <a class="nav-link @(curAction=="Messages"?"active":"")" 
+           asp-controller="Admin" asp-action="Messages">
+           💬 Messages
+        </a>
+        <hr style="border-color:rgba(255,255,255,0.1);margin:8px 0"/>
+        <a class="nav-link @(curAction=="Profile"?"active":"")" 
+           asp-controller="Admin" asp-action="Profile">
+           👤 My Profile
+        </a>
+    </nav>
+}
+else if (role == "Teacher")
+{
+    <nav class="col-md-2 d-none d-md-block sidebar">
+        <div class="nav-header">Teacher Panel</div>
+        <a class="nav-link @(curAction=="Index"?"active":"")" 
+           asp-controller="Teacher" asp-action="Index">
+           📊 Dashboard
+        </a>
+        <a class="nav-link @(curAction=="Students"?"active":"")" 
+           asp-controller="Teacher" asp-action="Students">
+           👨‍🎓 Students
+        </a>
+        <a class="nav-link @(curAction=="Marks"?"active":"")" 
+           asp-controller="Teacher" asp-action="Marks">
+           📝 Marks
+        </a>
+        <a class="nav-link @(curAction=="Announcements"?"active":"")" 
+           asp-controller="Teacher" asp-action="Announcements">
+           📢 Announcements
+        </a>
+        <hr style="border-color:rgba(255,255,255,0.1);margin:8px 0"/>
+        <a class="nav-link @(curAction=="Profile"?"active":"")" 
+           asp-controller="Teacher" asp-action="Profile">
+           👤 My Profile
+        </a>
+    </nav>
+}
+else if (role == "Student")
+{
+    <nav class="col-md-2 d-none d-md-block sidebar">
+        <div class="nav-header">Student Panel</div>
+        <a class="nav-link @(curAction=="Index"?"active":"")" 
+           asp-controller="Student" asp-action="Index">
+           📊 Dashboard
+        </a>
+        <a class="nav-link @(curAction=="Courses"?"active":"")" 
+           asp-controller="Student" asp-action="Courses">
+           📚 My Courses
+        </a>
+        <a class="nav-link @(curAction=="Marks"?"active":"")" 
+           asp-controller="Student" asp-action="Marks">
+           📝 My Marks
+        </a>
+        <a class="nav-link @(curAction=="Performance"?"active":"")" 
+           asp-controller="Student" asp-action="Performance">
+           📈 Performance
+        </a>
+        <a class="nav-link @(curAction=="Announcements"?"active":"")" 
+           asp-controller="Student" asp-action="Announcements">
+           📢 Announcements
+        </a>
+        <hr style="border-color:rgba(255,255,255,0.1);margin:8px 0"/>
+        <a class="nav-link @(curAction=="Profile"?"active":"")" 
+           asp-controller="Student" asp-action="Profile">
+           👤 Profile
+        </a>
+    </nav>
+}
+
             <main class="@(role != null ? "col-md-10" : "col-12") main-content">@RenderBody()</main>
         </div>
     </div>
