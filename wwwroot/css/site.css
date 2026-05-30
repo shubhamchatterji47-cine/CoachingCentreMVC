@@ -20,3 +20,10 @@ html {
 body {
   margin-bottom: 60px;
 }
+.bg-gradient-danger{
+    background:linear-gradient(135deg,#ef4444,#dc2626);
+}
+
+.bg-gradient-dark{
+    background:linear-gradient(135deg,#374151,#111827);
+}

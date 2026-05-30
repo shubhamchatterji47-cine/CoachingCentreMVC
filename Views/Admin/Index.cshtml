@@ -85,30 +85,79 @@
     </div>
 
 </div>
-<!-- Pending Admissions Alert -->
-@if (ViewBag.PendingAdmissions != null && (int)ViewBag.PendingAdmissions > 0)
-{
-    <div class="alert alert-warning d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
-        <div>
-            <strong>📋 @ViewBag.PendingAdmissions new admission application(s) waiting for review!</strong>
+<!-- Applications -->
+<div class="col-sm-6 col-xl-3">
+    <div class="stat-card bg-gradient-danger">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <div class="stat-value">@ViewBag.PendingAdmissions</div>
+                <div class="stat-label">Applications</div>
+            </div>
+            <div style="font-size:3rem;opacity:.3">📝</div>
         </div>
-        <a asp-controller="Admission" asp-action="Index" asp-route-status="Pending"
-           class="btn btn-warning btn-sm fw-semibold">Review Now →</a>
+
+        <a asp-controller="Admission"
+           asp-action="Index"
+           class="text-white text-decoration-none d-block mt-3 small fw-semibold">
+            View Applications →
+        </a>
     </div>
-}
+</div>
+
+<!-- Messages -->
+<div class="col-sm-6 col-xl-3">
+    <div class="stat-card bg-gradient-dark">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <div class="stat-value">@ViewBag.UnreadMessages</div>
+                <div class="stat-label">Messages</div>
+            </div>
+            <div style="font-size:3rem;opacity:.3">📬</div>
+        </div>
+
+        <a asp-controller="Admin"
+           asp-action="Messages"
+           class="text-white text-decoration-none d-block mt-3 small fw-semibold">
+            View Messages →
+        </a>
+    </div>
+</div>
+
+<div class="col-sm-6 col-xl-3">
+    <div class="stat-card bg-gradient-danger">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <div class="stat-value">@ViewBag.PendingAdmissions</div>
+                <div class="stat-label">Applications</div>
+            </div>
+            <div style="font-size:3rem;opacity:.3">📋</div>
+        </div>
+
+        <a asp-controller="Admission"
+           asp-action="Index"
+           class="text-white text-decoration-none d-block mt-3 small fw-semibold">
+            View Applications →
+        </a>
+    </div>
+</div>
 
 <!-- Unread Messages Alert -->
-@if (ViewBag.UnreadMessages != null && (int)ViewBag.UnreadMessages > 0)
-{
-    <div class="alert alert-info d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
-        <div>
-            <strong>📬 @ViewBag.UnreadMessages unread contact message(s) from visitors!</strong>
+<div class="col-sm-6 col-xl-3">
+    <div class="stat-card bg-gradient-info">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <div class="stat-value">@ViewBag.UnreadMessages</div>
+                <div class="stat-label">Messages</div>
+            </div>
+            <div style="font-size:3rem;opacity:.3">📬</div>
         </div>
-        <a asp-controller="Admin" asp-action="Messages"
-           class="btn btn-info btn-sm fw-semibold text-white">View Messages →</a>
-    </div>
-}
 
+        <a asp-action="Messages"
+           class="text-white text-decoration-none d-block mt-3 small fw-semibold">
+            View Messages →
+        </a>
+    </div>
+</div>
 <div class="row g-3">
     <div class="col-md-6">
         <div class="card shadow-sm h-100">
