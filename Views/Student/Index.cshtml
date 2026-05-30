@@ -107,22 +107,53 @@
             }
 
             <div class="card shadow-sm border-0" style="border-radius:16px;overflow:hidden">
-                <div class="card-header bg-white fw-bold" style="border-bottom:1px solid #eef2f7;padding:1rem 1.25rem;border-radius:16px 16px 0 0">Subject Breakdown</div>
-                <div class="card-body p-0">
-                    @foreach (var sp in Model.SubjectPerformances)
-                    {
-                        var barColor = sp.AveragePercentage >= 75 ? "success" : sp.AveragePercentage >= 50 ? "warning" : "danger";
-                        <div class="px-3 py-2 border-bottom border-light" style="background:@(sp.AveragePercentage<50?'#fff5f5':'white')">
-                            <div class="d-flex justify-content-between mb-1">
-                                <span class="small fw-bold" style="font-size:.85rem">@sp.SubjectName</span>
-                                <span class="badge rounded-pill bg-@barColor" style="font-size:.7rem;font-weight:700">@sp.Grade</span>
-                            </div>
-                            <div class="progress" style="height:6px;border-radius:10px;background:#e2e8f0">
-                                <div class="progress-bar bg-@barColor rounded-pill" style="width:@((int)sp.AveragePercentage)%"></div>
-                            </div>
-                            <div class="text-end mt-1" style="font-size:.72rem;color:#64748b">@sp.AveragePercentage.ToString("F1")%</div>
-                        </div>
-                    }
+    <div class="card-header bg-white fw-bold" 
+         style="border-bottom:1px solid #eef2f7;
+                padding:1rem 1.25rem;
+                border-radius:16px 16px 0 0">
+        Subject Breakdown
+    </div>
+    <div class="card-body p-0">
+        @foreach (var sp in Model.SubjectPerformances)
+        {
+            var barColor = sp.AveragePercentage >= 75 ? "success" 
+                         : sp.AveragePercentage >= 50 ? "warning" 
+                         : "danger";
+            
+            @* FIX: Use C# variable instead of ternary inside style *@
+            var rowBg = sp.AveragePercentage < 50 ? "#fff5f5" : "white";
+            
+            <div class="px-3 py-2 border-bottom border-light" 
+                 style="background:@rowBg">
+                <div class="d-flex justify-content-between mb-1">
+                    <span class="small fw-bold" style="font-size:.85rem">
+                        @sp.SubjectName
+                    </span>
+                    <span class="badge rounded-pill bg-@barColor" 
+                          style="font-size:.7rem;font-weight:700">
+                        @sp.Grade
+                    </span>
+                </div>
+                <div class="progress" 
+                     style="height:6px;border-radius:10px;background:#e2e8f0">
+                    <div class="progress-bar bg-@barColor rounded-pill" 
+                         style="width:@((int)sp.AveragePercentage)%">
+                    </div>
+                </div>
+                <div class="text-end mt-1" 
+                     style="font-size:.72rem;color:#64748b">
+                    @sp.AveragePercentage.ToString("F1")%
+                </div>
+            </div>
+        }
+        @if (!Model.SubjectPerformances.Any())
+        {
+            <div class="p-3 text-muted small text-center">
+                No subjects available.
+            </div>
+        }
+    </div>
+</div>
                     @if (!Model.SubjectPerformances.Any())
                     {
                         <div class="p-3 text-muted small text-center">No subjects available.</div>
