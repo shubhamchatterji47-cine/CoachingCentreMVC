@@ -25,46 +25,59 @@
 @if (isPublic)
 {
     <!-- PUBLIC NAVBAR -->
-    <nav class="nm-navbar navbar navbar-expand-lg">
-        <div class="container">
-            <a class="navbar-brand" asp-controller="Home" asp-action="Index">
-                N<span>.</span>M<span>.</span> Coaching
-            </a>
-            <button class="nm-toggler" type="button"
-                    data-bs-toggle="collapse" data-bs-target="#pubNav"
-                    aria-controls="pubNav" aria-expanded="false">
-                <span></span><span></span><span></span>
-            </button>
-            <div class="collapse navbar-collapse" id="pubNav">
-                <ul class="navbar-nav mx-auto gap-1 py-2 py-lg-0">
-                    <li class="nav-item">
-                        <a class="nav-link @(curAction=="Index"?"active-nav":"")"
-                           asp-controller="Home" asp-action="Index">Home</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link @(curAction=="Courses"?"active-nav":"")"
-                           asp-controller="Home" asp-action="Courses">Courses</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link @(curAction=="Classes"?"active-nav":"")"
-                           asp-controller="Home" asp-action="Classes">Classes</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link @(curAction=="About"?"active-nav":"")"
-                           asp-controller="Home" asp-action="About">About</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link @(curAction=="Contact"?"active-nav":"")"
-                           asp-controller="Home" asp-action="Contact">Contact</a>
-                    </li>
-                </ul>
-                <div class="py-2 py-lg-0">
-                    <a class="nav-link nm-login-btn"
-                       asp-controller="Account" asp-action="Login">Login →</a>
-                </div>
+   <nav class="navbar navbar-expand-lg navbar-dark fixed-top"
+     style="background:#1a1a2e; border-bottom:1px solid rgba(255,255,255,.08);">
+    <div class="container">
+
+        <!-- ── Brand ── -->
+        <a class="navbar-brand fw-bold" href="/" style="font-size:1.25rem;">
+            <span style="color:#f59e0b;">N.M.</span> Coaching
+        </a>
+
+        <!-- ── Toggler: ONLY visible below lg (< 992px) ── -->
+        <button class="navbar-toggler border-0 shadow-none"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#mainNav"
+                aria-controls="mainNav"
+                aria-expanded="false"
+                aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <!-- ── Collapsible Nav ── -->
+        <div class="collapse navbar-collapse" id="mainNav">
+
+            <!-- Center links -->
+            <ul class="navbar-nav mx-auto gap-1">
+                <li class="nav-item">
+                    <a class="nav-link" asp-controller="Home" asp-action="Index">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" asp-controller="Home" asp-action="Courses">Courses</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" asp-controller="Home" asp-action="Classes">Classes</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" asp-controller="Home" asp-action="About">About</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" asp-controller="Home" asp-action="Contact">Contact</a>
+                </li>
+            </ul>
+
+            <!-- Right side: Login -->
+            <div class="d-flex">
+                <a asp-controller="Account" asp-action="Login"
+                   class="btn btn-outline-warning btn-sm px-3 fw-semibold"
+                   style="border-radius:8px;">
+                    Login →
+                </a>
             </div>
         </div>
-    </nav>
+    </div>
+</nav>
 
     @if (TempData["Success"] != null)
     {

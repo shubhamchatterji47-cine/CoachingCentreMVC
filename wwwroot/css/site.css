@@ -452,4 +452,36 @@ body {
     -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
 }
+/* ── Force hamburger hidden on desktop ── */
+@media (min-width: 992px) {
+    .navbar-toggler {
+        display: none !important;
+    }
+    .navbar-collapse {
+        display: flex !important;
+    }
+}
 
+/* ── Mobile dropdown styling ── */
+@media (max-width: 991.98px) {
+    .navbar-collapse {
+        background: #1a1a2e;
+        padding: 1rem;
+        border-radius: 0 0 14px 14px;
+        border-top: 1px solid rgba(255,255,255,.08);
+        margin-top: .5rem;
+    }
+    .navbar-nav .nav-link {
+        padding: .6rem 1rem;
+        border-radius: 8px;
+        transition: background .2s;
+    }
+    .navbar-nav .nav-link:hover {
+        background: rgba(255,255,255,.08);
+    }
+    .navbar-collapse .d-flex {
+        margin-top: .75rem;
+        padding-top: .75rem;
+        border-top: 1px solid rgba(255,255,255,.1);
+    }
+}
