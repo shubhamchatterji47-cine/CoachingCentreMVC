@@ -40,7 +40,7 @@
     </div>
 }
 
-<!-- Students Table -->
+<!-- Students container -->
 <div class="card">
     <div class="card-header d-flex justify-content-between align-items-center">
         <span>
@@ -60,66 +60,89 @@
         }
     </div>
     <div class="card-body p-0">
-        <div class="table-responsive">
-            <table class="table table-hover mb-0">
-                <thead>
-                    <tr>
-                        <th>#</th>
-                        <th>Name</th>
-                        <th>Roll No</th>
-                        <th>Email</th>
-                        <th>Phone</th>
-                        <th>Parent</th>
-                        <th class="text-end pe-3">Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @if (Model.Any())
-                    {
-                        int i = 1;
-                        foreach (var s in Model)
+
+        @if (Model.Any())
+        {
+            <!-- ===== TABLE: md and up ===== -->
+            <div class="table-responsive d-none d-md-block">
+                <table class="table table-hover mb-0 align-middle">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Name</th>
+                            <th>Roll No</th>
+                            <th>Email</th>
+                            <th>Phone</th>
+                            <th>Parent</th>
+                            <th class="text-end pe-3">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @{ int i = 1; }
+                        @foreach (var s in Model)
                         {
                             <tr>
                                 <td class="text-muted">@i</td>
-                                <td>
-                                    <div class="fw-bold">@s.FullName</div>
-                                </td>
-                                <td>
-                                    <span class="badge bg-primary rounded-pill">
-                                        @(s.RollNumber ?? "—")
-                                    </span>
-                                </td>
+                                <td><div class="fw-bold">@s.FullName</div></td>
+                                <td><span class="badge bg-primary rounded-pill">@(s.RollNumber ?? "—")</span></td>
                                 <td class="small text-muted">@s.Email</td>
                                 <td class="small text-muted">@(s.PhoneNumber ?? "—")</td>
                                 <td class="small text-muted">@(s.ParentName ?? "—")</td>
                                 <td class="text-end pe-3">
                                     <a asp-action="StudentPerformance" asp-route-studentId="@s.Id"
-                                       class="btn btn-sm btn-outline-info">
-                                        📈 Performance
-                                    </a>
+                                       class="btn btn-sm btn-outline-info">📈 Performance</a>
                                 </td>
                             </tr>
                             i++;
                         }
-                    }
-                    else
-                    {
-                        <tr>
-                            <td colspan="7">
-                                <div class="empty-state">
-                                    <div class="empty-icon">👨‍🎓</div>
-                                    <div class="fw-semibold">
-                                        @(selectedClassId == 0
-                                            ? "Select a class to view students"
-                                            : "No students in this class")
-                                    </div>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- ===== CARDS: mobile only ===== -->
+            <div class="d-md-none p-2">
+                @{ int n = 1; }
+                @foreach (var s in Model)
+                {
+                    <div class="card mb-2 shadow-sm">
+                        <div class="card-body p-3">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <div>
+                                    <div class="fw-bold">@s.FullName</div>
+                                    <div class="small text-muted">#@n</div>
                                 </div>
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
-        </div>
+                                <span class="badge bg-primary rounded-pill">@(s.RollNumber ?? "—")</span>
+                            </div>
+
+                            <div class="small text-muted mb-1">
+                                ✉️ @s.Email
+                            </div>
+                            <div class="small text-muted mb-1">
+                                📞 @(s.PhoneNumber ?? "—")
+                            </div>
+                            <div class="small text-muted mb-3">
+                                👪 @(s.ParentName ?? "—")
+                            </div>
+
+                            <a asp-action="StudentPerformance" asp-route-studentId="@s.Id"
+                               class="btn btn-sm btn-outline-info w-100">📈 Performance</a>
+                        </div>
+                    </div>
+                    n++;
+                }
+            </div>
+        }
+        else
+        {
+            <div class="empty-state text-center p-4">
+                <div class="empty-icon">👨‍🎓</div>
+                <div class="fw-semibold">
+                    @(selectedClassId == 0
+                        ? "Select a class to view students"
+                        : "No students in this class")
+                </div>
+            </div>
+        }
     </div>
 </div>
 
@@ -127,7 +150,7 @@
 @if (selectedClassId > 0)
 {
     <div class="modal fade" id="addStudentModal" tabindex="-1">
-        <div class="modal-dialog modal-lg">
+        <div class="modal-dialog modal-lg modal-dialog-scrollable">
             <div class="modal-content" style="border-radius:18px;overflow:hidden;border:none">
                 <div class="modal-header text-white"
                      style="background:linear-gradient(135deg,#10b981,#059669)">

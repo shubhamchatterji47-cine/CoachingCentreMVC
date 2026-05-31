@@ -6,50 +6,108 @@
     var selectedClassId = ViewBag.SelectedClassId as int?;
 }
 
-<!-- Header -->
-<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+<style>
+    /* ── Mobile Card Layout ── */
+    .student-card {
+        background: #fff;
+        border-radius: 14px;
+        box-shadow: 0 2px 12px rgba(0,0,0,.08);
+        padding: 1rem;
+        margin-bottom: .85rem;
+        border-left: 4px solid #10b981;
+        transition: box-shadow .2s;
+    }
+    .student-card:hover { box-shadow: 0 4px 18px rgba(0,0,0,.13); }
+    .student-card .card-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: .5rem;
+    }
+    .student-card .card-name { font-weight: 700; font-size: 1rem; line-height: 1.3; }
+    .student-card .card-meta { font-size: .78rem; color: #6b7280; margin-top: .15rem; }
+    .student-card .card-body-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: .35rem .75rem;
+        margin-top: .65rem;
+        font-size: .82rem;
+    }
+    .student-card .card-body-grid .label { color: #9ca3af; font-size: .72rem; text-transform: uppercase; letter-spacing: .04em; }
+    .student-card .card-body-grid .value { font-weight: 600; color: #111827; }
+    .student-card .card-actions {
+        display: flex;
+        gap: .4rem;
+        margin-top: .8rem;
+        flex-wrap: wrap;
+    }
+    .student-card .card-actions .btn { font-size: .78rem; padding: .28rem .7rem; border-radius: 8px; }
+
+    /* ── Desktop table / Mobile card toggle ── */
+    .desktop-table { display: table; }
+    .mobile-cards  { display: none; }
+
+    @media (max-width: 767.98px) {
+        .desktop-table { display: none !important; }
+        .mobile-cards  { display: block; }
+
+        /* tighter header on mobile */
+        h4.fw-bold { font-size: 1.1rem; }
+        .filter-card .card-body { flex-direction: column !important; align-items: stretch !important; }
+        .filter-form { flex-direction: column !important; }
+        .filter-form select,
+        .filter-form a { width: 100% !important; }
+        #searchInput { max-width: 100% !important; width: 100% !important; }
+    }
+
+    .empty-state { text-align:center; padding: 2.5rem 1rem; color:#6b7280; }
+    .empty-icon  { font-size: 2.5rem; margin-bottom: .5rem; }
+</style>
+
+<!-- ── Header ── -->
+<div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
     <div>
         <h4 class="fw-bold mb-1">🎓 Students
             <span class="badge bg-success ms-1" id="studentCount">@Model.Count</span>
         </h4>
         <p class="text-muted small mb-0">Manage all enrolled students</p>
     </div>
-    <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addStudentModal">
+    <button class="btn btn-success btn-sm px-3" data-bs-toggle="modal" data-bs-target="#addStudentModal">
         ➕ Add Student
     </button>
 </div>
 
-<!-- Filter + Search -->
-<div class="card mb-3">
-    <div class="card-body py-2 px-3">
-        <div class="d-flex align-items-center gap-3 flex-wrap">
-            <form method="get" class="d-flex align-items-center gap-2 flex-wrap">
-                <label class="fw-semibold mb-0 small">Filter by Class:</label>
-                <select name="classId" class="form-select form-select-sm" style="width:auto;min-width:200px"
-                        onchange="this.form.submit()">
-                    <option value="">All Classes</option>
-                    @foreach (var c in classes)
-                    {
-                        <option value="@c.Id" selected="@(selectedClassId == c.Id)">
-                            @c.Name — @c.CourseName
-                        </option>
-                    }
-                </select>
-                @if (selectedClassId.HasValue)
+<!-- ── Filter + Search ── -->
+<div class="card mb-3 filter-card">
+    <div class="card-body py-2 px-3 d-flex align-items-center gap-3 flex-wrap">
+        <form method="get" class="d-flex align-items-center gap-2 flex-wrap filter-form">
+            <label class="fw-semibold mb-0 small">Filter:</label>
+            <select name="classId" class="form-select form-select-sm" style="min-width:180px"
+                    onchange="this.form.submit()">
+                <option value="">All Classes</option>
+                @foreach (var c in classes)
                 {
-                    <a asp-action="Students" class="btn btn-sm btn-outline-secondary">✕ Clear</a>
+                    <option value="@c.Id" selected="@(selectedClassId == c.Id)">
+                        @c.Name — @c.CourseName
+                    </option>
                 }
-            </form>
-            <input type="text" id="searchInput" class="form-control form-control-sm"
-                   placeholder="🔍 Search name or email..."
-                   style="min-width:220px;max-width:300px"
-                   oninput="filterStudents()" />
-        </div>
+            </select>
+            @if (selectedClassId.HasValue)
+            {
+                <a asp-action="Students" class="btn btn-sm btn-outline-secondary w-100">✕ Clear</a>
+            }
+        </form>
+        <input type="text" id="searchInput" class="form-control form-control-sm"
+               placeholder="🔍 Search name or email..."
+               style="min-width:200px;max-width:300px"
+               oninput="filterStudents()" />
     </div>
 </div>
 
-<!-- Table Card -->
-<div class="card">
+<!-- ══════════════════════════════
+     DESKTOP TABLE
+══════════════════════════════ -->
+<div class="card desktop-table">
     <div class="card-header d-flex justify-content-between align-items-center">
         <span>All Students</span>
         <span class="badge bg-success rounded-pill">@Model.Count Total</span>
@@ -57,7 +115,7 @@
     <div class="card-body p-0">
         <div class="table-responsive">
             <table class="table table-hover mb-0">
-                <thead>
+                <thead class="table-light">
                     <tr>
                         <th>#</th>
                         <th>Name</th>
@@ -74,19 +132,17 @@
                 <tbody id="studentsBody">
                     @if (Model != null && Model.Any())
                     {
-                        for (int rowNum = 0; rowNum < Model.Count; rowNum++)
+                        for (int i = 0; i < Model.Count; i++)
                         {
-                            var s = Model[rowNum];
-                            <tr>
-                                <td class="text-muted">@(rowNum + 1)</td>
+                            var s = Model[i];
+                            <tr data-search="@s.FullName.ToLower() @s.Email?.ToLower() @s.ClassName?.ToLower()">
+                                <td class="text-muted">@(i + 1)</td>
                                 <td>
                                     <div class="fw-bold">@s.FullName</div>
                                     <div class="text-muted small">@s.PhoneNumber</div>
                                 </td>
                                 <td>
-                                    <span class="badge bg-primary rounded-pill">
-                                        @(s.RollNumber ?? "—")
-                                    </span>
+                                    <span class="badge bg-primary rounded-pill">@(s.RollNumber ?? "—")</span>
                                 </td>
                                 <td class="small text-muted">@s.Email</td>
                                 <td class="small fw-semibold">@s.ClassName</td>
@@ -100,13 +156,9 @@
                                 <td class="small text-muted">@s.EnrollmentDate.ToString("dd MMM yyyy")</td>
                                 <td>
                                     @if (s.IsActive)
-                                    {
-                                        <span class="badge bg-success">Active</span>
-                                    }
+                                    { <span class="badge bg-success">Active</span> }
                                     else
-                                    {
-                                        <span class="badge bg-danger">Inactive</span>
-                                    }
+                                    { <span class="badge bg-danger">Inactive</span> }
                                 </td>
                                 <td class="text-end pe-3">
                                     <div class="d-flex gap-1 justify-content-end flex-wrap">
@@ -161,34 +213,133 @@
     </div>
 </div>
 
-<!-- ADD STUDENT MODAL -->
+<!-- ══════════════════════════════
+     MOBILE CARDS
+══════════════════════════════ -->
+<div class="mobile-cards" id="mobileCards">
+    @if (Model != null && Model.Any())
+    {
+        for (int i = 0; i < Model.Count; i++)
+        {
+            var s = Model[i];
+            <div class="student-card mobile-student-card"
+                 data-search="@s.FullName.ToLower() @s.Email?.ToLower() @s.ClassName?.ToLower()">
+                <div class="card-top">
+                    <div>
+                        <div class="card-name">@s.FullName</div>
+                        <div class="card-meta">📧 @s.Email</div>
+                        @if (!string.IsNullOrEmpty(s.PhoneNumber))
+                        {
+                            <div class="card-meta">📞 @s.PhoneNumber</div>
+                        }
+                    </div>
+                    <div class="d-flex flex-column align-items-end gap-1">
+                        @if (s.IsActive)
+                        { <span class="badge bg-success">Active</span> }
+                        else
+                        { <span class="badge bg-danger">Inactive</span> }
+                        <span class="badge bg-primary rounded-pill">@(s.RollNumber ?? "No Roll")</span>
+                    </div>
+                </div>
+
+                <div class="card-body-grid">
+                    <div>
+                        <div class="label">Class</div>
+                        <div class="value">@s.ClassName</div>
+                    </div>
+                    <div>
+                        <div class="label">Course</div>
+                        <div class="value">
+                            <span class="badge rounded-pill"
+                                  style="background:#e0f2fe;color:#0369a1;font-size:.75rem">
+                                @s.CourseName
+                            </span>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="label">Parent</div>
+                        <div class="value">@(s.ParentName ?? "—")</div>
+                    </div>
+                    <div>
+                        <div class="label">Enrolled</div>
+                        <div class="value">@s.EnrollmentDate.ToString("dd MMM yyyy")</div>
+                    </div>
+                </div>
+
+                <div class="card-actions">
+                    <button class="btn btn-sm btn-outline-warning flex-fill"
+                            onclick="openEditStudent(
+                                @s.Id,
+                                '@Html.Raw(s.FullName.Replace("'","\\\'"))',
+                                '@Html.Raw((s.PhoneNumber??"").Replace("'","\\\'"))',
+                                @s.ClassId,
+                                '@Html.Raw((s.RollNumber??"").Replace("'","\\\'"))',
+                                '@Html.Raw((s.ParentName??"").Replace("'","\\\'"))',
+                                '@Html.Raw((s.ParentPhone??"").Replace("'","\\\'"))',
+                                '@Html.Raw((s.Address??"").Replace("'","\\\'"))')">
+                        ✏️ Edit
+                    </button>
+                    <form asp-action="ToggleStudent" method="post" class="flex-fill"
+                          onsubmit="return confirm('@(s.IsActive?"Deactivate":"Activate") @s.FullName?')">
+                        <input type="hidden" name="id" value="@s.Id" />
+                        <button type="submit"
+                                class="btn btn-sm w-100 @(s.IsActive?"btn-outline-secondary":"btn-outline-success")">
+                            @(s.IsActive ? "🔒 Deactivate" : "✅ Activate")
+                        </button>
+                    </form>
+                    <form asp-action="PermanentDeleteStudent" method="post"
+                          onsubmit="return confirm('⚠️ PERMANENTLY DELETE @s.FullName?')">
+                        <input type="hidden" name="id" value="@s.Id" />
+                        <button type="submit" class="btn btn-sm btn-outline-danger">🗑️</button>
+                    </form>
+                </div>
+            </div>
+        }
+    }
+    else
+    {
+        <div class="empty-state">
+            <div class="empty-icon">🎓</div>
+            <div class="fw-semibold">No students found</div>
+            <div class="small">Add your first student using the button above</div>
+        </div>
+    }
+    <div id="noSearchResultMobile" class="text-center text-muted py-4" style="display:none">
+        No students match your search.
+    </div>
+</div>
+
+<!-- ══════════════════════════════
+     ADD STUDENT MODAL
+══════════════════════════════ -->
 <div class="modal fade" id="addStudentModal" tabindex="-1">
-    <div class="modal-dialog modal-lg modal-dialog-scrollable">
-        <div class="modal-content" style="border-radius:18px;overflow:hidden;border:none">
-            <div class="modal-header text-white" style="background:linear-gradient(135deg,#10b981,#059669)">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable modal-dialog-centered">
+        <div class="modal-content" style="border-radius:16px;overflow:hidden;border:none">
+            <div class="modal-header text-white"
+                 style="background:linear-gradient(135deg,#10b981,#059669)">
                 <h5 class="modal-title fw-bold">➕ Add New Student</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <form asp-action="AddStudent" asp-controller="Admin" method="post" id="addStudentForm">
-                <div class="modal-body row g-3 p-4">
-                    <div class="col-md-6">
-                        <label class="form-label fw-semibold">Full Name *</label>
+                <div class="modal-body row g-3 p-3 p-md-4">
+                    <div class="col-12 col-md-6">
+                        <label class="form-label fw-semibold small">Full Name *</label>
                         <input type="text" name="fullName" class="form-control" required maxlength="100" />
                     </div>
-                    <div class="col-md-6">
-                        <label class="form-label fw-semibold">Email *</label>
+                    <div class="col-12 col-md-6">
+                        <label class="form-label fw-semibold small">Email *</label>
                         <input type="email" name="email" class="form-control" required maxlength="150" />
                     </div>
-                    <div class="col-md-6">
-                        <label class="form-label fw-semibold">Password *</label>
+                    <div class="col-12 col-md-6">
+                        <label class="form-label fw-semibold small">Password *</label>
                         <input type="password" name="password" class="form-control" required minlength="6" />
                     </div>
-                    <div class="col-md-6">
-                        <label class="form-label fw-semibold">Phone Number</label>
+                    <div class="col-12 col-md-6">
+                        <label class="form-label fw-semibold small">Phone Number</label>
                         <input type="tel" name="phone" class="form-control" maxlength="20" />
                     </div>
-                    <div class="col-md-6">
-                        <label class="form-label fw-semibold">Class *</label>
+                    <div class="col-12 col-md-6">
+                        <label class="form-label fw-semibold small">Class *</label>
                         <select name="classId" class="form-select" required>
                             <option value="">— Select Class —</option>
                             @foreach (var c in classes)
@@ -199,57 +350,62 @@
                             }
                         </select>
                     </div>
-                    <div class="col-md-6">
-                        <label class="form-label fw-semibold">Roll Number</label>
+                    <div class="col-12 col-md-6">
+                        <label class="form-label fw-semibold small">Roll Number</label>
                         <input type="text" name="rollNumber" class="form-control" maxlength="50" />
                     </div>
-                    <div class="col-md-6">
-                        <label class="form-label fw-semibold">Date of Birth</label>
+                    <div class="col-12 col-md-6">
+                        <label class="form-label fw-semibold small">Date of Birth</label>
                         <input type="date" name="dateOfBirth" class="form-control" />
                     </div>
-                    <div class="col-md-6">
-                        <label class="form-label fw-semibold">Parent Name</label>
+                    <div class="col-12 col-md-6">
+                        <label class="form-label fw-semibold small">Parent Name</label>
                         <input type="text" name="parentName" class="form-control" maxlength="100" />
                     </div>
-                    <div class="col-md-6">
-                        <label class="form-label fw-semibold">Parent Phone</label>
+                    <div class="col-12 col-md-6">
+                        <label class="form-label fw-semibold small">Parent Phone</label>
                         <input type="tel" name="parentPhone" class="form-control" maxlength="20" />
                     </div>
-                    <div class="col-md-6">
-                        <label class="form-label fw-semibold">Address</label>
+                    <div class="col-12 col-md-6">
+                        <label class="form-label fw-semibold small">Address</label>
                         <input type="text" name="address" class="form-control" maxlength="300" />
                     </div>
                 </div>
-                <div class="modal-footer px-4 pb-4" style="border-top:1px solid #eef2f7">
-                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-success px-4" id="addStudentBtn">✅ Add Student</button>
+                <div class="modal-footer px-3 px-md-4 pb-4" style="border-top:1px solid #eef2f7">
+                    <button type="button" class="btn btn-outline-secondary"
+                            data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-success px-4"
+                            id="addStudentBtn">✅ Add Student</button>
                 </div>
             </form>
         </div>
     </div>
 </div>
 
-<!-- EDIT STUDENT MODAL -->
+<!-- ══════════════════════════════
+     EDIT STUDENT MODAL
+══════════════════════════════ -->
 <div class="modal fade" id="editStudentModal" tabindex="-1">
-    <div class="modal-dialog modal-lg modal-dialog-scrollable">
-        <div class="modal-content" style="border-radius:18px;overflow:hidden;border:none">
-            <div class="modal-header" style="background:linear-gradient(135deg,#f59e0b,#ea580c);color:white">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable modal-dialog-centered">
+        <div class="modal-content" style="border-radius:16px;overflow:hidden;border:none">
+            <div class="modal-header"
+                 style="background:linear-gradient(135deg,#f59e0b,#ea580c);color:white">
                 <h5 class="modal-title fw-bold">✏️ Edit Student</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <form asp-action="UpdateStudent" asp-controller="Admin" method="post">
                 <input type="hidden" name="id" id="editStudentId" />
-                <div class="modal-body row g-3 p-4">
-                    <div class="col-md-6">
-                        <label class="form-label fw-semibold">Full Name *</label>
+                <div class="modal-body row g-3 p-3 p-md-4">
+                    <div class="col-12 col-md-6">
+                        <label class="form-label fw-semibold small">Full Name *</label>
                         <input type="text" name="fullName" id="editStudentName" class="form-control" required />
                     </div>
-                    <div class="col-md-6">
-                        <label class="form-label fw-semibold">Phone Number</label>
+                    <div class="col-12 col-md-6">
+                        <label class="form-label fw-semibold small">Phone Number</label>
                         <input type="tel" name="phone" id="editStudentPhone" class="form-control" />
                     </div>
-                    <div class="col-md-6">
-                        <label class="form-label fw-semibold">Class *</label>
+                    <div class="col-12 col-md-6">
+                        <label class="form-label fw-semibold small">Class *</label>
                         <select name="classId" id="editStudentClass" class="form-select" required>
                             @foreach (var c in classes)
                             {
@@ -257,20 +413,20 @@
                             }
                         </select>
                     </div>
-                    <div class="col-md-6">
-                        <label class="form-label fw-semibold">Roll Number</label>
+                    <div class="col-12 col-md-6">
+                        <label class="form-label fw-semibold small">Roll Number</label>
                         <input type="text" name="rollNumber" id="editStudentRoll" class="form-control" />
                     </div>
-                    <div class="col-md-6">
-                        <label class="form-label fw-semibold">Parent Name</label>
+                    <div class="col-12 col-md-6">
+                        <label class="form-label fw-semibold small">Parent Name</label>
                         <input type="text" name="parentName" id="editStudentParent" class="form-control" />
                     </div>
-                    <div class="col-md-6">
-                        <label class="form-label fw-semibold">Parent Phone</label>
+                    <div class="col-12 col-md-6">
+                        <label class="form-label fw-semibold small">Parent Phone</label>
                         <input type="tel" name="parentPhone" id="editStudentParentPhone" class="form-control" />
                     </div>
                     <div class="col-12">
-                        <label class="form-label fw-semibold">Address</label>
+                        <label class="form-label fw-semibold small">Address</label>
                         <input type="text" name="address" id="editStudentAddress" class="form-control" />
                     </div>
                     <div class="col-12">
@@ -279,8 +435,9 @@
                         </div>
                     </div>
                 </div>
-                <div class="modal-footer px-4 pb-4" style="border-top:1px solid #eef2f7">
-                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                <div class="modal-footer px-3 px-md-4 pb-4" style="border-top:1px solid #eef2f7">
+                    <button type="button" class="btn btn-outline-secondary"
+                            data-bs-dismiss="modal">Cancel</button>
                     <button type="submit" class="btn btn-warning px-4">💾 Save Changes</button>
                 </div>
             </form>
@@ -289,34 +446,58 @@
 </div>
 
 @section Scripts {
-    <script>
-        function openEditStudent(id, name, phone, classId, roll, parentName, parentPhone, address) {
-            document.getElementById('editStudentId').value          = id;
-            document.getElementById('editStudentName').value        = name;
-            document.getElementById('editStudentPhone').value       = phone;
-            document.getElementById('editStudentClass').value       = classId;
-            document.getElementById('editStudentRoll').value        = roll;
-            document.getElementById('editStudentParent').value      = parentName;
-            document.getElementById('editStudentParentPhone').value = parentPhone;
-            document.getElementById('editStudentAddress').value     = address;
-            new bootstrap.Modal(document.getElementById('editStudentModal')).show();
-        }
-        function filterStudents() {
-            const q = document.getElementById('searchInput').value.toLowerCase();
-            const rows = document.querySelectorAll('#studentsBody tr');
-            let visible = 0;
-            rows.forEach(row => {
-                const show = !q || row.innerText.toLowerCase().includes(q);
-                row.style.display = show ? '' : 'none';
-                if (show) visible++;
-            });
-            document.getElementById('studentCount').textContent = visible;
-            document.getElementById('noSearchResult').style.display = (visible === 0 && q) ? '' : 'none';
-        }
-        document.getElementById('addStudentForm').addEventListener('submit', function () {
-            const btn = document.getElementById('addStudentBtn');
-            btn.disabled = true;
-            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Saving...';
+<script>
+    /* ── Edit modal ── */
+    function openEditStudent(id, name, phone, classId, roll, parentName, parentPhone, address) {
+        document.getElementById('editStudentId').value          = id;
+        document.getElementById('editStudentName').value        = name;
+        document.getElementById('editStudentPhone').value       = phone;
+        document.getElementById('editStudentClass').value       = classId;
+        document.getElementById('editStudentRoll').value        = roll;
+        document.getElementById('editStudentParent').value      = parentName;
+        document.getElementById('editStudentParentPhone').value = parentPhone;
+        document.getElementById('editStudentAddress').value     = address;
+        new bootstrap.Modal(document.getElementById('editStudentModal')).show();
+    }
+
+    /* ── Unified search (desktop table + mobile cards) ── */
+    function filterStudents() {
+        const q = document.getElementById('searchInput').value.toLowerCase().trim();
+
+        // Desktop rows
+        const rows = document.querySelectorAll('#studentsBody tr');
+        let visibleD = 0;
+        rows.forEach(row => {
+            const text = (row.dataset.search || row.innerText).toLowerCase();
+            const show = !q || text.includes(q);
+            row.style.display = show ? '' : 'none';
+            if (show) visibleD++;
         });
-    </script>
+        const noResD = document.getElementById('noSearchResult');
+        if (noResD) noResD.style.display = (visibleD === 0 && q) ? '' : 'none';
+
+        // Mobile cards
+        const cards = document.querySelectorAll('.mobile-student-card');
+        let visibleM = 0;
+        cards.forEach(card => {
+            const text = (card.dataset.search || card.innerText).toLowerCase();
+            const show = !q || text.includes(q);
+            card.style.display = show ? '' : 'none';
+            if (show) visibleM++;
+        });
+        const noResM = document.getElementById('noSearchResultMobile');
+        if (noResM) noResM.style.display = (visibleM === 0 && q) ? '' : 'none';
+
+        // Update badge (use desktop count as source of truth)
+        const isMobile = window.innerWidth < 768;
+        document.getElementById('studentCount').textContent = isMobile ? visibleM : visibleD;
+    }
+
+    /* ── Add button loading state ── */
+    document.getElementById('addStudentForm').addEventListener('submit', function () {
+        const btn = document.getElementById('addStudentBtn');
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Saving...';
+    });
+</script>
 }

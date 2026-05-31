@@ -46,12 +46,12 @@
 
 @if (selectedClassId > 0)
 {
-    <!-- Exam Type Filter -->
+    <!-- Exam Type Filter (scrollable on mobile) -->
     <div class="card mb-3">
         <div class="card-body py-2 px-3">
-            <div class="d-flex gap-2 flex-wrap align-items-center">
+            <div class="d-flex gap-2 flex-nowrap flex-md-wrap align-items-center filter-scroll">
                 <a asp-action="Marks" asp-route-classId="@selectedClassId" asp-route-examType="All"
-                   class="btn btn-sm @(examType=="All"?"btn-dark":"btn-outline-secondary")">
+                   class="btn btn-sm flex-shrink-0 @(examType=="All"?"btn-dark":"btn-outline-secondary")">
                     All
                     <span class="badge @(examType=="All"?"bg-light text-dark":"bg-secondary") ms-1">
                         @Model.Count
@@ -61,7 +61,7 @@
                 {
                     var count = Model.Count(m => m.ExamType == et);
                     <a asp-action="Marks" asp-route-classId="@selectedClassId" asp-route-examType="@et"
-                       class="btn btn-sm @(et==examType?"btn-primary":"btn-outline-secondary")">
+                       class="btn btn-sm flex-shrink-0 @(et==examType?"btn-primary":"btn-outline-secondary")">
                         @et
                         @if (count > 0)
                         {
@@ -97,145 +97,22 @@
                     <span class="badge bg-@avgColor rounded-pill">Avg: @avg.ToString("F1")%</span>
                 </div>
 
-                <div class="card">
-                    <div class="card-body p-0">
-                        <div class="table-responsive">
-                            <table class="table table-hover mb-0">
-                                <thead>
-                                    <tr>
-                                        <th>Student</th>
-                                        <th>Subject</th>
-                                        <th>Marks</th>
-                                        <th>Max</th>
-                                        <th>%</th>
-                                        <th>Grade</th>
-                                        <th>Date</th>
-                                        <th>Remarks</th>
-                                        <th></th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach (var m in group.OrderBy(m => m.StudentName))
-                                    {
-                                        var bc = m.Grade switch {
-                                            "A+" or "A" => "success",
-                                            "B+" or "B" => "primary",
-                                            "C"         => "warning",
-                                            _           => "danger"
-                                        };
-                                        <tr>
-                                            <td class="fw-bold">@m.StudentName</td>
-                                            <td class="small">@m.SubjectName</td>
-                                            <td class="fw-semibold">@m.ObtainedMarks</td>
-                                            <td class="text-muted small">@m.MaxMarks</td>
-                                            <td style="min-width:120px">
-                                                <div class="d-flex align-items-center gap-2">
-                                                    <div class="progress flex-grow-1" style="height:6px">
-                                                        <div class="progress-bar bg-@bc"
-                                                             style="width:@((int)m.Percentage)%"></div>
-                                                    </div>
-                                                    <span class="small">@m.Percentage.ToString("F1")%</span>
-                                                </div>
-                                            </td>
-                                            <td>
-                                                <span class="badge rounded-pill bg-@bc">@m.Grade</span>
-                                            </td>
-                                            <td class="small text-muted">@m.ExamDate.ToString("dd MMM yyyy")</td>
-                                            <td class="small text-muted">@(m.Remarks ?? "—")</td>
-                                            <td>
-                                                <form asp-action="DeleteMark" method="post"
-                                                      onsubmit="return confirm('Delete this mark?')">
-                                                    <input type="hidden" name="id" value="@m.Id" />
-                                                    <input type="hidden" name="classId" value="@selectedClassId" />
-                                                    <input type="hidden" name="examType" value="All" />
-                                                    <button class="btn btn-sm btn-outline-danger">🗑</button>
-                                                </form>
-                                            </td>
-                                        </tr>
-                                    }
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
+                @await Html.PartialAsync("_TeacherMarksBlock", group.OrderBy(m => m.StudentName).ToList())
             </div>
         }
+    }
+    else if (Model.Any())
+    {
+        @await Html.PartialAsync("_TeacherMarksBlock", Model.OrderBy(m => m.StudentName).ToList())
     }
     else
     {
         <div class="card">
-            <div class="card-body p-0">
-                <div class="table-responsive">
-                    <table class="table table-hover mb-0">
-                        <thead>
-                            <tr>
-                                <th>Student</th>
-                                <th>Subject</th>
-                                <th>Marks</th>
-                                <th>Max</th>
-                                <th>%</th>
-                                <th>Grade</th>
-                                <th>Date</th>
-                                <th>Remarks</th>
-                                <th></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @if (Model.Any())
-                            {
-                                foreach (var m in Model.OrderBy(m => m.StudentName))
-                                {
-                                    var bc = m.Grade switch {
-                                        "A+" or "A" => "success",
-                                        "B+" or "B" => "primary",
-                                        "C"         => "warning",
-                                        _           => "danger"
-                                    };
-                                    <tr>
-                                        <td class="fw-bold">@m.StudentName</td>
-                                        <td class="small">@m.SubjectName</td>
-                                        <td class="fw-semibold">@m.ObtainedMarks</td>
-                                        <td class="text-muted small">@m.MaxMarks</td>
-                                        <td style="min-width:120px">
-                                            <div class="d-flex align-items-center gap-2">
-                                                <div class="progress flex-grow-1" style="height:6px">
-                                                    <div class="progress-bar bg-@bc"
-                                                         style="width:@((int)m.Percentage)%"></div>
-                                                </div>
-                                                <span class="small">@m.Percentage.ToString("F1")%</span>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <span class="badge rounded-pill bg-@bc">@m.Grade</span>
-                                        </td>
-                                        <td class="small text-muted">@m.ExamDate.ToString("dd MMM yyyy")</td>
-                                        <td class="small text-muted">@(m.Remarks ?? "—")</td>
-                                        <td>
-                                            <form asp-action="DeleteMark" method="post"
-                                                  onsubmit="return confirm('Delete this mark?')">
-                                                <input type="hidden" name="id" value="@m.Id" />
-                                                <input type="hidden" name="classId" value="@selectedClassId" />
-                                                <input type="hidden" name="examType" value="@examType" />
-                                                <button class="btn btn-sm btn-outline-danger">🗑</button>
-                                            </form>
-                                        </td>
-                                    </tr>
-                                }
-                            }
-                            else
-                            {
-                                <tr>
-                                    <td colspan="9">
-                                        <div class="empty-state">
-                                            <div class="empty-icon">📝</div>
-                                            <div class="fw-semibold">No marks recorded for @examType</div>
-                                            <div class="small">Add marks using the button above</div>
-                                        </div>
-                                    </td>
-                                </tr>
-                            }
-                        </tbody>
-                    </table>
+            <div class="card-body">
+                <div class="empty-state text-center">
+                    <div class="empty-icon">📝</div>
+                    <div class="fw-semibold">No marks recorded for @examType</div>
+                    <div class="small">Add marks using the button above</div>
                 </div>
             </div>
         </div>
@@ -245,7 +122,7 @@ else
 {
     <div class="card">
         <div class="card-body">
-            <div class="empty-state">
+            <div class="empty-state text-center">
                 <div class="empty-icon">🏫</div>
                 <div class="fw-semibold">Select a class to view marks</div>
                 <div class="small">Choose a class from the tabs above</div>
@@ -256,7 +133,7 @@ else
 
 <!-- ADD MARK MODAL -->
 <div class="modal fade" id="addMarkModal" tabindex="-1">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-dialog-scrollable">
         <div class="modal-content" style="border-radius:18px;overflow:hidden;border:none">
             <div class="modal-header text-white"
                  style="background:linear-gradient(135deg,#10b981,#059669)">

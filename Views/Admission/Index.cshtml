@@ -5,17 +5,100 @@
     var statusFilter = ViewBag.StatusFilter as string;
 }
 
-<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+<style>
+    /* ══ Mobile Card ══ */
+    .admission-card {
+        background: #fff;
+        border-radius: 14px;
+        box-shadow: 0 2px 12px rgba(0,0,0,.08);
+        padding: 1rem;
+        margin-bottom: .85rem;
+        border-left: 4px solid #6366f1;
+        transition: box-shadow .2s;
+    }
+    .admission-card:hover { box-shadow: 0 4px 18px rgba(0,0,0,.13); }
+
+    .admission-card.status-Pending  { border-left-color: #f59e0b; }
+    .admission-card.status-Reviewed { border-left-color: #06b6d4; }
+    .admission-card.status-Approved { border-left-color: #10b981; }
+    .admission-card.status-Rejected { border-left-color: #ef4444; }
+
+    .admission-card .card-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: .5rem;
+    }
+    .admission-card .card-name  { font-weight: 700; font-size: .97rem; line-height: 1.3; }
+    .admission-card .card-meta  { font-size: .78rem; color: #6b7280; margin-top: .12rem; }
+
+    .admission-card .info-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: .35rem .75rem;
+        margin-top: .65rem;
+        font-size: .82rem;
+    }
+    .admission-card .info-grid .lbl {
+        color: #9ca3af;
+        font-size: .7rem;
+        text-transform: uppercase;
+        letter-spacing: .04em;
+    }
+    .admission-card .info-grid .val { font-weight: 600; color: #111827; }
+
+    .admission-card .card-actions {
+        display: flex;
+        gap: .4rem;
+        margin-top: .8rem;
+        flex-wrap: wrap;
+    }
+    .admission-card .card-actions .btn { font-size: .78rem; padding: .3rem .75rem; border-radius: 8px; }
+
+    /* ══ Filter tabs scroll on mobile ══ */
+    .filter-tabs {
+        display: flex;
+        gap: .4rem;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        padding-bottom: .3rem;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+    }
+    .filter-tabs::-webkit-scrollbar { display: none; }
+    .filter-tabs .btn { white-space: nowrap; flex-shrink: 0; }
+
+    /* ══ Desktop / Mobile toggle ══ */
+    .desktop-view { display: block; }
+    .mobile-view  { display: none;  }
+
+    @media (max-width: 767.98px) {
+        .desktop-view { display: none !important; }
+        .mobile-view  { display: block; }
+        h4.fw-bold    { font-size: 1.05rem; }
+        .page-header  { flex-direction: column; align-items: flex-start !important; }
+        .page-header .badge { align-self: flex-start; }
+    }
+
+    .empty-state      { text-align: center; padding: 3rem 1rem; color: #6b7280; }
+    .empty-state .ico { font-size: 2.8rem; margin-bottom: .5rem; }
+</style>
+
+<!-- ══ Header ══ -->
+<div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2 page-header">
     <div>
         <h4 class="fw-bold mb-0">📋 Admission Applications</h4>
         <div class="text-muted small">Review and manage student admission requests</div>
     </div>
-    <span class="badge bg-warning text-dark fs-6">@counts.Pending Pending</span>
+    <span class="badge bg-warning text-dark fs-6 px-3 py-2">
+        @counts.Pending Pending
+    </span>
 </div>
 
-<!-- Status Filter Tabs -->
-<div class="d-flex gap-2 mb-3 flex-wrap">
-    <a asp-action="Index" class="btn btn-sm @(statusFilter == null ? "btn-dark" : "btn-outline-secondary")">
+<!-- ══ Status Filter Tabs (scrollable on mobile) ══ -->
+<div class="filter-tabs mb-3">
+    <a asp-action="Index"
+       class="btn btn-sm @(statusFilter == null ? "btn-dark" : "btn-outline-secondary")">
         All <span class="badge bg-secondary ms-1">@counts.Total</span>
     </a>
     <a asp-action="Index" asp-route-status="Pending"
@@ -36,27 +119,39 @@
     </a>
 </div>
 
-<!-- Search -->
+<!-- ══ Search ══ -->
 <div class="card shadow-sm mb-3">
-    <div class="card-body py-2">
+    <div class="card-body py-2 px-3">
         <input type="text" id="searchInput" class="form-control form-control-sm"
                placeholder="🔍 Search by name, email or phone..."
                oninput="filterApps()" />
     </div>
 </div>
 
-<div class="card shadow-sm">
-    <div class="card-body p-0">
-        @if (!Model.Any())
-        {
-            <div class="text-center text-muted py-5">
-                <div style="font-size:48px">📋</div>
-                <div class="fw-semibold mt-2">No applications found</div>
-                <div class="small">@(statusFilter != null ? $"No {statusFilter} applications." : "No applications yet.")</div>
+@if (!Model.Any())
+{
+    <!-- Empty State (shared) -->
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <div class="empty-state">
+                <div class="ico">📋</div>
+                <div class="fw-semibold mt-1">No applications found</div>
+                <div class="small">
+                    @(statusFilter != null ? $"No {statusFilter} applications." : "No applications yet.")
+                </div>
             </div>
-        }
-        else
-        {
+        </div>
+    </div>
+}
+else
+{
+    int rowNum = 1;
+
+    /* ══════════════════════════════
+       DESKTOP TABLE
+    ══════════════════════════════ */
+    <div class="card shadow-sm desktop-view">
+        <div class="card-body p-0">
             <div class="table-responsive">
                 <table class="table table-hover mb-0">
                     <thead class="table-dark">
@@ -71,16 +166,18 @@
                         </tr>
                     </thead>
                     <tbody id="appsBody">
-                        @{
-                            int i = 1;
-                        }
                         @foreach (var a in Model)
                         {
-                            <tr>
-                                <td class="text-muted small">@i</td>
-                                @{
-                                    i++;
-                                }
+                            var badgeClass = a.Status switch
+                            {
+                                "Pending"  => "bg-warning text-dark",
+                                "Reviewed" => "bg-info",
+                                "Approved" => "bg-success",
+                                "Rejected" => "bg-danger",
+                                _          => "bg-secondary"
+                            };
+                            <tr data-search="@a.FullName.ToLower() @a.Email?.ToLower() @a.PhoneNumber?.ToLower()">
+                                <td class="text-muted small">@rowNum</td>
                                 <td>
                                     <div class="fw-semibold">@a.FullName</div>
                                     <div class="text-muted small">@a.Email</div>
@@ -111,16 +208,6 @@
                                     <span style="font-size:11px">@a.AppliedAt.ToString("hh:mm tt")</span>
                                 </td>
                                 <td>
-                                    @{
-                                        var badgeClass = a.Status switch
-                                        {
-                                            "Pending" => "bg-warning text-dark",
-                                            "Reviewed" => "bg-info",
-                                            "Approved" => "bg-success",
-                                            "Rejected" => "bg-danger",
-                                            _ => "bg-secondary"
-                                        };
-                                    }
                                     <span class="badge @badgeClass">@a.Status</span>
                                 </td>
                                 <td>
@@ -130,26 +217,134 @@
                                         <form asp-action="Delete" method="post" style="display:inline"
                                               onsubmit="return confirm('Delete this application?')">
                                             <input type="hidden" name="id" value="@a.Id" />
-                                            <button type="submit" class="btn btn-sm btn-outline-danger">🗑️</button>
+                                            <button type="submit"
+                                                    class="btn btn-sm btn-outline-danger">🗑️</button>
                                         </form>
                                     </div>
                                 </td>
                             </tr>
+                            rowNum++;
                         }
                     </tbody>
                 </table>
             </div>
-        }
+        </div>
     </div>
-</div>
+
+    /* ══════════════════════════════
+       MOBILE CARDS
+    ══════════════════════════════ */
+    <div class="mobile-view" id="mobileAppsContainer">
+        @{ int cardNum = 1; }
+        @foreach (var a in Model)
+        {
+            var badgeClass = a.Status switch
+            {
+                "Pending"  => "bg-warning text-dark",
+                "Reviewed" => "bg-info",
+                "Approved" => "bg-success",
+                "Rejected" => "bg-danger",
+                _          => "bg-secondary"
+            };
+
+            <div class="admission-card status-@a.Status mobile-app-card"
+                 data-search="@a.FullName.ToLower() @a.Email?.ToLower() @a.PhoneNumber?.ToLower()">
+
+                <!-- Top row: name + status badge -->
+                <div class="card-top">
+                    <div>
+                        <div class="card-name">@a.FullName</div>
+                        <div class="card-meta">📧 @a.Email</div>
+                        <div class="card-meta">📞 @a.PhoneNumber</div>
+                        @if (!string.IsNullOrEmpty(a.ParentName))
+                        {
+                            <div class="card-meta">👨 @a.ParentName</div>
+                        }
+                    </div>
+                    <div class="d-flex flex-column align-items-end gap-1">
+                        <span class="badge @badgeClass">@a.Status</span>
+                        <span class="text-muted" style="font-size:.7rem">#@cardNum</span>
+                    </div>
+                </div>
+
+                <!-- Info grid -->
+                <div class="info-grid">
+                    <div>
+                        <div class="lbl">Course</div>
+                        <div class="val">
+                            @if (!string.IsNullOrEmpty(a.CourseName))
+                            {
+                                <span class="badge bg-primary" style="font-size:.75rem">@a.CourseName</span>
+                            }
+                            else if (!string.IsNullOrEmpty(a.CourseInterest))
+                            {
+                                @a.CourseInterest
+                            }
+                            else
+                            {
+                                <span class="text-muted">—</span>
+                            }
+                        </div>
+                    </div>
+                    <div>
+                        <div class="lbl">Applied On</div>
+                        <div class="val">
+                            @a.AppliedAt.ToString("dd MMM yyyy")
+                            <div style="font-size:.7rem;color:#6b7280;font-weight:400">
+                                @a.AppliedAt.ToString("hh:mm tt")
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Actions -->
+                <div class="card-actions">
+                    <a asp-action="Detail" asp-route-id="@a.Id"
+                       class="btn btn-sm btn-outline-primary flex-fill">
+                        👁️ View Details
+                    </a>
+                    <form asp-action="Delete" method="post"
+                          onsubmit="return confirm('Delete this application?')">
+                        <input type="hidden" name="id" value="@a.Id" />
+                        <button type="submit" class="btn btn-sm btn-outline-danger px-3">
+                            🗑️ Delete
+                        </button>
+                    </form>
+                </div>
+            </div>
+            cardNum++;
+        }
+
+        <div id="noResultMobile" class="text-center text-muted py-4" style="display:none">
+            No applications match your search.
+        </div>
+    </div>
+}
 
 @section Scripts {
-    <script>
-        function filterApps() {
-            const q = document.getElementById('searchInput').value.toLowerCase();
-            document.querySelectorAll('#appsBody tr').forEach(row => {
-                row.style.display = !q || row.innerText.toLowerCase().includes(q) ? '' : 'none';
-            });
-        }
-    </script>
+<script>
+    function filterApps() {
+        const q = document.getElementById('searchInput').value.toLowerCase().trim();
+
+        // ── Desktop rows ──
+        const rows = document.querySelectorAll('#appsBody tr');
+        rows.forEach(row => {
+            const text = (row.dataset.search || row.innerText).toLowerCase();
+            row.style.display = !q || text.includes(q) ? '' : 'none';
+        });
+
+        // ── Mobile cards ──
+        const cards = document.querySelectorAll('.mobile-app-card');
+        let visible = 0;
+        cards.forEach(card => {
+            const text = (card.dataset.search || card.innerText).toLowerCase();
+            const show = !q || text.includes(q);
+            card.style.display = show ? '' : 'none';
+            if (show) visible++;
+        });
+
+        const noRes = document.getElementById('noResultMobile');
+        if (noRes) noRes.style.display = (visible === 0 && q) ? '' : 'none';
+    }
+</script>
 }

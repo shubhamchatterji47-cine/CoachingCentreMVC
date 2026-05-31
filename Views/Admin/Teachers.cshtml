@@ -3,38 +3,93 @@
     ViewData["Title"] = "Teachers";
 }
 
-<!-- Header -->
-<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+<style>
+    /* ── Mobile Card Layout ── */
+    .teacher-card {
+        background: #fff;
+        border-radius: 14px;
+        box-shadow: 0 2px 12px rgba(0,0,0,.08);
+        padding: 1rem;
+        margin-bottom: .85rem;
+        border-left: 4px solid #2563eb;
+        transition: box-shadow .2s;
+    }
+    .teacher-card:hover { box-shadow: 0 4px 18px rgba(0,0,0,.13); }
+    .teacher-card .card-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: .5rem;
+    }
+    .teacher-card .card-name { font-weight: 700; font-size: 1rem; line-height: 1.3; }
+    .teacher-card .card-meta { font-size: .78rem; color: #6b7280; margin-top: .15rem; }
+    .teacher-card .card-body-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: .35rem .75rem;
+        margin-top: .65rem;
+        font-size: .82rem;
+    }
+    .teacher-card .card-body-grid .label { color: #9ca3af; font-size: .72rem; text-transform: uppercase; letter-spacing: .04em; }
+    .teacher-card .card-body-grid .value { font-weight: 600; color: #111827; }
+    .teacher-card .card-actions {
+        display: flex;
+        gap: .4rem;
+        margin-top: .8rem;
+        flex-wrap: wrap;
+    }
+    .teacher-card .card-actions .btn { font-size: .78rem; padding: .28rem .7rem; border-radius: 8px; }
+
+    /* ── Desktop / Mobile toggle ── */
+    .desktop-table { display: table; }
+    .mobile-cards  { display: none; }
+
+    @media (max-width: 767.98px) {
+        .desktop-table { display: none !important; }
+        .mobile-cards  { display: block; }
+        h4.fw-bold { font-size: 1.1rem; }
+        #searchInput { max-width: 100% !important; }
+    }
+
+    .empty-state { text-align: center; padding: 2.5rem 1rem; color: #6b7280; }
+    .empty-icon  { font-size: 2.5rem; margin-bottom: .5rem; }
+</style>
+
+<!-- ── Header ── -->
+<div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
     <div>
         <h4 class="fw-bold mb-1">👩‍🏫 Teachers
             <span class="badge bg-primary ms-1" id="teacherCount">@Model.Count</span>
         </h4>
         <p class="text-muted small mb-0">Manage all teaching staff</p>
     </div>
-    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addTeacherModal">
+    <button class="btn btn-primary btn-sm px-3"
+            data-bs-toggle="modal" data-bs-target="#addTeacherModal">
         ➕ Add Teacher
     </button>
 </div>
 
-<!-- Search Bar -->
+<!-- ── Search ── -->
 <div class="card mb-3">
     <div class="card-body py-2 px-3">
-        <input type="text" id="searchInput" class="form-control"
+        <input type="text" id="searchInput" class="form-control form-control-sm"
                placeholder="🔍 Search by name, email or specialization..."
                oninput="filterTeachers()" />
     </div>
 </div>
 
-<!-- Table Card -->
-<div class="card">
+<!-- ══════════════════════════════
+     DESKTOP TABLE
+══════════════════════════════ -->
+<div class="card desktop-table">
     <div class="card-header d-flex justify-content-between align-items-center">
         <span>All Teachers</span>
-        <span class="badge bg-primary rounded-pill" id="teacherCountHeader">@Model.Count Total</span>
+        <span class="badge bg-primary rounded-pill">@Model.Count Total</span>
     </div>
     <div class="card-body p-0">
         <div class="table-responsive">
             <table class="table table-hover mb-0">
-                <thead>
+                <thead class="table-light">
                     <tr>
                         <th>#</th>
                         <th>Name</th>
@@ -49,14 +104,12 @@
                 <tbody id="teachersBody">
                     @if (Model.Any())
                     {
-                        for (int rowNum = 0; rowNum < Model.Count; rowNum++)
+                        for (int i = 0; i < Model.Count; i++)
                         {
-                            var t = Model[rowNum];
-                            <tr>
-                                <td class="text-muted">@(rowNum + 1)</td>
-                                <td>
-                                    <div class="fw-bold">@t.FullName</div>
-                                </td>
+                            var t = Model[i];
+                            <tr data-search="@t.FullName.ToLower() @t.Email?.ToLower() @t.Specialization?.ToLower()">
+                                <td class="text-muted">@(i + 1)</td>
+                                <td><div class="fw-bold">@t.FullName</div></td>
                                 <td class="small text-muted">@t.Email</td>
                                 <td class="small">@(t.Qualification ?? "—")</td>
                                 <td class="small">@(t.Specialization ?? "—")</td>
@@ -67,18 +120,15 @@
                                 </td>
                                 <td>
                                     @if (t.IsActive)
-                                    {
-                                        <span class="badge bg-success">Active</span>
-                                    }
+                                    { <span class="badge bg-success">Active</span> }
                                     else
-                                    {
-                                        <span class="badge bg-danger">Inactive</span>
-                                    }
+                                    { <span class="badge bg-danger">Inactive</span> }
                                 </td>
                                 <td class="text-end pe-3">
                                     <div class="d-flex gap-1 justify-content-end flex-wrap">
                                         <button class="btn btn-sm btn-outline-warning"
-                                                onclick="openEditTeacher(@t.Id,
+                                                onclick="openEditTeacher(
+                                                    @t.Id,
                                                     '@Html.Raw(t.FullName.Replace("'","\\\'"))',
                                                     '@Html.Raw((t.Qualification??"").Replace("'","\\\'"))',
                                                     '@Html.Raw((t.Specialization??"").Replace("'","\\\'"))',
@@ -88,7 +138,8 @@
                                         <form asp-action="ToggleTeacher" method="post" style="display:inline"
                                               onsubmit="return confirm('@(t.IsActive?"Deactivate":"Activate") @t.FullName?')">
                                             <input type="hidden" name="id" value="@t.Id" />
-                                            <button type="submit" class="btn btn-sm @(t.IsActive?"btn-outline-secondary":"btn-outline-success")">
+                                            <button type="submit"
+                                                    class="btn btn-sm @(t.IsActive?"btn-outline-secondary":"btn-outline-success")">
                                                 @(t.IsActive ? "🔒" : "✅")
                                             </button>
                                         </form>
@@ -123,91 +174,184 @@
     </div>
 </div>
 
-<!-- ADD TEACHER MODAL -->
+<!-- ══════════════════════════════
+     MOBILE CARDS
+══════════════════════════════ -->
+<div class="mobile-cards" id="mobileTeacherCards">
+    @if (Model.Any())
+    {
+        for (int i = 0; i < Model.Count; i++)
+        {
+            var t = Model[i];
+            <div class="teacher-card mobile-teacher-card"
+                 data-search="@t.FullName.ToLower() @t.Email?.ToLower() @t.Specialization?.ToLower()">
+                <div class="card-top">
+                    <div>
+                        <div class="card-name">@t.FullName</div>
+                        <div class="card-meta">📧 @t.Email</div>
+                    </div>
+                    <div class="d-flex flex-column align-items-end gap-1">
+                        @if (t.IsActive)
+                        { <span class="badge bg-success">Active</span> }
+                        else
+                        { <span class="badge bg-danger">Inactive</span> }
+                        <span class="badge bg-light text-dark border">
+                            @t.ExperienceYears yrs exp
+                        </span>
+                    </div>
+                </div>
+
+                <div class="card-body-grid">
+                    <div>
+                        <div class="label">Qualification</div>
+                        <div class="value">@(t.Qualification ?? "—")</div>
+                    </div>
+                    <div>
+                        <div class="label">Specialization</div>
+                        <div class="value">@(t.Specialization ?? "—")</div>
+                    </div>
+                </div>
+
+                <div class="card-actions">
+                    <button class="btn btn-sm btn-outline-warning flex-fill"
+                            onclick="openEditTeacher(
+                                @t.Id,
+                                '@Html.Raw(t.FullName.Replace("'","\\\'"))',
+                                '@Html.Raw((t.Qualification??"").Replace("'","\\\'"))',
+                                '@Html.Raw((t.Specialization??"").Replace("'","\\\'"))',
+                                @t.ExperienceYears)">
+                        ✏️ Edit
+                    </button>
+                    <form asp-action="ToggleTeacher" method="post" class="flex-fill"
+                          onsubmit="return confirm('@(t.IsActive?"Deactivate":"Activate") @t.FullName?')">
+                        <input type="hidden" name="id" value="@t.Id" />
+                        <button type="submit"
+                                class="btn btn-sm w-100 @(t.IsActive?"btn-outline-secondary":"btn-outline-success")">
+                            @(t.IsActive ? "🔒 Deactivate" : "✅ Activate")
+                        </button>
+                    </form>
+                    <form asp-action="PermanentDeleteTeacher" method="post"
+                          onsubmit="return confirm('⚠️ PERMANENTLY DELETE @t.FullName?')">
+                        <input type="hidden" name="id" value="@t.Id" />
+                        <button type="submit" class="btn btn-sm btn-outline-danger">🗑️</button>
+                    </form>
+                </div>
+            </div>
+        }
+    }
+    else
+    {
+        <div class="empty-state">
+            <div class="empty-icon">👩‍🏫</div>
+            <div class="fw-semibold">No teachers yet</div>
+            <div class="small">Add your first teacher using the button above</div>
+        </div>
+    }
+    <div id="noResultMobile" class="text-center text-muted py-4" style="display:none">
+        No teachers match your search.
+    </div>
+</div>
+
+<!-- ══════════════════════════════
+     ADD TEACHER MODAL
+══════════════════════════════ -->
 <div class="modal fade" id="addTeacherModal" tabindex="-1">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content" style="border-radius:18px;overflow:hidden;border:none">
-            <div class="modal-header text-white" style="background:linear-gradient(135deg,#2563eb,#1e40af)">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable modal-dialog-centered">
+        <div class="modal-content" style="border-radius:16px;overflow:hidden;border:none">
+            <div class="modal-header text-white"
+                 style="background:linear-gradient(135deg,#2563eb,#1e40af)">
                 <h5 class="modal-title fw-bold">➕ Add New Teacher</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <form asp-action="CreateTeacher" asp-controller="Admin" method="post" id="addTeacherForm">
-                <div class="modal-body row g-3 p-4">
-                    <div class="col-md-6">
-                        <label class="form-label fw-semibold">Full Name *</label>
+                <div class="modal-body row g-3 p-3 p-md-4">
+                    <div class="col-12 col-md-6">
+                        <label class="form-label fw-semibold small">Full Name *</label>
                         <input type="text" name="fullName" class="form-control" required maxlength="100" />
                     </div>
-                    <div class="col-md-6">
-                        <label class="form-label fw-semibold">Email *</label>
+                    <div class="col-12 col-md-6">
+                        <label class="form-label fw-semibold small">Email *</label>
                         <input type="email" name="email" class="form-control" required />
                     </div>
-                    <div class="col-md-6">
-                        <label class="form-label fw-semibold">Password *</label>
+                    <div class="col-12 col-md-6">
+                        <label class="form-label fw-semibold small">Password *</label>
                         <input type="password" name="password" class="form-control" required minlength="6" />
                     </div>
-                    <div class="col-md-6">
-                        <label class="form-label fw-semibold">Phone</label>
+                    <div class="col-12 col-md-6">
+                        <label class="form-label fw-semibold small">Phone</label>
                         <input type="tel" name="phone" class="form-control" />
                     </div>
-                    <div class="col-md-6">
-                        <label class="form-label fw-semibold">Qualification</label>
-                        <input type="text" name="qualification" class="form-control" placeholder="e.g. M.Sc Mathematics" />
+                    <div class="col-12 col-md-6">
+                        <label class="form-label fw-semibold small">Qualification</label>
+                        <input type="text" name="qualification" class="form-control"
+                               placeholder="e.g. M.Sc Mathematics" />
                     </div>
-                    <div class="col-md-6">
-                        <label class="form-label fw-semibold">Specialization</label>
-                        <input type="text" name="specialization" class="form-control" placeholder="e.g. JEE Mathematics" />
+                    <div class="col-12 col-md-6">
+                        <label class="form-label fw-semibold small">Specialization</label>
+                        <input type="text" name="specialization" class="form-control"
+                               placeholder="e.g. JEE Mathematics" />
                     </div>
-                    <div class="col-md-6">
-                        <label class="form-label fw-semibold">Experience (years)</label>
-                        <input type="number" name="experienceYears" class="form-control" min="0" max="50" value="0" />
+                    <div class="col-12 col-md-6">
+                        <label class="form-label fw-semibold small">Experience (years)</label>
+                        <input type="number" name="experienceYears" class="form-control"
+                               min="0" max="50" value="0" />
                     </div>
                     <div class="col-12">
-                        <label class="form-label fw-semibold">Bio</label>
+                        <label class="form-label fw-semibold small">Bio</label>
                         <textarea name="bio" class="form-control" rows="2" maxlength="1000"></textarea>
                     </div>
                 </div>
-                <div class="modal-footer px-4 pb-4" style="border-top:1px solid #eef2f7">
-                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-primary px-4" id="addTeacherBtn">✅ Add Teacher</button>
+                <div class="modal-footer px-3 px-md-4 pb-4" style="border-top:1px solid #eef2f7">
+                    <button type="button" class="btn btn-outline-secondary"
+                            data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary px-4"
+                            id="addTeacherBtn">✅ Add Teacher</button>
                 </div>
             </form>
         </div>
     </div>
 </div>
 
-<!-- EDIT TEACHER MODAL -->
+<!-- ══════════════════════════════
+     EDIT TEACHER MODAL
+══════════════════════════════ -->
 <div class="modal fade" id="editTeacherModal" tabindex="-1">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content" style="border-radius:18px;overflow:hidden;border:none">
-            <div class="modal-header" style="background:linear-gradient(135deg,#f59e0b,#ea580c);color:white">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable modal-dialog-centered">
+        <div class="modal-content" style="border-radius:16px;overflow:hidden;border:none">
+            <div class="modal-header"
+                 style="background:linear-gradient(135deg,#f59e0b,#ea580c);color:white">
                 <h5 class="modal-title fw-bold">✏️ Edit Teacher</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <form asp-action="UpdateTeacher" asp-controller="Admin" method="post">
                 <input type="hidden" name="id" id="editTeacherId" />
-                <div class="modal-body row g-3 p-4">
-                    <div class="col-md-6">
-                        <label class="form-label fw-semibold">Full Name *</label>
-                        <input type="text" name="fullName" id="editTeacherName" class="form-control" required />
+                <div class="modal-body row g-3 p-3 p-md-4">
+                    <div class="col-12 col-md-6">
+                        <label class="form-label fw-semibold small">Full Name *</label>
+                        <input type="text" name="fullName" id="editTeacherName"
+                               class="form-control" required />
                     </div>
-                    <div class="col-md-6">
-                        <label class="form-label fw-semibold">Phone</label>
+                    <div class="col-12 col-md-6">
+                        <label class="form-label fw-semibold small">Phone</label>
                         <input type="tel" name="phone" id="editTeacherPhone" class="form-control" />
                     </div>
-                    <div class="col-md-6">
-                        <label class="form-label fw-semibold">Qualification</label>
-                        <input type="text" name="qualification" id="editTeacherQual" class="form-control" />
+                    <div class="col-12 col-md-6">
+                        <label class="form-label fw-semibold small">Qualification</label>
+                        <input type="text" name="qualification" id="editTeacherQual"
+                               class="form-control" />
                     </div>
-                    <div class="col-md-6">
-                        <label class="form-label fw-semibold">Specialization</label>
-                        <input type="text" name="specialization" id="editTeacherSpec" class="form-control" />
+                    <div class="col-12 col-md-6">
+                        <label class="form-label fw-semibold small">Specialization</label>
+                        <input type="text" name="specialization" id="editTeacherSpec"
+                               class="form-control" />
                     </div>
-                    <div class="col-md-6">
-                        <label class="form-label fw-semibold">Experience (years)</label>
-                        <input type="number" name="experienceYears" id="editTeacherExp" class="form-control" min="0" max="50" />
+                    <div class="col-12 col-md-6">
+                        <label class="form-label fw-semibold small">Experience (years)</label>
+                        <input type="number" name="experienceYears" id="editTeacherExp"
+                               class="form-control" min="0" max="50" />
                     </div>
                     <div class="col-12">
-                        <label class="form-label fw-semibold">Bio</label>
+                        <label class="form-label fw-semibold small">Bio</label>
                         <textarea name="bio" id="editTeacherBio" class="form-control" rows="2"></textarea>
                     </div>
                     <div class="col-12">
@@ -216,8 +360,9 @@
                         </div>
                     </div>
                 </div>
-                <div class="modal-footer px-4 pb-4" style="border-top:1px solid #eef2f7">
-                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                <div class="modal-footer px-3 px-md-4 pb-4" style="border-top:1px solid #eef2f7">
+                    <button type="button" class="btn btn-outline-secondary"
+                            data-bs-dismiss="modal">Cancel</button>
                     <button type="submit" class="btn btn-warning px-4">💾 Save Changes</button>
                 </div>
             </form>
@@ -226,33 +371,57 @@
 </div>
 
 @section Scripts {
-    <script>
-        function openEditTeacher(id, name, qual, spec, exp) {
-            document.getElementById('editTeacherId').value    = id;
-            document.getElementById('editTeacherName').value  = name;
-            document.getElementById('editTeacherQual').value  = qual;
-            document.getElementById('editTeacherSpec').value  = spec;
-            document.getElementById('editTeacherExp').value   = exp;
-            document.getElementById('editTeacherPhone').value = '';
-            document.getElementById('editTeacherBio').value   = '';
-            new bootstrap.Modal(document.getElementById('editTeacherModal')).show();
-        }
-        function filterTeachers() {
-            const q = document.getElementById('searchInput').value.toLowerCase();
-            const rows = document.querySelectorAll('#teachersBody tr');
-            let visible = 0;
-            rows.forEach(row => {
-                const show = !q || row.innerText.toLowerCase().includes(q);
-                row.style.display = show ? '' : 'none';
-                if (show) visible++;
-            });
-            document.getElementById('teacherCount').textContent = visible;
-            document.getElementById('noResult').style.display = (visible === 0 && q) ? '' : 'none';
-        }
-        document.getElementById('addTeacherForm').addEventListener('submit', function () {
-            const btn = document.getElementById('addTeacherBtn');
-            btn.disabled = true;
-            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Saving...';
+<script>
+    /* ── Edit modal ── */
+    function openEditTeacher(id, name, qual, spec, exp) {
+        document.getElementById('editTeacherId').value    = id;
+        document.getElementById('editTeacherName').value  = name;
+        document.getElementById('editTeacherQual').value  = qual;
+        document.getElementById('editTeacherSpec').value  = spec;
+        document.getElementById('editTeacherExp').value   = exp;
+        document.getElementById('editTeacherPhone').value = '';
+        document.getElementById('editTeacherBio').value   = '';
+        new bootstrap.Modal(document.getElementById('editTeacherModal')).show();
+    }
+
+    /* ── Unified search ── */
+    function filterTeachers() {
+        const q = document.getElementById('searchInput').value.toLowerCase().trim();
+
+        // Desktop rows
+        const rows = document.querySelectorAll('#teachersBody tr');
+        let visibleD = 0;
+        rows.forEach(row => {
+            const text = (row.dataset.search || row.innerText).toLowerCase();
+            const show = !q || text.includes(q);
+            row.style.display = show ? '' : 'none';
+            if (show) visibleD++;
         });
-    </script>
+        const noResD = document.getElementById('noResult');
+        if (noResD) noResD.style.display = (visibleD === 0 && q) ? '' : 'none';
+
+        // Mobile cards
+        const cards = document.querySelectorAll('.mobile-teacher-card');
+        let visibleM = 0;
+        cards.forEach(card => {
+            const text = (card.dataset.search || card.innerText).toLowerCase();
+            const show = !q || text.includes(q);
+            card.style.display = show ? '' : 'none';
+            if (show) visibleM++;
+        });
+        const noResM = document.getElementById('noResultMobile');
+        if (noResM) noResM.style.display = (visibleM === 0 && q) ? '' : 'none';
+
+        // Badge
+        const isMobile = window.innerWidth < 768;
+        document.getElementById('teacherCount').textContent = isMobile ? visibleM : visibleD;
+    }
+
+    /* ── Add button loading ── */
+    document.getElementById('addTeacherForm').addEventListener('submit', function () {
+        const btn = document.getElementById('addTeacherBtn');
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Saving...';
+    });
+</script>
 }
