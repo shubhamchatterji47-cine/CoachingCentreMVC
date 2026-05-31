@@ -2,116 +2,180 @@
 @using CoachingMVC.ViewModels.Shared
 @{
     ViewData["Title"] = "Students";
-    var classes = ViewBag.Classes as List<ClassViewModel> ?? new();
+    var classes         = ViewBag.Classes as List<ClassViewModel> ?? new();
     var selectedClassId = (int)(ViewBag.SelectedClassId ?? 0);
 }
 
-<div class="d-flex justify-content-between align-items-center mb-3">
-    <h4 class="fw-bold mb-0">👨‍🎓 Students</h4>
+<!-- Header -->
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+    <div>
+        <h4 class="fw-bold mb-1">👨‍🎓 Students</h4>
+        <p class="text-muted small mb-0">View students in your assigned classes</p>
+    </div>
     @if (selectedClassId > 0)
     {
-        <button class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#addStudentModal">➕ Add Student</button>
+        <span class="badge bg-success rounded-pill fs-6">@Model.Count Students</span>
     }
 </div>
 
-<!-- Class Tabs -->
-<ul class="nav nav-tabs mb-3">
-    @foreach (var c in classes)
-    {
-        <li class="nav-item">
-            <a class="nav-link @(c.Id == selectedClassId ? "active" : "")"
-               asp-action="Students" asp-route-classId="@c.Id">@c.Name</a>
-        </li>
-    }
-</ul>
+<!-- Class Tabs (scrollable on mobile) -->
+@if (classes.Any())
+{
+    <div style="overflow-x:auto;white-space:nowrap;padding-bottom:4px" class="mb-3">
+        <ul class="nav nav-tabs flex-nowrap" style="display:inline-flex;min-width:100%">
+            @foreach (var c in classes)
+            {
+                <li class="nav-item">
+                    <a class="nav-link @(c.Id == selectedClassId ? "active fw-semibold" : "")"
+                       asp-action="Students" asp-route-classId="@c.Id">
+                        🏫 @c.Name
+                        <span class="badge rounded-pill ms-1"
+                              style="background:rgba(0,0,0,.1);font-size:.65rem">
+                            @c.EnrolledCount
+                        </span>
+                    </a>
+                </li>
+            }
+        </ul>
+    </div>
+}
 
-<div class="card shadow-sm">
+<!-- Students Table -->
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <span>
+            @if (selectedClassId > 0)
+            {
+                var selClass = classes.FirstOrDefault(c => c.Id == selectedClassId);
+                <span>Students in @(selClass?.Name ?? "Class")</span>
+            }
+            else
+            {
+                <span>All Students</span>
+            }
+        </span>
+        @if (selectedClassId > 0)
+        {
+            <span class="badge bg-primary rounded-pill">@Model.Count Total</span>
+        }
+    </div>
     <div class="card-body p-0">
-        <table class="table table-hover mb-0">
-            <thead class="table-dark">
-                <tr><th>#</th><th>Name</th><th>Roll No</th><th>Email</th><th>Phone</th><th>Parent</th><th>Actions</th></tr>
-            </thead>
-            <tbody>
-                @if (Model.Any())
-                {
-                    @foreach (var s in Model)
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Name</th>
+                        <th>Roll No</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>Parent</th>
+                        <th class="text-end pe-3">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.Any())
+                    {
+                        int i = 1;
+                        foreach (var s in Model)
+                        {
+                            <tr>
+                                <td class="text-muted">@i</td>
+                                <td>
+                                    <div class="fw-bold">@s.FullName</div>
+                                </td>
+                                <td>
+                                    <span class="badge bg-primary rounded-pill">
+                                        @(s.RollNumber ?? "—")
+                                    </span>
+                                </td>
+                                <td class="small text-muted">@s.Email</td>
+                                <td class="small text-muted">@(s.PhoneNumber ?? "—")</td>
+                                <td class="small text-muted">@(s.ParentName ?? "—")</td>
+                                <td class="text-end pe-3">
+                                    <a asp-action="StudentPerformance" asp-route-studentId="@s.Id"
+                                       class="btn btn-sm btn-outline-info">
+                                        📈 Performance
+                                    </a>
+                                </td>
+                            </tr>
+                            i++;
+                        }
+                    }
+                    else
                     {
                         <tr>
-                            <td>@s.Id</td>
-                            <td class="fw-semibold">@s.FullName</td>
-                            <td>@(s.RollNumber ?? "-")</td>
-                            <td>@s.Email</td>
-                            <td>@(s.PhoneNumber ?? "-")</td>
-                            <td>@(s.ParentName ?? "-")</td>
-                            <td>
-                                <a asp-action="StudentPerformance" asp-route-studentId="@s.Id"
-                                   class="btn btn-sm btn-outline-info">📈 Performance</a>
+                            <td colspan="7">
+                                <div class="empty-state">
+                                    <div class="empty-icon">👨‍🎓</div>
+                                    <div class="fw-semibold">
+                                        @(selectedClassId == 0
+                                            ? "Select a class to view students"
+                                            : "No students in this class")
+                                    </div>
+                                </div>
                             </td>
                         </tr>
                     }
-                }
-                else
-                {
-                    <tr>
-                        <td colspan="7" class="text-center text-muted py-4">
-                            @(selectedClassId == 0 ? "Select a class to view students." : "No students in this class.")
-                        </td>
-                    </tr>
-                }
-            </tbody>
-        </table>
-    </div>
-</div>
-
-<!-- Add Student Modal -->
-<div class="modal fade" id="addStudentModal" tabindex="-1">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Add New Student</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <form asp-action="AddStudent" method="post">
-                <input type="hidden" name="classId" value="@selectedClassId" />
-                <div class="modal-body row g-3">
-                    <div class="col-md-6">
-                        <label class="form-label">Full Name *</label>
-                        <input name="fullName" class="form-control" required />
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label">Email *</label>
-                        <input name="email" type="email" class="form-control" required />
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label">Password *</label>
-                        <input name="password" type="password" class="form-control" required />
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label">Phone</label>
-                        <input name="phone" class="form-control" />
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label">Roll Number</label>
-                        <input name="rollNumber" class="form-control" />
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label">Parent Name</label>
-                        <input name="parentName" class="form-control" />
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label">Parent Phone</label>
-                        <input name="parentPhone" class="form-control" />
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label">Address</label>
-                        <input name="address" class="form-control" />
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-success">Add Student</button>
-                </div>
-            </form>
+                </tbody>
+            </table>
         </div>
     </div>
 </div>
+
+<!-- ADD STUDENT MODAL -->
+@if (selectedClassId > 0)
+{
+    <div class="modal fade" id="addStudentModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content" style="border-radius:18px;overflow:hidden;border:none">
+                <div class="modal-header text-white"
+                     style="background:linear-gradient(135deg,#10b981,#059669)">
+                    <h5 class="modal-title fw-bold">➕ Add New Student</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <form asp-action="AddStudent" method="post">
+                    <input type="hidden" name="classId" value="@selectedClassId" />
+                    <div class="modal-body row g-3 p-4">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Full Name *</label>
+                            <input name="fullName" class="form-control" required />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Email *</label>
+                            <input name="email" type="email" class="form-control" required />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Password *</label>
+                            <input name="password" type="password" class="form-control" required />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Phone</label>
+                            <input name="phone" class="form-control" />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Roll Number</label>
+                            <input name="rollNumber" class="form-control" />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Parent Name</label>
+                            <input name="parentName" class="form-control" />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Parent Phone</label>
+                            <input name="parentPhone" class="form-control" />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Address</label>
+                            <input name="address" class="form-control" />
+                        </div>
+                    </div>
+                    <div class="modal-footer px-4 pb-4" style="border-top:1px solid #eef2f7">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-success px-4">✅ Add Student</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+}

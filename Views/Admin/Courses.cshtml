@@ -5,89 +5,129 @@
     var categories = ViewBag.Categories as List<CategoryViewModel> ?? new();
 }
 
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h4 class="fw-bold mb-0">📚 Courses</h4>
-    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addCourseModal">➕ Add Course</button>
+<!-- Header -->
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+    <div>
+        <h4 class="fw-bold mb-1">📚 Courses</h4>
+        <p class="text-muted small mb-0">Manage all available courses</p>
+    </div>
+    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addCourseModal">
+        ➕ Add Course
+    </button>
 </div>
 
-@if (TempData["Success"] != null)
+<!-- Courses Grid -->
+@if (Model.Any())
 {
-    <div class="alert alert-success alert-dismissible fade show">@TempData["Success"]<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
+    <div class="row g-3">
+        @foreach (var c in Model)
+        {
+            <div class="col-md-6 col-lg-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <div class="d-flex align-items-center gap-2">
+                                <div class="rounded-circle d-flex align-items-center justify-content-center text-white fw-bold"
+                                     style="width:42px;height:42px;min-width:42px;
+                                            background:linear-gradient(135deg,#2563eb,#1e40af);
+                                            font-size:1.2rem">
+                                    📚
+                                </div>
+                                <h6 class="fw-bold mb-0">@c.Name</h6>
+                            </div>
+                            @if (c.IsActive)
+                            {
+                                <span class="badge bg-success">Active</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-secondary">Inactive</span>
+                            }
+                        </div>
+
+                        <p class="text-muted small mb-3" style="line-height:1.5">
+                            @(c.Description ?? "No description provided.")
+                        </p>
+
+                        <div class="d-flex flex-wrap gap-1 mb-2">
+                            <span class="badge rounded-pill" style="background:#f0f4ff;color:#2563eb;font-size:.75rem">
+                                📁 @c.CategoryName
+                            </span>
+                            <span class="badge rounded-pill" style="background:#f0fdf4;color:#059669;font-size:.75rem">
+                                ⏱ @c.DurationMonths months
+                            </span>
+                            @if (c.Fee.HasValue)
+                            {
+                                <span class="badge rounded-pill" style="background:#fffbeb;color:#b45309;font-size:.75rem">
+                                    💰 ₹@c.Fee
+                                </span>
+                            }
+                        </div>
+
+                        <div class="text-muted small">
+                            🏫 @c.ClassCount class@(c.ClassCount != 1 ? "es" : "")
+                        </div>
+                    </div>
+
+                    <div class="card-footer d-flex gap-2" style="background:#f8fafc">
+                        <button class="btn btn-sm btn-outline-warning flex-fill"
+                                onclick="openEditCourse(
+                                    @c.Id,
+                                    '@Html.Raw(c.Name.Replace("'","\\\'"))',
+                                    '@Html.Raw((c.Description??"").Replace("'","\\\'"))',
+                                    @c.CategoryId,
+                                    @(c.Fee.HasValue ? c.Fee.Value.ToString() : "null"),
+                                    @c.DurationMonths)">
+                            ✏️ Edit
+                        </button>
+                        <form asp-action="DeleteCourse" method="post"
+                              onsubmit="return confirm('Delete \'@c.Name\'?')"
+                              style="flex:1">
+                            <input type="hidden" name="id" value="@c.Id" />
+                            <button type="submit" class="btn btn-sm btn-outline-danger w-100">🗑 Delete</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
 }
-@if (TempData["Error"] != null)
+else
 {
-    <div class="alert alert-danger alert-dismissible fade show">@TempData["Error"]<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
-}
-
-<div class="row g-3">
-    @foreach (var c in Model)
-    {
-        <div class="col-md-4">
-            <div class="card shadow-sm h-100">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-start">
-                        <h6 class="card-title fw-bold mb-1">@c.Name</h6>
-                        @if (c.IsActive)
-                        {
-                            <span class="badge bg-success">Active</span>
-                        }
-                        else
-                        {
-
-                            <span class="badge bg-secondary">Inactive</span>
-                        }
-                    </div>
-                    <p class="text-muted small">@(c.Description ?? "No description")</p>
-                    <div class="small">
-                        <span class="badge bg-light text-dark me-1">📁 @c.CategoryName</span>
-                        <span class="badge bg-light text-dark me-1">⏱ @c.DurationMonths months</span>
-                        @if (c.Fee.HasValue)
-                        {
-                            <span class="badge bg-light text-dark">💰 ₹@c.Fee</span>
-                        }
-                    </div>
-                    <div class="mt-2 text-muted small">@c.ClassCount class@(c.ClassCount != 1 ? "es" : "")</div>
-                </div>
-                <div class="card-footer bg-transparent d-flex gap-2">
-                    <button class="btn btn-sm btn-outline-warning flex-fill"
-                            onclick="openEditCourse(@c.Id, '@Html.Raw(c.Name.Replace("'", "\\\'"))', '@Html.Raw((c.Description ?? "").Replace("'", "\\\'"))', @c.CategoryId, @(c.Fee.HasValue? c.Fee.Value.ToString() : "null"), @c.DurationMonths)">
-                        ✏️ Edit
-                    </button>
-                    <form asp-action="DeleteCourse" method="post"
-                          onsubmit="return confirm('Delete \'@c.Name\'?')">
-                        <input type="hidden" name="id" value="@c.Id" />
-                        <button type="submit" class="btn btn-sm btn-outline-danger">🗑</button>
-                    </form>
-                </div>
+    <div class="card">
+        <div class="card-body">
+            <div class="empty-state">
+                <div class="empty-icon">📚</div>
+                <div class="fw-semibold">No courses yet</div>
+                <div class="small mb-3">Add your first course using the button above</div>
+                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addCourseModal">
+                    ➕ Add First Course
+                </button>
             </div>
         </div>
-    }
-    @if (!Model.Any())
-    {
-        <div class="col-12"><p class="text-muted text-center py-4">No courses found.</p></div>
-    }
-</div>
+    </div>
+}
 
-<!-- ── ADD COURSE MODAL ─────────────────────────────────────────── -->
+<!-- ADD COURSE MODAL -->
 <div class="modal fade" id="addCourseModal" tabindex="-1">
     <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Add New Course</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        <div class="modal-content" style="border-radius:18px;overflow:hidden;border:none">
+            <div class="modal-header text-white" style="background:linear-gradient(135deg,#2563eb,#1e40af)">
+                <h5 class="modal-title fw-bold">➕ Add New Course</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <form asp-action="CreateCourse" method="post">
-                <div class="modal-body row g-3">
+                <div class="modal-body row g-3 p-4">
                     <div class="col-12">
-                        <label class="form-label">Course Name *</label>
+                        <label class="form-label fw-semibold">Course Name *</label>
                         <input name="name" class="form-control" required />
                     </div>
                     <div class="col-12">
-                        <label class="form-label">Description</label>
+                        <label class="form-label fw-semibold">Description</label>
                         <textarea name="description" class="form-control" rows="2"></textarea>
                     </div>
                     <div class="col-md-6">
-                        <label class="form-label">Category *</label>
+                        <label class="form-label fw-semibold">Category *</label>
                         <select name="categoryId" class="form-select" required>
                             <option value="">Select category</option>
                             @foreach (var cat in categories)
@@ -97,44 +137,44 @@
                         </select>
                     </div>
                     <div class="col-md-6">
-                        <label class="form-label">Duration (Months) *</label>
+                        <label class="form-label fw-semibold">Duration (Months) *</label>
                         <input name="durationMonths" type="number" class="form-control" value="6" min="1" required />
                     </div>
                     <div class="col-md-6">
-                        <label class="form-label">Fee (₹)</label>
+                        <label class="form-label fw-semibold">Fee (₹)</label>
                         <input name="fee" type="number" step="0.01" class="form-control" />
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Add Course</button>
+                <div class="modal-footer px-4 pb-4" style="border-top:1px solid #eef2f7">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary px-4">✅ Add Course</button>
                 </div>
             </form>
         </div>
     </div>
 </div>
 
-<!-- ── EDIT COURSE MODAL ────────────────────────────────────────── -->
+<!-- EDIT COURSE MODAL -->
 <div class="modal fade" id="editCourseModal" tabindex="-1">
     <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">✏️ Edit Course</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        <div class="modal-content" style="border-radius:18px;overflow:hidden;border:none">
+            <div class="modal-header" style="background:linear-gradient(135deg,#f59e0b,#ea580c);color:white">
+                <h5 class="modal-title fw-bold">✏️ Edit Course</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <form asp-action="UpdateCourse" method="post">
                 <input type="hidden" name="id" id="editCourseId" />
-                <div class="modal-body row g-3">
+                <div class="modal-body row g-3 p-4">
                     <div class="col-12">
-                        <label class="form-label">Course Name *</label>
+                        <label class="form-label fw-semibold">Course Name *</label>
                         <input name="name" id="editCourseName" class="form-control" required />
                     </div>
                     <div class="col-12">
-                        <label class="form-label">Description</label>
+                        <label class="form-label fw-semibold">Description</label>
                         <textarea name="description" id="editCourseDesc" class="form-control" rows="2"></textarea>
                     </div>
                     <div class="col-md-6">
-                        <label class="form-label">Category *</label>
+                        <label class="form-label fw-semibold">Category *</label>
                         <select name="categoryId" id="editCourseCat" class="form-select" required>
                             @foreach (var cat in categories)
                             {
@@ -143,17 +183,17 @@
                         </select>
                     </div>
                     <div class="col-md-6">
-                        <label class="form-label">Duration (Months) *</label>
+                        <label class="form-label fw-semibold">Duration (Months) *</label>
                         <input name="durationMonths" id="editCourseDuration" type="number" class="form-control" min="1" required />
                     </div>
                     <div class="col-md-6">
-                        <label class="form-label">Fee (₹)</label>
+                        <label class="form-label fw-semibold">Fee (₹)</label>
                         <input name="fee" id="editCourseFee" type="number" step="0.01" class="form-control" />
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-warning">Save Changes</button>
+                <div class="modal-footer px-4 pb-4" style="border-top:1px solid #eef2f7">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-warning px-4">💾 Save Changes</button>
                 </div>
             </form>
         </div>

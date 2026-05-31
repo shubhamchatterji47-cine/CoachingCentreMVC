@@ -2,115 +2,213 @@
 @{
     ViewData["Title"] = "My Performance";
 
-    // Pre-compute — no == inside class/style attributes
     var trendColor = "warning";
-    var trendIcon = "➡️";
+    var trendIcon  = "➡️";
     if (Model != null)
     {
-        trendColor = Model.PerformanceTrend == "Improving" ? "info"
+        trendColor = Model.PerformanceTrend == "Improving" ? "success"
                    : Model.PerformanceTrend == "Declining" ? "danger"
                    : "warning";
-        trendIcon = Model.PerformanceTrend == "Improving" ? "📈"
+        trendIcon  = Model.PerformanceTrend == "Improving" ? "📈"
                    : Model.PerformanceTrend == "Declining" ? "📉"
                    : "➡️";
     }
 }
 
-<h4 class="fw-bold mb-4">📈 My Performance Report</h4>
+<!-- Header -->
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+    <div>
+        <h4 class="fw-bold mb-1">📈 My Performance Report</h4>
+        <p class="text-muted small mb-0">Detailed breakdown of your academic performance</p>
+    </div>
+    <a asp-action="Marks" class="btn btn-outline-primary">
+        📝 View Marks
+    </a>
+</div>
 
 @if (Model == null)
 {
-    <div class="alert alert-info">No performance data available yet.</div>
-    return;
+    <div class="card">
+        <div class="card-body">
+            <div class="empty-state">
+                <div class="empty-icon">📈</div>
+                <div class="fw-semibold">No performance data yet</div>
+                <div class="small">Data will appear once your teacher records marks</div>
+            </div>
+        </div>
+    </div>
 }
-
-<div class="row g-3 mb-4">
-    <div class="col-sm-4">
-        <div class="card border-0 bg-primary text-white text-center shadow-sm">
-            <div class="card-body py-3">
-                <div class="fs-1 fw-bold">@Model.OverallPercentage.ToString("F1")%</div>
-                <div>Overall Percentage</div>
-            </div>
-        </div>
-    </div>
-    <div class="col-sm-4">
-        <div class="card border-0 bg-success text-white text-center shadow-sm">
-            <div class="card-body py-3">
-                <div class="fs-1 fw-bold">@Model.OverallGrade</div>
-                <div>Overall Grade</div>
-            </div>
-        </div>
-    </div>
-    <div class="col-sm-4">
-        <div class="card border-0 bg-@trendColor text-white text-center shadow-sm">
-            <div class="card-body py-3">
-                <div class="fs-1 fw-bold">@trendIcon</div>
-                <div>@Model.PerformanceTrend</div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="row g-3">
-    <div class="col-md-8">
-        @foreach (var sp in Model.SubjectPerformances)
-        {
-            var bc = sp.Grade.StartsWith("A") ? "success"
-            : sp.Grade.StartsWith("B") ? "primary"
-            : sp.Grade == "C" ? "warning"
-            : "danger";
-            <div class="card shadow-sm mb-3">
-                <div class="card-header d-flex justify-content-between">
-                    <span class="fw-semibold">@sp.SubjectName</span>
-                    <span class="badge bg-@bc fs-6">@sp.Grade</span>
+else
+{
+    <!-- Summary Stats -->
+    <div class="row g-3 mb-4">
+        <div class="col-sm-4">
+            <div class="card h-100"
+                 style="border-left:4px solid #2563eb !important;border-radius:16px;overflow:hidden">
+                <div class="card-body text-center py-4">
+                    <div class="fs-1 fw-bold text-primary">
+                        @Model.OverallPercentage.ToString("F1")%
+                    </div>
+                    <div class="small text-muted fw-semibold">Overall Percentage</div>
                 </div>
-                <div class="card-body">
-                    <div class="progress mb-2" style="height:10px">
-                        <div class="progress-bar bg-primary" style="width:@((int)sp.AveragePercentage)%"></div>
+            </div>
+        </div>
+        <div class="col-sm-4">
+            <div class="card h-100"
+                 style="border-left:4px solid #10b981 !important;border-radius:16px;overflow:hidden">
+                <div class="card-body text-center py-4">
+                    <div class="fs-1 fw-bold text-success">@Model.OverallGrade</div>
+                    <div class="small text-muted fw-semibold">Overall Grade</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-4">
+            <div class="card h-100"
+                 style="border-left:4px solid var(--nm-@trendColor,#f59e0b) !important;
+                        border-radius:16px;overflow:hidden">
+                <div class="card-body text-center py-4">
+                    <div class="fs-1 fw-bold">@trendIcon</div>
+                    <div class="small text-muted fw-semibold">@Model.PerformanceTrend</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-3">
+        <!-- Subject Cards -->
+        <div class="col-md-8">
+            @if (Model.SubjectPerformances.Any())
+            {
+                @foreach (var sp in Model.SubjectPerformances)
+                {
+                    var bc = sp.Grade.StartsWith("A") ? "success"
+                           : sp.Grade.StartsWith("B") ? "primary"
+                           : sp.Grade == "C"          ? "warning"
+                           : "danger";
+
+                    <div class="card mb-3">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <span class="fw-bold">@sp.SubjectName</span>
+                            <span class="badge bg-@bc rounded-pill fs-6">@sp.Grade</span>
+                        </div>
+                        <div class="card-body">
+                            <div class="progress mb-2" style="height:10px">
+                                <div class="progress-bar bg-@bc rounded-pill"
+                                     style="width:@((int)sp.AveragePercentage)%"></div>
+                            </div>
+                            <div class="d-flex justify-content-between small text-muted mb-3">
+                                <span>Average: <strong>@sp.AveragePercentage.ToString("F1")%</strong></span>
+                                <span>Max Marks: <strong>@sp.MaxMarks</strong></span>
+                            </div>
+
+                            @if (sp.Marks.Any())
+                            {
+                                <div class="table-responsive">
+                                    <table class="table table-sm mb-0"
+                                           style="border-radius:10px;overflow:hidden">
+                                        <thead>
+                                            <tr>
+                                                <th>Exam Type</th>
+                                                <th>Date</th>
+                                                <th>Marks</th>
+                                                <th>%</th>
+                                                <th>Grade</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach (var m in sp.Marks)
+                                            {
+                                                var mbc = m.Grade switch {
+                                                    "A+" or "A" => "success",
+                                                    "B+" or "B" => "primary",
+                                                    "C"         => "warning",
+                                                    _           => "danger"
+                                                };
+                                                <tr>
+                                                    <td class="small fw-semibold">@m.ExamType</td>
+                                                    <td class="small text-muted">
+                                                        @m.ExamDate.ToString("dd MMM yyyy")
+                                                    </td>
+                                                    <td class="small">
+                                                        @m.ObtainedMarks / @m.MaxMarks
+                                                    </td>
+                                                    <td class="small">@m.Percentage.ToString("F1")%</td>
+                                                    <td>
+                                                        <span class="badge rounded-pill bg-@mbc"
+                                                              style="font-size:.7rem">
+                                                            @m.Grade
+                                                        </span>
+                                                    </td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            }
+                        </div>
                     </div>
-                    <div class="d-flex justify-content-between small text-muted mb-2">
-                        <span>Average: @sp.AveragePercentage.ToString("F1")%</span>
-                        <span>Max Marks: @sp.MaxMarks</span>
+                }
+            }
+            else
+            {
+                <div class="card">
+                    <div class="card-body">
+                        <div class="empty-state">
+                            <div class="empty-icon">📚</div>
+                            <div class="fw-semibold">No subject data available</div>
+                        </div>
                     </div>
-                    @if (sp.Marks.Any())
+                </div>
+            }
+        </div>
+
+        <!-- Tips Card -->
+        <div class="col-md-4">
+            @if (Model.ImprovementTips.Any())
+            {
+                <div class="card" style="border-left:4px solid #f59e0b !important">
+                    <div class="card-header">💡 Tips to Improve</div>
+                    <div class="card-body p-0">
+                        <ul class="list-group list-group-flush">
+                            @foreach (var tip in Model.ImprovementTips)
+                            {
+                                <li class="list-group-item small px-3 py-2">
+                                    ✅ @tip
+                                </li>
+                            }
+                        </ul>
+                    </div>
+                </div>
+            }
+
+            <!-- Summary Table -->
+            <div class="card mt-3">
+                <div class="card-header">📊 Subject Summary</div>
+                <div class="card-body p-0">
+                    @foreach (var sp in Model.SubjectPerformances)
                     {
-                        <table class="table table-sm table-bordered mb-0">
-                            <thead class="table-light">
-                                <tr><th>Exam</th><th>Marks</th><th>%</th><th>Grade</th></tr>
-                            </thead>
-                            <tbody>
-                                @foreach (var m in sp.Marks)
-                                {
-                                    <tr>
-                                        <td>@m.ExamType — @m.ExamDate.ToString("dd MMM")</td>
-                                        <td>@m.ObtainedMarks / @m.MaxMarks</td>
-                                        <td>@m.Percentage.ToString("F1")%</td>
-                                        <td><span class="badge bg-secondary">@m.Grade</span></td>
-                                    </tr>
-                                }
-                            </tbody>
-                        </table>
+                        var bc = sp.Grade.StartsWith("A") ? "success"
+                               : sp.Grade.StartsWith("B") ? "primary"
+                               : sp.Grade == "C"          ? "warning"
+                               : "danger";
+                        <div class="px-3 py-2 border-bottom d-flex justify-content-between align-items-center">
+                            <span class="small fw-semibold">@sp.SubjectName</span>
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="small text-muted">
+                                    @sp.AveragePercentage.ToString("F0")%
+                                </span>
+                                <span class="badge rounded-pill bg-@bc" style="font-size:.7rem">
+                                    @sp.Grade
+                                </span>
+                            </div>
+                        </div>
+                    }
+                    @if (!Model.SubjectPerformances.Any())
+                    {
+                        <div class="p-3 text-muted small text-center">No data yet</div>
                     }
                 </div>
             </div>
-        }
-        @if (!Model.SubjectPerformances.Any())
-        {
-            <p class="text-muted text-center py-4">No subject data available.</p>
-        }
+        </div>
     </div>
-    <div class="col-md-4">
-        @if (Model.ImprovementTips.Any())
-        {
-            <div class="card shadow-sm">
-                <div class="card-header fw-semibold">💡 Tips to Improve</div>
-                <ul class="list-group list-group-flush">
-                    @foreach (var tip in Model.ImprovementTips)
-                    {
-                        <li class="list-group-item small">✅ @tip</li>
-                    }
-                </ul>
-            </div>
-        }
-    </div>
-</div>
+}

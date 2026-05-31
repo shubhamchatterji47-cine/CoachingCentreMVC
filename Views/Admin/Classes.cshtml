@@ -5,88 +5,150 @@
     var courses = ViewBag.Courses as List<CourseViewModel> ?? new();
 }
 
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h4 class="fw-bold mb-0">🏫 Classes</h4>
-    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addClassModal">➕ Add Class</button>
+<!-- Header -->
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+    <div>
+        <h4 class="fw-bold mb-1">🏫 Classes</h4>
+        <p class="text-muted small mb-0">Manage all coaching classes</p>
+    </div>
+    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addClassModal">
+        ➕ Add Class
+    </button>
 </div>
 
-@if (TempData["Success"] != null)
+@if (Model.Any())
 {
-    <div class="alert alert-success alert-dismissible fade show">@TempData["Success"]<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
-}
-@if (TempData["Error"] != null)
-{
-    <div class="alert alert-danger alert-dismissible fade show">@TempData["Error"]<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
-}
+    <div class="row g-3">
+        @foreach (var c in Model)
+        {
+            var fillColor = c.EnrolledCount >= c.MaxCapacity ? "#ef4444"
+                          : c.EnrolledCount >= c.MaxCapacity * 0.8 ? "#f59e0b"
+                          : "#10b981";
 
-<div class="row g-3">
-    @foreach (var c in Model)
-    {
-        <div class="col-md-4">
-            <div class="card shadow-sm h-100">
-                <div class="card-body">
-                    <h6 class="fw-bold">@c.Name</h6>
-                    <span class="badge bg-info text-dark mb-2">@c.CourseName</span>
-                    <p class="small text-muted">@(c.Description ?? "")</p>
-                    <div class="d-flex gap-2 flex-wrap small">
-                        @if (!string.IsNullOrEmpty(c.Schedule))
+            <div class="col-md-6 col-lg-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <div>
+                                <h6 class="fw-bold mb-1">@c.Name</h6>
+                                <span class="badge rounded-pill"
+                                      style="background:#e0f2fe;color:#0369a1;font-size:.78rem">
+                                    📚 @c.CourseName
+                                </span>
+                            </div>
+                            <span class="badge rounded-pill"
+                                  style="background:@fillColor;color:white;font-size:.75rem">
+                                👥 @c.EnrolledCount/@c.MaxCapacity
+                            </span>
+                        </div>
+
+                        @if (!string.IsNullOrEmpty(c.Description))
                         {
-                            <span class="badge bg-light text-dark">📅 @c.Schedule</span>
+                            <p class="text-muted small mb-2" style="line-height:1.5">
+                                @c.Description
+                            </p>
                         }
-                        @if (!string.IsNullOrEmpty(c.Timing))
-                        {
-                            <span class="badge bg-light text-dark">🕐 @c.Timing</span>
+
+                        <div class="d-flex flex-wrap gap-1 mb-3">
+                            @if (!string.IsNullOrEmpty(c.Schedule))
+                            {
+                                <span class="badge rounded-pill"
+                                      style="background:#f0f4ff;color:#2563eb;font-size:.75rem">
+                                    📅 @c.Schedule
+                                </span>
+                            }
+                            @if (!string.IsNullOrEmpty(c.Timing))
+                            {
+                                <span class="badge rounded-pill"
+                                      style="background:#f0fdf4;color:#059669;font-size:.75rem">
+                                    🕐 @c.Timing
+                                </span>
+                            }
+                            <span class="badge rounded-pill"
+                                  style="background:#fffbeb;color:#b45309;font-size:.75rem">
+                                🗓 @c.StartDate.ToString("dd MMM yyyy")
+                            </span>
+                        </div>
+
+                        <!-- Capacity progress bar -->
+                        @{
+                            var pct = c.MaxCapacity > 0
+                                      ? (int)((double)c.EnrolledCount / c.MaxCapacity * 100)
+                                      : 0;
                         }
-                        <span class="badge bg-light text-dark">👥 @c.EnrolledCount / @c.MaxCapacity</span>
+                        <div class="progress mb-1" style="height:5px;border-radius:10px;background:#e2e8f0">
+                            <div class="progress-bar rounded-pill"
+                                 style="width:@pct%;background:@fillColor">
+                            </div>
+                        </div>
+                        <div class="text-end" style="font-size:.7rem;color:#94a3b8">
+                            @pct% filled
+                        </div>
                     </div>
-                    <div class="mt-2 small text-muted">Started: @c.StartDate.ToString("dd MMM yyyy")</div>
-                </div>
-                <div class="card-footer bg-transparent d-flex gap-2">
-                    <a asp-controller="Admin" asp-action="Students" asp-route-classId="@c.Id"
-                       class="btn btn-sm btn-outline-primary flex-fill">👥 Students</a>
-                    <button class="btn btn-sm btn-outline-warning"
-                            onclick="openEditClass(@c.Id,
-                                    '@Html.Raw(c.Name.Replace("'", "\\\'"))',
-                                    '@Html.Raw((c.Description ?? "").Replace("'", "\\\'"))',
+
+                    <div class="card-footer d-flex gap-2" style="background:#f8fafc">
+                        <a asp-controller="Admin" asp-action="Students" asp-route-classId="@c.Id"
+                           class="btn btn-sm btn-outline-primary flex-fill">
+                            👥 Students
+                        </a>
+                        <button class="btn btn-sm btn-outline-warning"
+                                onclick="openEditClass(
+                                    @c.Id,
+                                    '@Html.Raw(c.Name.Replace("'","\\\'"))',
+                                    '@Html.Raw((c.Description??"").Replace("'","\\\'"))',
                                     @c.CourseId,
-                                    '@Html.Raw((c.Schedule ?? "").Replace("'", "\\\'"))',
-                                    '@Html.Raw((c.Timing ?? "").Replace("'", "\\\'"))',
+                                    '@Html.Raw((c.Schedule??"").Replace("'","\\\'"))',
+                                    '@Html.Raw((c.Timing??"").Replace("'","\\\'"))',
                                     @c.MaxCapacity,
                                     '@c.StartDate.ToString("yyyy-MM-dd")',
-                                    '@(c.EndDate.HasValue? c.EndDate.Value.ToString("yyyy-MM-dd") : "")')">
-                        ✏️
-                    </button>
-                    <form asp-action="DeleteClass" method="post"
-                          onsubmit="return confirm('Delete \'@c.Name\'? Only possible if no students enrolled.')">
-                        <input type="hidden" name="id" value="@c.Id" />
-                        <button type="submit" class="btn btn-sm btn-outline-danger">🗑</button>
-                    </form>
+                                    '@(c.EndDate.HasValue ? c.EndDate.Value.ToString("yyyy-MM-dd") : "")')">
+                            ✏️ Edit
+                        </button>
+                        <form asp-action="DeleteClass" method="post"
+                              onsubmit="return confirm('Delete \'@c.Name\'? Only if no students enrolled.')">
+                            <input type="hidden" name="id" value="@c.Id" />
+                            <button type="submit" class="btn btn-sm btn-outline-danger">🗑</button>
+                        </form>
+                    </div>
                 </div>
             </div>
+        }
+    </div>
+}
+else
+{
+    <div class="card">
+        <div class="card-body">
+            <div class="empty-state">
+                <div class="empty-icon">🏫</div>
+                <div class="fw-semibold">No classes yet</div>
+                <div class="small mb-3">Create your first class using the button above</div>
+                <button class="btn btn-primary"
+                        data-bs-toggle="modal" data-bs-target="#addClassModal">
+                    ➕ Add First Class
+                </button>
+            </div>
         </div>
-    }
-    @if (!Model.Any())
-    {
-        <div class="col-12"><p class="text-muted text-center py-4">No classes found.</p></div>
-    }
-</div>
+    </div>
+}
 
-<!-- ── ADD CLASS MODAL ──────────────────────────────────────────── -->
+<!-- ADD CLASS MODAL -->
 <div class="modal fade" id="addClassModal" tabindex="-1">
     <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Create New Class</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        <div class="modal-content" style="border-radius:18px;overflow:hidden;border:none">
+            <div class="modal-header text-white"
+                 style="background:linear-gradient(135deg,#2563eb,#1e40af)">
+                <h5 class="modal-title fw-bold">🏫 Create New Class</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <form asp-action="CreateClass" method="post">
-                <div class="modal-body row g-3">
+                <div class="modal-body row g-3 p-4">
                     <div class="col-md-6">
-                        <label class="form-label">Class Name *</label>
+                        <label class="form-label fw-semibold">Class Name *</label>
                         <input name="name" class="form-control" required />
                     </div>
                     <div class="col-md-6">
-                        <label class="form-label">Course *</label>
+                        <label class="form-label fw-semibold">Course *</label>
                         <select name="courseId" class="form-select" required>
                             <option value="">Select course</option>
                             @foreach (var c in courses)
@@ -96,56 +158,58 @@
                         </select>
                     </div>
                     <div class="col-12">
-                        <label class="form-label">Description</label>
+                        <label class="form-label fw-semibold">Description</label>
                         <textarea name="description" class="form-control" rows="2"></textarea>
                     </div>
                     <div class="col-md-6">
-                        <label class="form-label">Schedule</label>
+                        <label class="form-label fw-semibold">Schedule</label>
                         <input name="schedule" class="form-control" placeholder="e.g. Mon/Wed/Fri" />
                     </div>
                     <div class="col-md-6">
-                        <label class="form-label">Timing</label>
+                        <label class="form-label fw-semibold">Timing</label>
                         <input name="timing" class="form-control" placeholder="e.g. 9:00 AM - 11:00 AM" />
                     </div>
                     <div class="col-md-4">
-                        <label class="form-label">Max Capacity *</label>
+                        <label class="form-label fw-semibold">Max Capacity *</label>
                         <input name="maxCapacity" type="number" class="form-control" value="30" min="1" required />
                     </div>
                     <div class="col-md-4">
-                        <label class="form-label">Start Date *</label>
-                        <input name="startDate" type="date" class="form-control" value="@DateTime.Today.ToString("yyyy-MM-dd")" required />
+                        <label class="form-label fw-semibold">Start Date *</label>
+                        <input name="startDate" type="date" class="form-control"
+                               value="@DateTime.Today.ToString("yyyy-MM-dd")" required />
                     </div>
                     <div class="col-md-4">
-                        <label class="form-label">End Date</label>
+                        <label class="form-label fw-semibold">End Date</label>
                         <input name="endDate" type="date" class="form-control" />
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Create Class</button>
+                <div class="modal-footer px-4 pb-4" style="border-top:1px solid #eef2f7">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary px-4">✅ Create Class</button>
                 </div>
             </form>
         </div>
     </div>
 </div>
 
-<!-- ── EDIT CLASS MODAL ─────────────────────────────────────────── -->
+<!-- EDIT CLASS MODAL -->
 <div class="modal fade" id="editClassModal" tabindex="-1">
     <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">✏️ Edit Class</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        <div class="modal-content" style="border-radius:18px;overflow:hidden;border:none">
+            <div class="modal-header text-white"
+                 style="background:linear-gradient(135deg,#f59e0b,#ea580c)">
+                <h5 class="modal-title fw-bold">✏️ Edit Class</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <form asp-action="UpdateClass" method="post">
                 <input type="hidden" name="id" id="editClassId" />
-                <div class="modal-body row g-3">
+                <div class="modal-body row g-3 p-4">
                     <div class="col-md-6">
-                        <label class="form-label">Class Name *</label>
+                        <label class="form-label fw-semibold">Class Name *</label>
                         <input name="name" id="editClassName" class="form-control" required />
                     </div>
                     <div class="col-md-6">
-                        <label class="form-label">Course *</label>
+                        <label class="form-label fw-semibold">Course *</label>
                         <select name="courseId" id="editClassCourse" class="form-select" required>
                             @foreach (var c in courses)
                             {
@@ -154,33 +218,33 @@
                         </select>
                     </div>
                     <div class="col-12">
-                        <label class="form-label">Description</label>
+                        <label class="form-label fw-semibold">Description</label>
                         <textarea name="description" id="editClassDesc" class="form-control" rows="2"></textarea>
                     </div>
                     <div class="col-md-6">
-                        <label class="form-label">Schedule</label>
+                        <label class="form-label fw-semibold">Schedule</label>
                         <input name="schedule" id="editClassSchedule" class="form-control" />
                     </div>
                     <div class="col-md-6">
-                        <label class="form-label">Timing</label>
+                        <label class="form-label fw-semibold">Timing</label>
                         <input name="timing" id="editClassTiming" class="form-control" />
                     </div>
                     <div class="col-md-4">
-                        <label class="form-label">Max Capacity *</label>
+                        <label class="form-label fw-semibold">Max Capacity *</label>
                         <input name="maxCapacity" id="editClassCap" type="number" class="form-control" min="1" required />
                     </div>
                     <div class="col-md-4">
-                        <label class="form-label">Start Date *</label>
+                        <label class="form-label fw-semibold">Start Date *</label>
                         <input name="startDate" id="editClassStart" type="date" class="form-control" required />
                     </div>
                     <div class="col-md-4">
-                        <label class="form-label">End Date</label>
+                        <label class="form-label fw-semibold">End Date</label>
                         <input name="endDate" id="editClassEnd" type="date" class="form-control" />
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-warning">Save Changes</button>
+                <div class="modal-footer px-4 pb-4" style="border-top:1px solid #eef2f7">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-warning px-4">💾 Save Changes</button>
                 </div>
             </form>
         </div>

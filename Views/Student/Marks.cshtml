@@ -1,90 +1,130 @@
 ﻿@model List<CoachingMVC.ViewModels.Student.MarkViewModel>
 @{
     ViewData["Title"] = "My Marks";
-    var examType = ViewBag.ExamType?.ToString() ?? "All";
+    var examType  = ViewBag.ExamType?.ToString() ?? "All";
     var examTypes = new[] { "Test", "Midterm", "Final", "Assignment", "Quiz" };
-    var grouped = Model.GroupBy(m => m.ExamType).OrderBy(g => g.Key).ToList();
+    var grouped   = Model.GroupBy(m => m.ExamType).OrderBy(g => g.Key).ToList();
 }
 
-<h4 class="fw-bold mb-3">📝 My Marks</h4>
+<!-- Header -->
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+    <div>
+        <h4 class="fw-bold mb-1">📝 My Marks</h4>
+        <p class="text-muted small mb-0">View all your exam results</p>
+    </div>
+    <span class="badge bg-primary rounded-pill fs-6">@Model.Count Total</span>
+</div>
 
-<!-- Exam type filter buttons with counts -->
-<div class="mb-4 d-flex gap-2 flex-wrap align-items-center">
-    <a asp-action="Marks"
-       class="btn btn-sm @(examType == "All" ? "btn-dark" : "btn-outline-secondary")">
-        All
-        <span class="badge @(examType == "All" ? "bg-light text-dark" : "bg-secondary") ms-1">@Model.Count</span>
-    </a>
-    @foreach (var et in examTypes)
-    {
-        var count = Model.Count(m => m.ExamType == et);
-        <a asp-action="Marks" asp-route-examType="@et"
-           class="btn btn-sm @(et == examType ? "btn-primary" : "btn-outline-secondary")">
-            @et
-            @if (count > 0)
+<!-- Exam Type Filter -->
+<div class="card mb-3">
+    <div class="card-body py-2 px-3">
+        <div class="d-flex gap-2 flex-wrap align-items-center">
+            <a asp-action="Marks"
+               class="btn btn-sm @(examType=="All"?"btn-dark":"btn-outline-secondary")">
+                All
+                <span class="badge @(examType=="All"?"bg-light text-dark":"bg-secondary") ms-1">
+                    @Model.Count
+                </span>
+            </a>
+            @foreach (var et in examTypes)
             {
-                <span class="badge @(et == examType ? "bg-light text-dark" : "bg-primary") ms-1">@count</span>
+                var count = Model.Count(m => m.ExamType == et);
+                <a asp-action="Marks" asp-route-examType="@et"
+                   class="btn btn-sm @(et==examType?"btn-primary":"btn-outline-secondary")">
+                    @et
+                    @if (count > 0)
+                    {
+                        <span class="badge @(et==examType?"bg-light text-dark":"bg-primary") ms-1">
+                            @count
+                        </span>
+                    }
+                </a>
             }
-        </a>
-    }
+        </div>
+    </div>
 </div>
 
 @if (!Model.Any())
 {
-    <div class="alert alert-info">No marks found.</div>
+    <div class="card">
+        <div class="card-body">
+            <div class="empty-state">
+                <div class="empty-icon">📝</div>
+                <div class="fw-semibold">No marks recorded yet</div>
+                <div class="small">Marks will appear here once your teacher records them</div>
+            </div>
+        </div>
+    </div>
 }
 else if (examType == "All")
 {
-    <!-- Grouped view — one section per exam type -->
     @foreach (var group in grouped)
     {
-        var avg = group.Average(m => m.Percentage);
+        var avg      = group.Average(m => m.Percentage);
         var avgColor = avg >= 75 ? "success" : avg >= 50 ? "warning" : "danger";
-        var icon = group.Key switch
-        {
-            "Midterm" => "📋",
-            "Final" => "🎯",
-            "Test" => "✏️",
+        var icon     = group.Key switch {
+            "Midterm"    => "📋",
+            "Final"      => "🎯",
+            "Test"       => "✏️",
             "Assignment" => "📄",
-            "Quiz" => "⚡",
-            _ => "📝"
+            "Quiz"       => "⚡",
+            _            => "📝"
         };
 
         <div class="mb-4">
-            <div class="d-flex align-items-center gap-2 mb-2">
+            <div class="d-flex align-items-center gap-2 mb-2 flex-wrap">
                 <h6 class="fw-bold mb-0">@icon @group.Key</h6>
-                <span class="badge bg-secondary">@group.Count() marks</span>
-                <span class="badge bg-@avgColor">Avg: @avg.ToString("F1")%</span>
+                <span class="badge bg-secondary rounded-pill">@group.Count() marks</span>
+                <span class="badge bg-@avgColor rounded-pill">Avg: @avg.ToString("F1")%</span>
             </div>
-            <div class="card shadow-sm">
+
+            <div class="card">
                 <div class="card-body p-0">
-                    <table class="table table-hover mb-0">
-                        <thead class="table-dark">
-                            <tr><th>Subject</th><th>Marks</th><th>Max</th><th>%</th><th>Grade</th><th>Date</th><th>Remarks</th></tr>
-                        </thead>
-                        <tbody>
-                            @foreach (var m in group.OrderBy(m => m.SubjectName))
-                            {
-                                var bc = m.Grade switch { "A+" or "A" => "success", "B+" or "B" => "primary", "C" => "warning", _ => "danger" };
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead>
                                 <tr>
-                                    <td class="fw-semibold">@m.SubjectName</td>
-                                    <td>@m.ObtainedMarks</td>
-                                    <td>@m.MaxMarks</td>
-                                    <td>
-                                        <div class="d-flex align-items-center gap-2">
-                                            <div class="progress flex-grow-1" style="height:6px;min-width:60px">
-                                                <div class="progress-bar bg-@bc" style="width:@((int)m.Percentage)%"></div>
-                                            </div>
-                                            <span class="small">@m.Percentage.ToString("F1")%</span>
-                                        </div>
-                                    </td>
-                                    <td><span class="badge bg-@bc">@m.Grade</span></td>
-                                    <td class="small">@m.ExamDate.ToString("dd MMM yyyy")</td>
-                                    <td class="small text-muted">@(m.Remarks ?? "-")</td>
+                                    <th>Subject</th>
+                                    <th>Marks</th>
+                                    <th>Max</th>
+                                    <th>%</th>
+                                    <th>Grade</th>
+                                    <th>Date</th>
+                                    <th>Remarks</th>
                                 </tr>
-                            }
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody>
+                                @foreach (var m in group.OrderBy(m => m.SubjectName))
+                                {
+                                    var bc = m.Grade switch {
+                                        "A+" or "A" => "success",
+                                        "B+" or "B" => "primary",
+                                        "C"         => "warning",
+                                        _           => "danger"
+                                    };
+                                    <tr>
+                                        <td class="fw-bold">@m.SubjectName</td>
+                                        <td class="fw-semibold">@m.ObtainedMarks</td>
+                                        <td class="text-muted small">@m.MaxMarks</td>
+                                        <td style="min-width:120px">
+                                            <div class="d-flex align-items-center gap-2">
+                                                <div class="progress flex-grow-1" style="height:6px">
+                                                    <div class="progress-bar bg-@bc"
+                                                         style="width:@((int)m.Percentage)%"></div>
+                                                </div>
+                                                <span class="small">@m.Percentage.ToString("F1")%</span>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <span class="badge rounded-pill bg-@bc">@m.Grade</span>
+                                        </td>
+                                        <td class="small text-muted">@m.ExamDate.ToString("dd MMM yyyy")</td>
+                                        <td class="small text-muted">@(m.Remarks ?? "—")</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
@@ -92,43 +132,67 @@ else if (examType == "All")
 }
 else
 {
-    <!-- Single exam type view -->
-    <div class="card shadow-sm">
+    <div class="card">
         <div class="card-body p-0">
-            <table class="table table-hover mb-0">
-                <thead class="table-dark">
-                    <tr><th>Subject</th><th>Marks</th><th>Max</th><th>%</th><th>Grade</th><th>Date</th><th>Remarks</th></tr>
-                </thead>
-                <tbody>
-                    @if (Model.Any())
-                    {
-                        @foreach (var m in Model.OrderBy(m => m.SubjectName))
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead>
+                        <tr>
+                            <th>Subject</th>
+                            <th>Marks</th>
+                            <th>Max</th>
+                            <th>%</th>
+                            <th>Grade</th>
+                            <th>Date</th>
+                            <th>Remarks</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model.Any())
                         {
-                            var bc = m.Grade switch { "A+" or "A" => "success", "B+" or "B" => "primary", "C" => "warning", _ => "danger" };
-                            <tr>
-                                <td class="fw-semibold">@m.SubjectName</td>
-                                <td>@m.ObtainedMarks</td>
-                                <td>@m.MaxMarks</td>
-                                <td>
-                                    <div class="d-flex align-items-center gap-2">
-                                        <div class="progress flex-grow-1" style="height:6px;min-width:60px">
-                                            <div class="progress-bar bg-@bc" style="width:@((int)m.Percentage)%"></div>
+                            foreach (var m in Model.OrderBy(m => m.SubjectName))
+                            {
+                                var bc = m.Grade switch {
+                                    "A+" or "A" => "success",
+                                    "B+" or "B" => "primary",
+                                    "C"         => "warning",
+                                    _           => "danger"
+                                };
+                                <tr>
+                                    <td class="fw-bold">@m.SubjectName</td>
+                                    <td class="fw-semibold">@m.ObtainedMarks</td>
+                                    <td class="text-muted small">@m.MaxMarks</td>
+                                    <td style="min-width:120px">
+                                        <div class="d-flex align-items-center gap-2">
+                                            <div class="progress flex-grow-1" style="height:6px">
+                                                <div class="progress-bar bg-@bc"
+                                                     style="width:@((int)m.Percentage)%"></div>
+                                            </div>
+                                            <span class="small">@m.Percentage.ToString("F1")%</span>
                                         </div>
-                                        <span class="small">@m.Percentage.ToString("F1")%</span>
+                                    </td>
+                                    <td>
+                                        <span class="badge rounded-pill bg-@bc">@m.Grade</span>
+                                    </td>
+                                    <td class="small text-muted">@m.ExamDate.ToString("dd MMM yyyy")</td>
+                                    <td class="small text-muted">@(m.Remarks ?? "—")</td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="7">
+                                    <div class="empty-state">
+                                        <div class="empty-icon">📝</div>
+                                        <div class="fw-semibold">No @examType marks yet</div>
                                     </div>
                                 </td>
-                                <td><span class="badge bg-@bc">@m.Grade</span></td>
-                                <td class="small">@m.ExamDate.ToString("dd MMM yyyy")</td>
-                                <td class="small text-muted">@(m.Remarks ?? "-")</td>
                             </tr>
                         }
-                    }
-                    else
-                    {
-                        <tr><td colspan="7" class="text-center text-muted py-4">No @examType marks recorded yet.</td></tr>
-                    }
-                </tbody>
-            </table>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 }
